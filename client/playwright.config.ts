@@ -40,6 +40,11 @@ export default defineConfig({
   webServer: {
     command: process.env.CI ? "npm run preview" : "npm run dev",
     port: process.env.CI ? 4173 : 5173,
+    url: "http://localhost:3000/api/health",
     reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+    env: {
+      DATABASE_URL: process.env.DATABASE_URL ?? "",
+    },
   },
 });
