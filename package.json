@@ -1,0 +1,25 @@
+{
+   "name": "artfolio",
+   "private": true,
+   "workspaces": [
+      "client",
+      "server",
+      "shared"
+   ],
+   "scripts": {
+      "dev:client": "npm run dev --workspace=client",
+      "dev:server": "npm run dev --workspace=server",
+      "build": "npm run build --workspaces",
+      "test": "npx playwright test",
+      "typecheck": "npm run typecheck --workspaces",
+      "lint": "npm run lint --workspaces"
+   },
+   "engines": {
+      "node": ">=22",
+      "npm": ">=11"
+   },
+   "devDependencies": {
+      "@types/supertest": "^7.2.0",
+      "supertest": "^7.2.2"
+   }
+}
