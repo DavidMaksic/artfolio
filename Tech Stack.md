@@ -25,7 +25,7 @@
 
 ## Auth
 
-- JWT
+- BetterAuth
 - OAuth
 - Resend
 
