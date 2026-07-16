@@ -10,7 +10,7 @@
       "db:migrate": "drizzle-kit migrate",
       "db:studio": "drizzle-kit studio",
       "typecheck": "tsc --noEmit",
-      "test:unit": "vitest run"
+      "test:unit": "vitest run --passWithNoTests"
    },
    "dependencies": {
       "@trpc/server": "^11.18.0",

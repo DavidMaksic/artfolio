@@ -36,13 +36,21 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: process.env.CI ? "npm run preview" : "npm run dev",
-    url: process.env.CI ? "http://localhost:4173" : "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    env: {
-      DATABASE_URL: process.env.DATABASE_URL ?? "",
+  webServer: [
+    {
+      command: "npm run dev --workspace=server",
+      url: "http://localhost:3000",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      env: {
+        DATABASE_URL: process.env.DATABASE_URL ?? "",
+      },
     },
-  },
+    {
+      command: process.env.CI ? "npm run preview" : "npm run dev",
+      url: process.env.CI ? "http://localhost:4173" : "http://localhost:5173",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
 });
