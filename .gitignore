@@ -14,6 +14,12 @@ dist-ssr
 coverage
 *.local
 
+# env files (can opt-in for committing if needed)
+.env*
+
+# Keep the example template
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
