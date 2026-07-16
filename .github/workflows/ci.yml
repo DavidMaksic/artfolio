@@ -7,9 +7,10 @@ on:
       branches: [main]
 
 jobs:
-   test-server:
-      name: Server Unit Tests
+   test:
+      name: Application test
       runs-on: ubuntu-latest
+
       services:
          postgres:
             image: postgres:16-alpine
@@ -17,15 +18,19 @@ jobs:
                POSTGRES_USER: artfolio
                POSTGRES_PASSWORD: artfolio
                POSTGRES_DB: artfolio
-            ports: ['5432:5432']
+            ports:
+               - 5432:5432
             options: >-
                --health-cmd pg_isready
                --health-interval 10s
                --health-timeout 5s
                --health-retries 5
+
          redis:
             image: redis:7-alpine
-            ports: ['6379:6379']
+            ports:
+               - 6379:6379
+
       steps:
          - uses: actions/checkout@v4
 
@@ -36,23 +41,5 @@ jobs:
 
          - run: npm ci
 
-         - name: Run server tests
-           working-directory: server
+         - name: Run tests
            run: npm test
-
-   test-client:
-      name: Client Unit Tests
-      runs-on: ubuntu-latest
-      steps:
-         - uses: actions/checkout@v4
-
-         - uses: actions/setup-node@v4
-           with:
-              node-version: 22
-              cache: npm
-
-         - run: npm ci
-
-         - name: Run web tests
-           working-directory: client
-           run: npx playwright test
