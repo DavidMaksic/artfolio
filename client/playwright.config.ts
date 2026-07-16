@@ -1,4 +1,3 @@
-import process from "node:process";
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -39,8 +38,7 @@ export default defineConfig({
   ],
   webServer: {
     command: process.env.CI ? "npm run preview" : "npm run dev",
-    port: process.env.CI ? 4173 : 5173,
-    url: "http://localhost:3000/api/health",
+    url: process.env.CI ? "http://localhost:4173" : "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
