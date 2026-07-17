@@ -7,8 +7,8 @@
       "shared"
    ],
    "scripts": {
-      "dev:client": "npm run dev --workspace=client",
-      "dev:server": "npm run dev --workspace=server",
+      "predev": "docker compose up -d",
+      "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
       "build": "npm run build --workspaces",
       "typecheck": "npm run typecheck --workspaces",
       "lint": "npm run lint --workspaces",
@@ -24,6 +24,7 @@
    },
    "devDependencies": {
       "@types/supertest": "^7.2.0",
+      "concurrently": "^10.0.3",
       "supertest": "^7.2.2"
    }
 }
