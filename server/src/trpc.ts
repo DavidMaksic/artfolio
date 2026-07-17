@@ -1,6 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { ZodError } from 'zod';
-import { db } from './db';
+import { db } from '@/db/index.js';
 
 export const createContext = () => ({
    db,
