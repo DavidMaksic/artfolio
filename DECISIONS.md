@@ -1,0 +1,165 @@
+# Documented Sprints
+
+Agile methodology is utilized in building the Artfolio app.
+Purpose of this file is to track progress and decisions of each sprint.
+
+---
+
+## Sprint 0 — Project Foundation
+
+**Goal:** Scaffold the project and ensure all essential tools are wired up and communicating correctly. Zero features, just infrastructure.
+
+**Completed:**
+
+- Monorepo set up via npm workspaces (`/client`, `/server`, `/shared`)
+- Docker Compose runs Postgres 16 and Redis 7 locally
+- Node.js + Express server with a `/health` route returning `{ status: "ok" }`
+- Cloudinary upload/delete and Resend email utility functions set up
+- Vue 3 TypeScript client scaffolded, and Pinia auth store initialized
+- Tailwind v4, TanStack Query, Vue Router, Drizzle ORM, tRPC proxy, and Redis configured
+- Vitest unit test confirms `/health` route returns `{ status: "ok" }` via supertest
+- Playwright e2e test confirms the home page renders an "Artfolio" heading in the browser
+- Set up the CI pipeline via GutHub Actions
+
+**Decisions:**
+
+- Used `tsx watch` instead of `ts-node-dev` as it is actively maintained and has no deprecated dependencies
+- Used `npm create vue@latest` over `npm create vite@latest` as it scaffolds Vue Router, Pinia, Vitest, and Playwright automatically with correct project reference tsconfig setup
+- Chose Docker for Postgres instead of installing it locally, in order to use this chance to familiarize myself with containerization
+- Chose Drizzle over Prisma to avoid too much abstraction
+- Used `@artfolio/shared` workspace package for Zod schemas and TypeScript types shared between client and server, avoiding duplication and keeping validation in sync across the stack
+- Adopted `.test.ts` convention for Vitest files and `.spec.ts` convention for Playwright files to avoid test runner confusion
+
+**Issues resolved:**
+
+- `Cannot find name 'process'` — fixed by adding `"types": ["node"]` to `tsconfig.json`
+
+**Known issues carried forward:**
+
+- `esbuild` vulnerability inside `drizzle-kit` — moderate severity, dev dependency only, not a production risk; awaiting fix from the Drizzle team
+
+---
+
+## Sprint 1 — Authentication
+
+**Goal:** Users can sign up, log in via email/password or OAuth, receive a welcome email, reset their password, and log out securely.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 2 — Profile
+
+**Goal:** Users can set up and edit their profile. Any visitor can view an artist's public profile page. Commission availability is toggleable.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 3 — Color Theming + Posts (Part 1)
+
+**Goal:** Profile background derives accent colors from the user's avatar. Users can create posts with multiple images, categories, and tags.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 4 — Posts (Part 2) + Post Detail View
+
+**Goal:** Users can edit and delete their posts. Any visitor can view a full post detail page.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 5 — Feed
+
+**Goal:** Logged-in users see a chronological feed. New users see discovery posts. Feed paginates to a limit with a well-being reminder.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 6 — Engagement
+
+**Goal:** Users can like posts, bookmark them to a private collection, and comment on posts.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 7 — Following + Discovery & Search
+
+**Goal:** Users can follow and unfollow artists. Discovery Explore page and search are functional.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 8 — Notifications
+
+**Goal:** Users receive real-time notifications for follows, likes, and comments. Unread badge is visible. Notifications can be marked as read.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
+
+---
+
+## Sprint 9 — Polish, Testing & Launch Prep
+
+**Goal:** The app is stable, performant, accessible, and ready for production launch.
+
+**Completed:**
+
+**Decisions:**
+
+**Issues resolved:**
+
+**Known issues carried forward:**
