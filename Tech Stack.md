@@ -7,7 +7,6 @@
 - Typescript
 - TanStack Query
 - Tailwind
-- Zod
 - Motion
 - Vite
 
@@ -17,6 +16,7 @@
 - Express
 - tRPC
 - WebSockets (tRPC subscriptions)
+- Zod
 
 ## Database
 

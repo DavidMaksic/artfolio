@@ -16,9 +16,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Node.js + Express server with a `/health` route returning `{ status: "ok" }`
 - Cloudinary upload/delete and Resend email utility functions set up
 - Vue 3 TypeScript client scaffolded, and Pinia auth store initialized
-- Tailwind v4, TanStack Query, Vue Router, Drizzle ORM, tRPC proxy, and Redis configured
-- Vitest unit test confirms `/health` route returns `{ status: "ok" }` via supertest
-- Playwright e2e test confirms the home page renders an "Artfolio" heading in the browser
+- Tailwind v4, TanStack Query, Vue Router, Drizzle ORM, tRPC proxy, Redis, and BetterAuth configured
+- Vitest unit test confirms the `/health` route works
+- Playwright e2e test confirms the client works
 - Set up the CI pipeline via GutHub Actions
 
 **Decisions:**
@@ -29,6 +29,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Chose Drizzle over Prisma to avoid too much abstraction
 - Used `@artfolio/shared` workspace package for Zod schemas and TypeScript types shared between client and server, avoiding duplication and keeping validation in sync across the stack
 - Adopted `.test.ts` convention for Vitest files and `.spec.ts` convention for Playwright files to avoid test runner confusion
+- Currently disabled e2e testing on CI pipeline, to reduce time needed to commit changes
 
 **Issues resolved:**
 
