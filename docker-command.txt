@@ -1,1 +1,1 @@
-alias db='docker exec -it folio-postgres-1 psql -U postgres -d artfolio'
+alias db='docker exec -it artfolio-postgres-1 psql -U postgres -d artfolio'

@@ -2,7 +2,7 @@ services:
    postgres:
       image: postgres:16-alpine
       environment:
-         POSTGRES_USER: artfolio
+         POSTGRES_USER: postgres
          POSTGRES_PASSWORD: artfolio
          POSTGRES_DB: artfolio
       ports:
