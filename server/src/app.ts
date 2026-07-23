@@ -1,9 +1,8 @@
 import 'dotenv/config';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
-import { toNodeHandler } from 'better-auth/node';
-import { createContext } from '@/trpc.js';
+import { createContext } from '@/trpc/context.js';
+import { authRouter } from '@/routes/auth.route.js';
 import { appRouter } from '@/router.js';
-import { auth } from '@/lib/auth.js';
 
 import express from 'express';
 import helmet from 'helmet';
@@ -13,7 +12,7 @@ export const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-// app.use('/api/auth/*', toNodeHandler(auth));
+app.use('/api/auth', authRouter);
 app.use(express.json());
 
 app.use(

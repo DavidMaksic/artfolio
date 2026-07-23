@@ -17,6 +17,7 @@
       "format": "prettier --write --experimental-cli src/"
    },
    "dependencies": {
+      "@artfolio/shared": "*",
       "@tanstack/vue-query": "^5.101.2",
       "@trpc/client": "^11.18.0",
       "better-auth": "^1.6.24",

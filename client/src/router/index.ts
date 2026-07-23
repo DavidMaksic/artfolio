@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
+import { registerAuthGuards } from "./guards";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -8,25 +8,23 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: () => import("@/views/HomeView.vue"),
+      meta: { requiresAuth: true },
     },
     {
-      path: "/login",
-      name: "login",
-      component: () => import("@/views/LoginView.vue"),
+      path: "/auth/sign-in",
+      name: "sign-in",
+      component: () => import("@/views/auth/SigninView.vue"),
+      meta: { requiresGuest: true },
     },
     {
-      path: "/signup",
-      name: "signup",
-      component: () => import("@/views/SignupView.vue"),
+      path: "/auth/verify",
+      name: "auth-verify",
+      component: () => import("@/views/auth/VerifyView.vue"),
+      // Not guest-only: OAuth callbacks may land here while already authed
     },
   ],
 });
 
-router.beforeEach((to) => {
-  const auth = useAuthStore();
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return { name: "login" };
-  }
-});
+registerAuthGuards(router);
 
 export default router;
