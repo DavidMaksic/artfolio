@@ -1,5 +1,197 @@
+<script setup lang="ts">
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useAuthStore } from "@/stores/auth.store";
+import { otpSchema } from "@artfolio/shared";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@iconify/vue";
+
+const router = useRouter();
+const route = useRoute();
+const auth = useAuthStore();
+
+const email = computed(() => (route.query.email as string) ?? "");
+const autoCode = computed(() => route.query.code as string | undefined);
+
+const digits = ref<string[]>(Array(6).fill(""));
+const inputRefs = ref<HTMLInputElement[]>([]);
+
+const otp = computed(() => digits.value.join(""));
+const isLoading = ref(false);
+const error = ref<string | null>(null);
+const isResending = ref(false);
+const resendCooldown = ref(0);
+
+onMounted(async () => {
+  if (!email.value) {
+    await router.replace({ name: "sign-in" });
+    return;
+  }
+
+  if (autoCode.value) {
+    digits.value = autoCode.value.split("").slice(0, 6);
+    await verify(autoCode.value);
+  } else {
+    inputRefs.value[0]?.focus();
+  }
+});
+
+async function verify(code: string) {
+  const parsed = otpSchema.safeParse(code);
+  if (!parsed.success) {
+    error.value = "Please enter a valid 6-digit code.";
+    return;
+  }
+
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    await auth.verifyOtp(email.value, parsed.data);
+    const redirect = (route.query.redirect as string) ?? "/";
+    await router.replace(redirect);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : "Invalid or expired code.";
+    digits.value = Array(6).fill("");
+    inputRefs.value[0]?.focus();
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+function onDigitInput(index: number, event: Event) {
+  const input = event.target as HTMLInputElement;
+  const value = input.value.replace(/\D/g, "").slice(-1);
+  digits.value[index] = value;
+
+  if (value && index < 5) {
+    inputRefs.value[index + 1]?.focus();
+  }
+
+  if (otp.value.length === 6) {
+    verify(otp.value);
+  }
+}
+
+function onDigitKeydown(index: number, event: KeyboardEvent) {
+  if (event.key === "Backspace" && !digits.value[index] && index > 0) {
+    digits.value[index - 1] = "";
+    inputRefs.value[index - 1]?.focus();
+  }
+}
+
+function onDigitPaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData("text").replace(/\D/g, "").slice(0, 6) ?? "";
+  if (!pasted) return;
+  event.preventDefault();
+  digits.value = [...pasted.padEnd(6, "").split("").slice(0, 6)];
+  if (pasted.length === 6) verify(pasted);
+}
+
+async function resendCode() {
+  if (resendCooldown.value > 0) return;
+  isResending.value = true;
+  error.value = null;
+  try {
+    await auth.requestOtp(email.value);
+    resendCooldown.value = 60;
+    const interval = setInterval(() => {
+      resendCooldown.value--;
+      if (resendCooldown.value <= 0) clearInterval(interval);
+    }, 1000);
+  } catch (err) {
+    error.value = "Failed to resend code.";
+  } finally {
+    isResending.value = false;
+  }
+}
+</script>
+
 <template>
-  <div>
-    <h1>Verify</h1>
+  <div class="min-h-screen flex items-center justify-center bg-background px-4">
+    <Card class="w-full max-w-sm shadow-md">
+      <CardHeader class="space-y-1 pb-4">
+        <div class="flex items-center gap-2 mb-1">
+          <Icon icon="ph:paint-brush-duotone" class="text-primary text-2xl" aria-hidden="true" />
+          <span class="text-lg font-bold tracking-tight">Artfolio</span>
+        </div>
+        <CardTitle class="text-xl">Check your email</CardTitle>
+        <CardDescription>
+          We sent a sign-in code to
+          <span class="font-medium text-foreground">{{ email }}</span>
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent class="space-y-4">
+        <!-- OTP digit inputs -->
+        <div
+          class="flex gap-2 justify-between"
+          :class="{ 'opacity-50 pointer-events-none': isLoading }"
+        >
+          <input
+            v-for="(_, i) in digits"
+            :key="i"
+            :ref="
+              (el) => {
+                if (el) inputRefs[i] = el as HTMLInputElement;
+              }
+            "
+            v-model="digits[i]"
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="w-11 h-12 rounded-md border border-input bg-background text-center text-lg font-bold text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+            :class="{ 'border-destructive focus:ring-destructive': error }"
+            @input="onDigitInput(i, $event)"
+            @keydown="onDigitKeydown(i, $event)"
+            @paste="onDigitPaste"
+          />
+        </div>
+
+        <!-- Error -->
+        <p v-if="error" role="alert" class="text-sm text-destructive flex items-center gap-1.5">
+          <Icon icon="ph:warning-circle" class="text-base shrink-0" aria-hidden="true" />
+          {{ error }}
+        </p>
+
+        <!-- Loading -->
+        <p v-if="isLoading" class="text-sm text-muted-foreground flex items-center gap-1.5">
+          <Icon icon="ph:spinner" class="text-base animate-spin shrink-0" aria-hidden="true" />
+          Verifying…
+        </p>
+
+        <!-- Resend -->
+        <p class="text-sm text-muted-foreground">
+          Didn't get it?
+          <button
+            class="font-medium text-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            :disabled="resendCooldown > 0 || isResending"
+            @click="resendCode"
+          >
+            <Icon
+              v-if="isResending"
+              icon="ph:spinner"
+              class="inline text-base animate-spin mr-0.5"
+              aria-hidden="true"
+            />
+            {{
+              resendCooldown > 0
+                ? `Resend in ${resendCooldown}s`
+                : isResending
+                  ? "Sending…"
+                  : "Resend code"
+            }}
+          </button>
+        </p>
+
+        <!-- Back -->
+        <Button variant="ghost" class="w-full" @click="router.push({ name: 'sign-in' })">
+          <Icon icon="ph:arrow-left" class="mr-2 text-base" aria-hidden="true" />
+          Back to sign in
+        </Button>
+      </CardContent>
+    </Card>
   </div>
 </template>
