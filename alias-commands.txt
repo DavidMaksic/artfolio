@@ -1,0 +1,5 @@
+// Database
+alias db='docker exec -it artfolio-postgres-1 psql -U artfolio -d artfolio'
+
+// Redis
+alias redis='docker exec -it artfolio-redis-1 redis-cli'

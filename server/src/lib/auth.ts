@@ -8,7 +8,7 @@ import { db } from '../db/index.js';
 import * as schema from '../db/schema/index.js';
 
 const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:5173';
-const FROM_EMAIL = 'Artfolio <noreply@artfolio.app>';
+const FROM_EMAIL = 'onboarding@resend.dev';
 
 export const auth = betterAuth({
    database: drizzleAdapter(db, {
@@ -86,6 +86,12 @@ export const auth = betterAuth({
                   });
             },
          },
+      },
+   },
+
+   user: {
+      deleteUser: {
+         enabled: true,
       },
    },
 

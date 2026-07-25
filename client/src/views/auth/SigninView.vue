@@ -46,7 +46,7 @@ async function handleEmailSubmit() {
   <div class="min-h-screen flex items-center justify-center bg-background px-4 -translate-y-5">
     <Card class="w-full max-w-sm shadow-2xl">
       <CardHeader class="pb-3 mr-3">
-        <div class="flex items-center gap-1 mb-2 justify-center">
+        <div class="flex items-center justify-center gap-1 mb-2">
           <Icon icon="ph:paint-brush-duotone" class="text-primary text-2xl" aria-hidden="true" />
           <span class="text-xl font-bold tracking-tight">Artfolio</span>
         </div>

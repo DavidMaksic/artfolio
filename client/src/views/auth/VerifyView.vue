@@ -41,7 +41,7 @@ onMounted(async () => {
 async function verify(code: string) {
   const parsed = otpSchema.safeParse(code);
   if (!parsed.success) {
-    error.value = "Please enter a valid 6-digit code.";
+    error.value = "Please enter a valid 6-digit code";
     return;
   }
 
@@ -53,7 +53,7 @@ async function verify(code: string) {
     const redirect = (route.query.redirect as string) ?? "/";
     await router.replace(redirect);
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "Invalid or expired code.";
+    error.value = err instanceof Error ? err.message : "Invalid or expired code";
     digits.value = Array(6).fill("");
     inputRefs.value[0]?.focus();
   } finally {
@@ -86,6 +86,7 @@ function onDigitPaste(event: ClipboardEvent) {
   const pasted = event.clipboardData?.getData("text").replace(/\D/g, "").slice(0, 6) ?? "";
   if (!pasted) return;
   event.preventDefault();
+
   digits.value = [...pasted.padEnd(6, "").split("").slice(0, 6)];
   if (pasted.length === 6) verify(pasted);
 }
@@ -94,6 +95,7 @@ async function resendCode() {
   if (resendCooldown.value > 0) return;
   isResending.value = true;
   error.value = null;
+
   try {
     await auth.requestOtp(email.value);
     resendCooldown.value = 60;
@@ -101,8 +103,8 @@ async function resendCode() {
       resendCooldown.value--;
       if (resendCooldown.value <= 0) clearInterval(interval);
     }, 1000);
-  } catch (err) {
-    error.value = "Failed to resend code.";
+  } catch {
+    error.value = "Failed to resend code";
   } finally {
     isResending.value = false;
   }
@@ -110,12 +112,12 @@ async function resendCode() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background px-4">
-    <Card class="w-full max-w-sm shadow-md">
-      <CardHeader class="space-y-1 pb-4">
-        <div class="flex items-center gap-2 mb-1">
+  <div class="min-h-screen flex items-center justify-center bg-background px-4 -translate-y-5">
+    <Card class="w-full max-w-sm shadow-2xl">
+      <CardHeader class="space-y-1 pb-2">
+        <div class="flex items-center justify-center gap-1 mb-4 mr-3">
           <Icon icon="ph:paint-brush-duotone" class="text-primary text-2xl" aria-hidden="true" />
-          <span class="text-lg font-bold tracking-tight">Artfolio</span>
+          <span class="text-xl font-bold tracking-tight">Artfolio</span>
         </div>
         <CardTitle class="text-xl">Check your email</CardTitle>
         <CardDescription>

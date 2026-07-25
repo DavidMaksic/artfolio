@@ -13,6 +13,7 @@ export const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
 app.use('/api/auth/{*any}', toNodeHandler(auth));
 app.use(express.json());
 

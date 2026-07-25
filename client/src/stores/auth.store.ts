@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { authClient } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 import { useRouter } from "vue-router";
 import { computed } from "vue";
 
@@ -24,7 +24,7 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function verifyOtp(email: string, otp: string) {
-    const result = await authClient.emailOtp.verifyEmail({ email, otp });
+    const result = await authClient.signIn.emailOtp({ email, otp });
     if (result.error) throw new Error(result.error.message);
     return result;
   }
@@ -45,8 +45,15 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   // ── Sign out ──────────────
-  async function logout() {
+  async function signOut() {
     await authClient.signOut();
+    await router.push({ name: "sign-in" });
+  }
+
+  // ── Delete profile ──────────────
+  async function deleteAccount() {
+    const result = await authClient.deleteUser();
+    if (result.error) throw new Error(result.error.message);
     await router.push({ name: "sign-in" });
   }
 
@@ -60,6 +67,7 @@ export const useAuthStore = defineStore("auth", () => {
     verifyOtp,
     signInWithGoogle,
     signInWithDiscord,
-    logout,
+    signOut,
+    deleteAccount,
   };
 });

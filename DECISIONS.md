@@ -43,7 +43,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Sprint 1 — Authentication
 
-**Goal:** Users can sign up, log in via email/password or OAuth, receive a welcome email, reset their password, and log out securely.
+**Goal:** Users can sign in through email via magic link or OTP, receive a welcome email, and sign out securely.
 
 **Completed:**
 
