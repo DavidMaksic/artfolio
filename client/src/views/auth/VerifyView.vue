@@ -113,7 +113,7 @@ async function resendCode() {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-background px-4 -translate-y-5">
-    <Card class="w-full max-w-sm shadow-2xl">
+    <Card v-if="!autoCode" class="w-full max-w-sm shadow-2xl">
       <CardHeader class="space-y-1 pb-2">
         <div class="flex items-center justify-center gap-1 mb-4 mr-3">
           <Icon icon="ph:paint-brush-duotone" class="text-primary text-2xl" aria-hidden="true" />
@@ -195,5 +195,11 @@ async function resendCode() {
         </Button>
       </CardContent>
     </Card>
+
+    <!-- Show a simple loading state when auto-verifying via magic link -->
+    <div v-else class="flex flex-col items-center gap-3 text-muted-foreground">
+      <Icon icon="ph:spinner" class="text-5xl animate-spin" />
+      <p>Signing you in…</p>
+    </div>
   </div>
 </template>

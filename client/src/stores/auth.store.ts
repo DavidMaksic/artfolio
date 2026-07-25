@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { defineStore } from "pinia";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "vue-router";
@@ -5,13 +6,17 @@ import { computed } from "vue";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
-  const sessionRef = authClient.useSession();
+  const queryClient = useQueryClient();
 
-  const session = computed(() => sessionRef.value.data);
-  const isPending = computed(() => sessionRef.value.isPending);
-  const error = computed(() => sessionRef.value.error);
-  const user = computed(() => session.value?.user ?? null);
+  const { data: session, isPending } = useQuery({
+    queryKey: ["session"],
+    queryFn: () => authClient.getSession(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const user = computed(() => session.value?.data?.user ?? null);
   const isAuthenticated = computed(() => !!user.value);
+  const error = computed(() => session.value?.error ?? null);
 
   // ── Email OTP ──────────────
   async function requestOtp(email: string) {
@@ -26,6 +31,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function verifyOtp(email: string, otp: string) {
     const result = await authClient.signIn.emailOtp({ email, otp });
     if (result.error) throw new Error(result.error.message);
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
     return result;
   }
 
@@ -47,6 +53,7 @@ export const useAuthStore = defineStore("auth", () => {
   // ── Sign out ──────────────
   async function signOut() {
     await authClient.signOut();
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
     await router.push({ name: "sign-in" });
   }
 
@@ -54,6 +61,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function deleteAccount() {
     const result = await authClient.deleteUser();
     if (result.error) throw new Error(result.error.message);
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
     await router.push({ name: "sign-in" });
   }
 
