@@ -36,6 +36,7 @@ export const auth = betterAuth({
       delete: async (key) => {
          await redis.del(key);
       },
+
       getAndDelete: async (key) => {
          const value = await redis.getdel(key);
          return value ?? null;
@@ -77,6 +78,8 @@ export const auth = betterAuth({
       user: {
          create: {
             after: async (user) => {
+               if (user.emailVerified) return; // Skip OAuth users for now
+
                // Fire-and-forget: welcome email on first account creation only
                resend.emails
                   .send({
