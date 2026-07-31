@@ -23,5 +23,9 @@ export function registerAuthGuards(router: Router) {
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
       return { name: "sign-in", query: { redirect: to.fullPath } };
     }
+
+    if (to.meta.requiresGuest && auth.isAuthenticated) {
+      return { name: "home" };
+    }
   });
 }
