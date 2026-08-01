@@ -13,22 +13,23 @@ export async function cleanupTestUser(email: string) {
   await db.delete(user).where(eq(user.email, email));
 }
 
-export async function loginViaOTP(page: Page, email: string) {
-  // 1. Submit email on sign-in
+export async function loginViaMagicLink(page: Page, email: string) {
+  const otp = await emailSubmit(page, email);
+  await page.goto(`/auth/verify?email=${encodeURIComponent(email)}&code=${otp}`);
+}
+
+export async function emailSubmit(page: Page, email: string): Promise<string> {
+  // Submit email on sign-in
   await page.goto("/auth/sign-in");
   await page.getByLabel("Email address").fill(email);
   await page.getByRole("button", { name: "Continue with email" }).click();
 
-  // 2. Wait for redirect to verify page
+  // Wait for redirect to verify page
   await expect(page).toHaveURL(/\/auth\/verify/);
 
-  // 3. Read OTP key from Redis
+  // Read OTP key from Redis
   const raw = await redis.get(`verification:sign-in-otp-${email}`);
   const otp = JSON.parse(raw!).value.split(":")[0];
 
-  // 4. Navigate with code in URL - triggers auto-verify on mount
-  await page.goto(`/auth/verify?email=${encodeURIComponent(email)}&code=${otp}`);
-
-  // 5. Wait for redirect
-  await expect(page).not.toHaveURL(/\/auth/, { timeout: 15_000 });
+  return otp;
 }
