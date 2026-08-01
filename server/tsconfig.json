@@ -11,8 +11,6 @@
       "esModuleInterop": true,
       "skipLibCheck": true,
       "resolveJsonModule": true,
-      "baseUrl": ".",
-      "ignoreDeprecations": "6.0",
       "paths": {
          "@/*": ["./src/*"],
          "@artfolio/shared": ["../shared/src/index.ts"]
