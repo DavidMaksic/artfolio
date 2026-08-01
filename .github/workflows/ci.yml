@@ -63,9 +63,13 @@ jobs:
            working-directory: client
            run: npx playwright install --with-deps
 
+         - name: Check TypeScript version
+           working-directory: server
+           run: npx tsc --version
+
          - name: Build client
            working-directory: client
-           run: cd server && npx tsc --version
+           run: npm run build
 
          - name: Run E2E tests
            run: npm run test:e2e
