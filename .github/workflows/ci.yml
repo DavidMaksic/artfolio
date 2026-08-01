@@ -63,10 +63,6 @@ jobs:
            working-directory: client
            run: npx playwright install --with-deps
 
-         - name: Check TypeScript version
-           working-directory: server
-           run: npx tsc --version
-
          - name: Build client
            working-directory: client
            run: npm run build
