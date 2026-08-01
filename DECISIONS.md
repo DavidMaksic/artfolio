@@ -43,7 +43,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Sprint 1 — Authentication
 
-**Goal:** Users can sign in through OAuth or email (via magic link or OTP), receive a welcome email, and sign out securely.
+**Goal:** Users can sign in through OAuth or email (via magic link or OTP), receive a welcome email, with sessions persisted in Redis.
 
 **Completed:**
 
