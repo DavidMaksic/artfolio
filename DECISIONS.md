@@ -47,11 +47,28 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 **Completed:**
 
+- Google and Discord OAuth wired and working
+- Email OTP provides both magic link for automatic, and code for manual verification
+- Implemented Playwright e2e tests for authentication: magic link flow, manual OTP entry, session persistence, sign out
+
 **Decisions:**
+
+- Installed shadcn/ui to enable faster and easier component scaffolding
+- `emailOTP` plugin only (no separate `magicLink` plugin) — magic link is a manually constructed URL embedded in the same email as the OTP code, Notion-style
+- BetterAuth with HTTP-only cookies over JWT — no token management in client code
+- Phosphor Icons (ph:) via @iconify/vue for UI icons
+- TanStack Query caches sessions with `authClient.getSession()`
 
 **Issues resolved:**
 
+- shadcn-vue init failing due to missing `paths` + `baseUrl` in client `tsconfig.json` — fixed by adding `ignoreDeprecations: "6.0"`
+- `authClient.useSession()` returned a `Ref` in Vue, not a plain object — destructuring failed; must be accessed via `.value`
+- `@artfolio/shared` not symlinked in `client/node_modules` — fixed by adding `"@artfolio/shared": "*"` to client/package.json and running `npm install`
+- Fixed betterAuth middleware handling by replacing `.use` with `.all` in the app configuration
+
 **Known issues carried forward:**
+
+- None
 
 ---
 
