@@ -10,13 +10,7 @@ import path from "path";
 dotenv.config({ path: path.resolve("../server/.env") });
 
 export async function cleanupTestUser(email: string) {
-  // DB — cascades to session, account, verification via FK
   await db.delete(user).where(eq(user.email, email));
-
-  // Redis
-  // TODO: This does not work yet
-  const keys = await redis.keys(`*${email}*`);
-  if (keys.length) await redis.del(...keys);
 }
 
 export async function loginViaOTP(page: Page, email: string) {
