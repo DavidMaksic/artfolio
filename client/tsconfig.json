@@ -9,7 +9,8 @@
       },
       {
          "path": "./tsconfig.vitest.json"
-      }
+      },
+      { "path": "../server" }
    ],
    "compilerOptions": {
       "baseUrl": ".",
