@@ -23,9 +23,6 @@ export default defineConfig({
       url: "http://localhost:4000/health",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
-      env: {
-        DATABASE_URL: process.env.DATABASE_URL ?? "",
-      },
     },
     {
       command: process.env.CI ? "npm run preview" : "npm run dev --workspace=client",
