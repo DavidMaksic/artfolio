@@ -50,6 +50,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Google and Discord OAuth wired and working
 - Email OTP provides both magic link for automatic, and code for manual verification
 - Implemented Playwright e2e tests for authentication: magic link flow, manual OTP entry, session persistence, sign out
+- E2E test infrastructure set up with Playwright fixtures, global-setup, and direct Redis OTP reading
 
 **Decisions:**
 
@@ -58,6 +59,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - BetterAuth with HTTP-only cookies over JWT — no token management in client code
 - Phosphor Icons (ph:) via @iconify/vue for UI icons
 - TanStack Query caches sessions with `authClient.getSession()`
+- Removed e2e helpers: now they live in `fixtures.ts` (page-dependent) and `global-setup.ts` (DB cleanup, Node-only)
 
 **Issues resolved:**
 
@@ -65,6 +67,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 - `authClient.useSession()` returned a `Ref` in Vue, not a plain object — destructuring failed; must be accessed via `.value`
 - `@artfolio/shared` not symlinked in `client/node_modules` — fixed by adding `"@artfolio/shared": "*"` to client/package.json and running `npm install`
 - Fixed betterAuth middleware handling by replacing `.use` with `.all` in the app configuration
+- Project references wired up (server as composite project, referenced from client) which fixes `typecheck` bugs
+- `vue-tsc --build` crawling server source via direct `../../../server/src/router` import — fixed with project references
+- `npm run build --workspaces` failing on shared — fixed with `--if-present`
 
 **Known issues carried forward:**
 
