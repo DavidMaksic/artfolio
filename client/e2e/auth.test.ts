@@ -1,5 +1,5 @@
-import { cleanupTestUser, emailSubmit, loginViaMagicLink } from "./test-helpers.js";
-import { test, expect } from "playwright/test";
+import { cleanupTestUser } from "./global-setup.js";
+import { expect, test } from "./fixtures.js";
 
 test.describe("OTP flows", () => {
   const magicLinkEmail = `e2e+magic+${Date.now()}@test.com`;
@@ -10,13 +10,13 @@ test.describe("OTP flows", () => {
     await cleanupTestUser(manualEmail);
   });
 
-  test("magic link", async ({ page }) => {
-    await loginViaMagicLink(page, magicLinkEmail);
+  test("magic link", async ({ page, loginViaMagicLink }) => {
+    await loginViaMagicLink(magicLinkEmail);
     await expect(page).toHaveURL("/");
   });
 
-  test("manual entry", async ({ page }) => {
-    const otp = await emailSubmit(page, manualEmail);
+  test("manual entry", async ({ page, emailSubmit }) => {
+    const otp = await emailSubmit(manualEmail);
     await page.keyboard.type(otp);
     await expect(page).toHaveURL("/");
   });
@@ -29,8 +29,8 @@ test.describe("session persistence", () => {
     await cleanupTestUser(email);
   });
 
-  test("session survives page reload", async ({ page }) => {
-    await loginViaMagicLink(page, email);
+  test("session survives page reload", async ({ page, loginViaMagicLink }) => {
+    await loginViaMagicLink(email);
     await expect(page).toHaveURL("/");
 
     await page.reload();
@@ -45,8 +45,8 @@ test.describe("sign out", () => {
     await cleanupTestUser(email);
   });
 
-  test("clears session and redirects to sign-in", async ({ page }) => {
-    await loginViaMagicLink(page, email);
+  test("clears session and redirects to sign-in", async ({ page, loginViaMagicLink }) => {
+    await loginViaMagicLink(email);
     await page.getByRole("button", { name: "Sign Out" }).click();
     await expect(page).toHaveURL("/auth/sign-in");
 

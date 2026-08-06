@@ -16,6 +16,7 @@ export default defineConfig({
     trace: "on-first-retry",
     headless: !!process.env.CI,
   },
+  globalSetup: "./e2e/global-setup.ts",
   webServer: [
     {
       command: "npm run dev --workspace=server",
