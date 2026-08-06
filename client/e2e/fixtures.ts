@@ -10,17 +10,6 @@ export const test = base.extend<{
       await page.goto("/auth/sign-in");
       await page.getByLabel("Email address").fill(email);
       await page.getByRole("button", { name: "Continue with email" }).click();
-
-      // log any console errors from the page
-      page.on("console", (msg) => {
-        if (msg.type() === "error") console.log("PAGE ERROR:", msg.text());
-      });
-
-      // log network failures
-      page.on("requestfailed", (req) => {
-        console.log("FAILED REQUEST:", req.url(), req.failure()?.errorText);
-      });
-
       await expect(page).toHaveURL(/\/auth\/verify/);
 
       const raw = await redis.get(`verification:sign-in-otp-${email}`);
