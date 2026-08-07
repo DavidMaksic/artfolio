@@ -35,7 +35,7 @@ export default defineConfig({
       },
       {
          command: process.env.CI
-            ? 'npm run preview'
+            ? 'npm run preview --workspace=client'
             : 'npm run dev --workspace=client',
          url: process.env.CI
             ? 'http://localhost:4173'

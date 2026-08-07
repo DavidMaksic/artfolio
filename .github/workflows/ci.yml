@@ -34,7 +34,7 @@ jobs:
       env:
          DATABASE_URL: postgresql://artfolio:artfolio@localhost:5432/artfolio
          REDIS_URL: redis://localhost:6379
-         RESEND_API_KEY: re_placeholder
+         RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
       steps:
          - uses: actions/checkout@v4
@@ -95,7 +95,6 @@ jobs:
          - run: npm ci
 
          - name: Install Playwright browsers
-           working-directory: client
            run: npx playwright install --with-deps
 
          - name: Run database migrations
