@@ -1,10 +1,12 @@
 import { test as base, expect } from "@playwright/test";
 import { redis } from "../../server/src/lib/redis.js";
 
-export const test = base.extend<{
+interface Fixtures {
   emailSubmit: (email: string) => Promise<string>;
   loginViaMagicLink: (email: string) => Promise<void>;
-}>({
+}
+
+export const test = base.extend<Fixtures>({
   emailSubmit: async ({ page }, use) => {
     await use(async (email: string) => {
       await page.goto("/auth/sign-in");

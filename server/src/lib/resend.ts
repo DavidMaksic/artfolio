@@ -1,8 +1,6 @@
 import { Resend } from 'resend';
 
-export const resend = new Resend(
-   process.env.RESEND_API_KEY ?? 're_placeholder',
-);
+export const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function sendWelcomeEmail(to: string, username: string) {
    return resend.emails.send({
