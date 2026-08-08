@@ -2,6 +2,11 @@
    "extends": "@tsconfig/node24/tsconfig.json",
    "include": ["./**/*"],
    "compilerOptions": {
-      "noEmit": true
-   }
+      "noEmit": true,
+      "paths": {
+         "@/*": ["./*"],
+         "@artfolio/server/*": ["../server/src/*"]
+      }
+   },
+   "references": [{ "path": "../server" }]
 }

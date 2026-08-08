@@ -1,6 +1,6 @@
 import { buildSignInEmail, buildWelcomeEmail } from './emails/auth-email.js';
+import { betterAuth, generateId } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { betterAuth } from 'better-auth';
 import { emailOTP } from 'better-auth/plugins';
 import { resend } from './resend.js';
 import { redis } from './redis.js';
@@ -78,9 +78,17 @@ export const auth = betterAuth({
       user: {
          create: {
             after: async (user) => {
-               if (user.emailVerified) return; // Skip OAuth users for now
+               // Fire-and-forget: create an empty profile row
+               await db.insert(schema.profile).values({
+                  id: generateId(),
+                  userId: user.id,
+                  username: `user_${user.id.slice(0, 8)}`,
+                  availableForCommissions: false,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+               });
 
-               // Fire-and-forget: welcome email on first account creation only
+               // Fire-and-forget: send welcome email
                resend.emails
                   .send({
                      from: FROM_EMAIL,

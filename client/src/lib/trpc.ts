@@ -1,5 +1,5 @@
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
-import type { AppRouter } from "@artfolio/shared";
+import type { AppRouter } from "@artfolio/server/router";
 
 export const trpc = createTRPCProxyClient<AppRouter>({
   links: [

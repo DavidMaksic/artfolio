@@ -1,4 +1,4 @@
-import { redis } from '../server/src/lib/redis.js';
+import { redis } from '@artfolio/server/lib/redis.js';
 
 export async function getSignInOtp(email: string): Promise<string> {
    const raw = await redis.get(`verification:sign-in-otp-${email}`);

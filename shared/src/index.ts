@@ -1,2 +1,2 @@
-export * from './schemas/auth.schemas';
-export type { AppRouter } from '../../server/src/router';
+export * from './schemas/auth.schemas.js';
+export * from './schemas/profile.schemas.js';
