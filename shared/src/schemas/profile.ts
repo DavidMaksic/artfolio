@@ -37,12 +37,13 @@ export const usernameSchema = z
 export const updateProfileSchema = z.object({
    username: usernameSchema.optional(),
    displayName: z.string().min(1).max(64).optional(),
-   bio: z.string().max(500).optional(),
+   bio: z.string().max(500, 'Bio cannot exceed 500 characters').optional(),
    location: z.string().max(100).optional(),
    website: z
       .union([z.url({ error: 'Must be a valid URL' }), z.literal('')])
       .optional(),
    availableForCommissions: z.boolean().optional(),
+   profileSetupSkipped: z.boolean().optional(),
    profileImageUrl: z.url().optional(),
 });
 
@@ -56,6 +57,7 @@ export const profileSchema = z.object({
    location: z.string().nullable(),
    website: z.string().nullable(),
    availableForCommissions: z.boolean(),
+   profileSetupSkipped: z.boolean(),
    createdAt: z.date(),
    updatedAt: z.date(),
 });

@@ -14,6 +14,7 @@ export const profile = pgTable('profile', {
    location: text(),
    website: text(),
    availableForCommissions: boolean().notNull().default(false),
+   profileSetupSkipped: boolean().notNull().default(false),
    createdAt: timestamp().notNull(),
    updatedAt: timestamp().notNull(),
 });

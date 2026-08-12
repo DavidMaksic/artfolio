@@ -1,2 +1,2 @@
-export * from './schemas/auth.schemas.js';
-export * from './schemas/profile.schemas.js';
+export * from './schemas/auth.js';
+export * from './schemas/profile.js';

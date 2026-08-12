@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { sendOtpSchema } from "@artfolio/shared";
 import { useAuthStore } from "@/stores/auth.store";
+import { useMutation } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
@@ -15,41 +16,44 @@ const router = useRouter();
 const auth = useAuthStore();
 
 const email = ref("");
-const isLoading = ref(false);
 const error = ref<string | null>(null);
 
-async function handleEmailSubmit() {
+const { mutate: submitEmail, isPending } = useMutation({
+  mutationFn: (email: string) => auth.requestOtp(email),
+  onSuccess: async (_, email) => {
+    await router.push({
+      name: "auth-verify",
+      query: { email },
+    });
+  },
+  onError: (err) => {
+    error.value = err instanceof Error ? err.message : "Something went wrong";
+  },
+});
+
+function handleEmailSubmit() {
   const parsed = sendOtpSchema.safeParse({ email: email.value });
   if (!parsed.success) {
     error.value = parsed.error.issues[0]?.message ?? "Invalid input";
     return;
   }
-
-  isLoading.value = true;
   error.value = null;
-
-  try {
-    await auth.requestOtp(parsed.data.email);
-    await router.push({
-      name: "auth-verify",
-      query: { email: parsed.data.email },
-    });
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "Something went wrong.";
-  } finally {
-    isLoading.value = false;
-  }
+  submitEmail(parsed.data.email);
 }
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background px-4 -translate-y-5">
+  <div
+    class="min-h-screen flex flex-col items-center justify-center bg-background gap-6 px-4 -translate-y-5"
+  >
+    <!-- Logo / Brand -->
+    <div class="flex items-center gap-2 text-foreground">
+      <Icon icon="ph:paint-brush-duotone" class="text-2xl text-primary" />
+      <span class="text-lg font-semibold tracking-tight">Artfolio</span>
+    </div>
+
     <Card class="w-full max-w-sm shadow-2xl">
       <CardHeader class="pb-3 mr-3">
-        <div class="flex items-center justify-center gap-1 mb-2">
-          <Icon icon="ph:paint-brush-duotone" class="text-primary text-2xl" aria-hidden="true" />
-          <span class="text-xl font-bold tracking-tight">Artfolio</span>
-        </div>
         <CardTitle class="text-xl">Sign in</CardTitle>
         <CardDescription>Enter your email to receive a sign-in code</CardDescription>
       </CardHeader>
@@ -66,7 +70,7 @@ async function handleEmailSubmit() {
               placeholder="you@example.com"
               autocomplete="email"
               required
-              :disabled="isLoading"
+              :disabled="isPending"
             />
           </div>
 
@@ -74,14 +78,14 @@ async function handleEmailSubmit() {
             {{ error }}
           </p>
 
-          <Button type="submit" class="w-full" :disabled="isLoading">
+          <Button type="submit" class="w-full" :disabled="isPending">
             <Icon
-              v-if="isLoading"
+              v-if="isPending"
               icon="ph:spinner"
               class="mr-2 text-base animate-spin"
               aria-hidden="true"
             />
-            {{ isLoading ? "Sending code…" : "Continue with email" }}
+            {{ isPending ? "Sending code…" : "Continue with email" }}
           </Button>
         </form>
 

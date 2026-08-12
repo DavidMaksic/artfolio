@@ -1,0 +1,1 @@
+ALTER TABLE "profile" ADD COLUMN "profile_setup_skipped" boolean DEFAULT false NOT NULL;

@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { otpSchema } from "@artfolio/shared";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMutation } from "@tanstack/vue-query";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 
@@ -21,7 +22,6 @@ const inputRefs = ref<HTMLInputElement[]>([]);
 const otp = computed(() => digits.value.join(""));
 const isLoading = ref(false);
 const error = ref<string | null>(null);
-const isResending = ref(false);
 const resendCooldown = ref(0);
 
 onMounted(async () => {
@@ -91,34 +91,33 @@ function onDigitPaste(event: ClipboardEvent) {
   if (pasted.length === 6) verify(pasted);
 }
 
-async function resendCode() {
-  if (resendCooldown.value > 0) return;
-  isResending.value = true;
-  error.value = null;
-
-  try {
-    await auth.requestOtp(email.value);
+const { mutate: resendCode, isPending } = useMutation({
+  mutationFn: () => auth.requestOtp(email.value),
+  onSuccess: () => {
     resendCooldown.value = 60;
     const interval = setInterval(() => {
       resendCooldown.value--;
       if (resendCooldown.value <= 0) clearInterval(interval);
     }, 1000);
-  } catch {
+  },
+  onError: () => {
     error.value = "Failed to resend code";
-  } finally {
-    isResending.value = false;
-  }
-}
+  },
+});
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background px-4 -translate-y-5">
+  <div
+    class="min-h-screen flex flex-col items-center justify-center bg-background gap-6 px-4 -translate-y-5"
+  >
+    <!-- Logo / Brand -->
+    <div class="flex items-center gap-2 text-foreground">
+      <Icon icon="ph:paint-brush-duotone" class="text-2xl text-primary" />
+      <span class="text-lg font-semibold tracking-tight">Artfolio</span>
+    </div>
+
     <Card v-if="!autoCode" class="w-full max-w-sm shadow-2xl">
       <CardHeader class="space-y-1 pb-2">
-        <div class="flex items-center justify-center gap-1 mb-4 mr-3">
-          <Icon icon="ph:paint-brush-duotone" class="text-primary text-2xl" aria-hidden="true" />
-          <span class="text-xl font-bold tracking-tight">Artfolio</span>
-        </div>
         <CardTitle class="text-xl">Check your email</CardTitle>
         <CardDescription>
           We sent a sign-in code to
@@ -169,11 +168,11 @@ async function resendCode() {
           Didn't get it?
           <button
             class="font-medium text-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
-            :disabled="resendCooldown > 0 || isResending"
-            @click="resendCode"
+            :disabled="resendCooldown > 0 || isPending"
+            @click="() => resendCode()"
           >
             <Icon
-              v-if="isResending"
+              v-if="isPending"
               icon="ph:spinner"
               class="inline text-base animate-spin mr-0.5"
               aria-hidden="true"
@@ -181,7 +180,7 @@ async function resendCode() {
             {{
               resendCooldown > 0
                 ? `Resend in ${resendCooldown}s`
-                : isResending
+                : isPending
                   ? "Sending…"
                   : "Resend code"
             }}

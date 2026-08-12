@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, useRouter } from "vue-router";
 import { registerAuthGuards } from "./guards";
+import { trpc } from "@/lib/trpc";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -7,7 +8,24 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
+      beforeEnter: async () => {
+        try {
+          const profile = await trpc.profile.getMe.query();
+          if (!profile.profileSetupSkipped && !profile.displayName) {
+            return { name: "profile-setup" };
+          }
+          return;
+        } catch {
+          return { name: "sign-in" };
+        }
+      },
       component: () => import("@/views/HomeView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/profile-setup",
+      name: "profile-setup",
+      component: () => import("@/views/profile/ProfileSetupView.vue"),
       meta: { requiresAuth: true },
     },
     {
