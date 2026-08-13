@@ -9,18 +9,12 @@ const router = createRouter({
       path: "/",
       name: "home",
       beforeEnter: async () => {
-        try {
-          const profile = await trpc.profile.getMe.query();
-          if (!profile.profileSetupSkipped && !profile.displayName) {
-            return { name: "profile-setup" };
-          }
-          return;
-        } catch {
-          return { name: "sign-in" };
+        const profile = await trpc.profile.getMe.query();
+        if (!profile.profileSetupSkipped && !profile.displayName) {
+          return { name: "profile-setup" };
         }
       },
       component: () => import("@/views/HomeView.vue"),
-      meta: { requiresAuth: true },
     },
     {
       path: "/profile-setup",
@@ -38,6 +32,11 @@ const router = createRouter({
       path: "/auth/verify",
       name: "auth-verify",
       component: () => import("@/views/auth/VerifyView.vue"),
+    },
+    {
+      path: "/:username",
+      name: "profile",
+      component: () => import("@/views/profile/ProfileView.vue"),
     },
   ],
 });

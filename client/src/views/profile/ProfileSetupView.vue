@@ -34,22 +34,26 @@ const isStep1Valid = computed(
 
 const { mutate, isPending } = useMutation({
   mutationFn: (input: UpdateProfileInput) => trpc.profile.update.mutate(input),
-  onSuccess: redirect,
+  onSuccess: () => {
+    router.push({ path: `/${username.value}` });
+  },
   onError: (err) => {
     error.value = err instanceof Error ? err.message : "Something went wrong";
   },
 });
 
 async function redirect() {
-  await trpc.profile.update.mutate({ profileSetupSkipped: true });
-  router.push({ name: "home" });
+  await trpc.profile.update.mutate({
+    username: username.value,
+    displayName: displayName.value,
+    profileSetupSkipped: true,
+  });
+  router.push({ path: `/${username.value}` });
 }
 
 function onSubmit() {
-  if (step.value === 1) {
-    step.value = 2;
-    return;
-  }
+  if (step.value === 1) return (step.value = 2);
+
   mutate({
     username: username.value,
     displayName: displayName.value,
@@ -243,6 +247,7 @@ function onSubmit() {
               </Button>
 
               <Button
+                v-if="step === 2"
                 type="button"
                 variant="ghost"
                 class="flex-1 text-muted-foreground"
