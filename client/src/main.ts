@@ -20,6 +20,6 @@ const queryClient = new QueryClient({
 
 app.use(createPinia());
 app.use(router);
-app.use(VueQueryPlugin, { queryClient });
+app.use(VueQueryPlugin, { queryClient, enableDevtoolsV6Plugin: true });
 
 app.mount("#app");
