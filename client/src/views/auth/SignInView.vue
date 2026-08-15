@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { extractTrpcError } from "@/lib/trpc-error";
 import { sendOtpSchema } from "@artfolio/shared";
 import { useAuthStore } from "@/stores/auth.store";
 import { useMutation } from "@tanstack/vue-query";
@@ -26,9 +27,7 @@ const { mutate: submitEmail, isPending } = useMutation({
       query: { email },
     });
   },
-  onError: (err) => {
-    error.value = err instanceof Error ? err.message : "Something went wrong";
-  },
+  onError: (err) => (error.value = extractTrpcError(err)),
 });
 
 function handleEmailSubmit() {

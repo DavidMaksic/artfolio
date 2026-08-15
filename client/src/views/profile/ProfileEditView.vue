@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { UpdateProfileInput } from "@artfolio/shared";
-import { useRouter } from "vue-router";
+import { extractTrpcError } from "@/lib/trpc-error";
 import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
@@ -52,9 +53,7 @@ const { mutate, isPending } = useMutation({
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
     router.push({ path: `/${username.value}` });
   },
-  onError: (err) => {
-    error.value = err instanceof Error ? err.message : "Something went wrong";
-  },
+  onError: (err) => (error.value = extractTrpcError(err)),
 });
 
 function onSubmit(e: SubmitEvent) {

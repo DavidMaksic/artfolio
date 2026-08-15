@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { UpdateProfileInput } from "@artfolio/shared";
+import { extractTrpcError } from "@/lib/trpc-error";
 import { ref, computed } from "vue";
 import { useMutation } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
@@ -37,9 +38,7 @@ const { mutate, isPending } = useMutation({
   onSuccess: () => {
     router.push({ path: `/${username.value}` });
   },
-  onError: (err) => {
-    error.value = err instanceof Error ? err.message : "Something went wrong";
-  },
+  onError: (err) => (error.value = extractTrpcError(err)),
 });
 
 async function redirect() {
