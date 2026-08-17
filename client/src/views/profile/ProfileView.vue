@@ -50,11 +50,11 @@ const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);
               v-if="profile.profileImageUrl"
               :src="profile.profileImageUrl"
               :alt="profile.displayName ?? profile.username"
-              class="w-24 h-24 rounded-full object-cover ring-2 ring-border"
+              class="size-32 rounded-full object-cover ring-2 ring-border"
             />
             <div
               v-else
-              class="w-24 h-24 rounded-full bg-muted flex items-center justify-center ring-2 ring-border"
+              class="size-32 rounded-full bg-muted flex items-center justify-center ring-2 ring-border"
             >
               <Icon icon="ph:user" class="text-4xl text-muted-foreground" />
             </div>

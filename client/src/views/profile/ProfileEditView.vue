@@ -8,6 +8,7 @@ import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
 import { Card, CardContent } from "@/components/ui/card";
+import ProfileImageUpload from "@/components/ProfileImageUpload.vue";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const bio = ref("");
 const location = ref("");
 const website = ref("");
 const availableForCommissions = ref(false);
+const profileImageUrl = ref<string | undefined>(undefined);
 
 const { data: profile, isPending: isLoadingProfile } = useQuery({
   queryKey: ["profile", "me"],
@@ -66,6 +68,7 @@ function onSubmit(e: SubmitEvent) {
     location: location.value || undefined,
     website: website.value || undefined,
     availableForCommissions: availableForCommissions.value,
+    profileImageUrl: profileImageUrl.value || undefined,
   });
 }
 </script>
@@ -98,8 +101,16 @@ function onSubmit(e: SubmitEvent) {
 
     <template v-else>
       <Card>
-        <CardContent class="pt-6">
+        <CardContent>
           <form class="space-y-5" @submit="onSubmit">
+            <div class="flex justify-center mb-4">
+              <ProfileImageUpload
+                :current-image-url="profile?.profileImageUrl"
+                @uploaded="(url) => (profileImageUrl = url)"
+                :disabled="isPending"
+              />
+            </div>
+
             <div class="space-y-1.5">
               <Label for="username">Username</Label>
               <div class="relative">
