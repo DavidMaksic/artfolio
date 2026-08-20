@@ -4,6 +4,8 @@ import { getSignInOtp } from '@/test-helpers.js';
 
 interface AuthFixture {
    email: string;
+   username: string;
+   displayName: string;
    emailSubmit: () => Promise<string>;
    loginViaMagicLink: () => Promise<void>;
 }
@@ -16,6 +18,8 @@ export const test = base.extend<Fixtures>({
    auth: async ({ page }, use, testInfo) => {
       const slug = testInfo.title.toLowerCase().replace(/\s+/g, '-');
       const email = `e2e+${slug}+${Date.now()}@test.com`;
+      const username = `user${Date.now()}`;
+      const displayName = `Test User ${Date.now()}`;
 
       const emailSubmit = async () => {
          await page.goto('/auth/sign-in');
@@ -34,7 +38,13 @@ export const test = base.extend<Fixtures>({
          );
       };
 
-      await use({ email, emailSubmit, loginViaMagicLink });
+      await use({
+         email,
+         username,
+         displayName,
+         emailSubmit,
+         loginViaMagicLink,
+      });
       await cleanupTestUser(email);
    },
 });
