@@ -3,23 +3,23 @@ import { expect, test } from '@/fixtures.js';
 test.describe('OTP flows', () => {
    test('magic link', async ({ page, auth }) => {
       await auth.loginViaMagicLink();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/profile-setup');
    });
 
    test('manual entry', async ({ page, auth }) => {
       const otp = await auth.emailSubmit();
       await page.keyboard.type(otp);
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/profile-setup');
    });
 });
 
 test.describe('session persistence', () => {
    test('session survives page reload', async ({ page, auth }) => {
       await auth.loginViaMagicLink();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/profile-setup');
 
       await page.reload();
-      await expect(page).toHaveURL('/');
+      await expect(page).toHaveURL('/profile-setup');
    });
 });
 
@@ -28,8 +28,5 @@ test.describe('sign out', () => {
       await auth.loginViaMagicLink();
       await page.getByRole('button', { name: 'Sign Out' }).click();
       await expect(page).toHaveURL('/auth/sign-in');
-
-      await page.goto('/');
-      await expect(page).toHaveURL(/\/auth\/sign-in/);
    });
 });

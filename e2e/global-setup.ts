@@ -12,6 +12,7 @@ if (!process.env.CI) {
 export default async function globalSetup() {
    // any pre-suite DB seeding here
 }
+
 export async function cleanupTestUser(email: string) {
    await db.delete(user).where(eq(user.email, email));
 }
