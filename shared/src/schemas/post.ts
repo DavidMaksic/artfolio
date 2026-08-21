@@ -52,6 +52,8 @@ export const postSummarySchema = z.object({
    ),
 });
 
+export const getPostsByUsernameSchema = z.object({ username: z.string() });
+
 export type Post = z.infer<typeof postSchema>;
 export type PostSummary = z.infer<typeof postSummarySchema>;
 export type CreatePostInput = z.infer<typeof createPostSchema>;
