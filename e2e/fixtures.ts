@@ -7,7 +7,7 @@ interface AuthFixture {
    username: string;
    displayName: string;
    emailSubmit: () => Promise<string>;
-   loginViaMagicLink: () => Promise<void>;
+   signInViaMagicLink: () => Promise<void>;
 }
 
 interface Fixtures {
@@ -31,7 +31,7 @@ export const test = base.extend<Fixtures>({
          return getSignInOtp(email);
       };
 
-      const loginViaMagicLink = async () => {
+      const signInViaMagicLink = async () => {
          const otp = await emailSubmit();
          await page.goto(
             `/auth/verify?email=${encodeURIComponent(email)}&code=${otp}`,
@@ -43,7 +43,7 @@ export const test = base.extend<Fixtures>({
          username,
          displayName,
          emailSubmit,
-         loginViaMagicLink,
+         signInViaMagicLink,
       });
       await cleanupTestUser(email);
    },

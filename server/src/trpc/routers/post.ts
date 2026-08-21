@@ -9,10 +9,6 @@ import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 
 export const postRouter = t.router({
-   getPostImageUploadSignature: protectedProcedure.mutation(() => {
-      return generateUploadSignature('posts');
-   }),
-
    create: protectedProcedure
       .input(createPostSchema)
       .mutation(async ({ ctx, input }) => {
@@ -118,4 +114,8 @@ export const postRouter = t.router({
 
          return { items };
       }),
+
+   getPostImageUploadSignature: protectedProcedure.mutation(() => {
+      return generateUploadSignature('posts');
+   }),
 });

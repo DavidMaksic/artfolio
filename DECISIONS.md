@@ -144,7 +144,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Sprint 5 — Feed
 
-**Goal:** Logged-in users see a chronological feed. New users see discovery posts. Feed paginates to a limit with a well-being reminder.
+**Goal:** Signed-in users see a chronological feed. New users see discovery posts. Feed paginates to a limit with a well-being reminder.
 
 **Completed:**
 

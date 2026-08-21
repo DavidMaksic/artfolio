@@ -3,13 +3,13 @@ import { expect, test } from '@/fixtures.js';
 
 test.describe('profile setup', () => {
    test('basic profile setup', async ({ page, auth }) => {
-      await auth.loginViaMagicLink();
+      await auth.signInViaMagicLink();
       await expect(page).toHaveURL('/profile-setup');
       await completeProfileSetup(page, auth.username, auth.displayName);
    });
 
    test('full profile setup', async ({ page, auth }) => {
-      await auth.loginViaMagicLink();
+      await auth.signInViaMagicLink();
       await expect(page).toHaveURL('/profile-setup');
 
       await page.getByLabel('Username').fill(auth.username);
@@ -25,7 +25,7 @@ test.describe('profile setup', () => {
    });
 
    test('skip profile setup', async ({ page, auth }) => {
-      await auth.loginViaMagicLink();
+      await auth.signInViaMagicLink();
       await expect(page).toHaveURL('/profile-setup');
 
       await page.getByLabel('Username').fill(auth.username);
@@ -38,7 +38,7 @@ test.describe('profile setup', () => {
 
 test.describe('profile visit', () => {
    test('public profile visit', async ({ page, auth }) => {
-      await auth.loginViaMagicLink();
+      await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
       await page.goto(`/${auth.username}`);
       await expect(page).toHaveURL(`/${auth.username}`);
@@ -52,7 +52,7 @@ test.describe('profile visit', () => {
 
 test.describe('profile edit', () => {
    test('edit button visible to owner', async ({ page, auth }) => {
-      await auth.loginViaMagicLink();
+      await auth.signInViaMagicLink();
       await expect(page).toHaveURL('/profile-setup');
       await completeProfileSetup(page, auth.username, auth.displayName);
       await expect(
@@ -69,7 +69,7 @@ test.describe('profile edit', () => {
    });
 
    test('profile editing', async ({ page, auth }) => {
-      await auth.loginViaMagicLink();
+      await auth.signInViaMagicLink();
       await expect(page).toHaveURL('/profile-setup');
       await completeProfileSetup(page, auth.username, auth.displayName);
 

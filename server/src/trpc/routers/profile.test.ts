@@ -4,8 +4,8 @@ import {
 } from '@/__tests__/helpers/trpc-helper.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockUser, mockProfile } from '@/__tests__/helpers/factories.js';
+import { db } from '@/db/index.js';
 
-// Mock the db module
 vi.mock('@/db/index.js', () => ({
    db: {
       query: {
@@ -23,7 +23,6 @@ vi.mock('@/db/index.js', () => ({
    },
 }));
 
-// Mock cloudinary
 vi.mock('@/lib/cloudinary.js', () => ({
    cloudinary: {
       utils: {
@@ -32,10 +31,11 @@ vi.mock('@/lib/cloudinary.js', () => ({
    },
 }));
 
-import { db } from '@/db/index.js';
-
 const mockFindFirst = db.query.profile.findFirst as ReturnType<typeof vi.fn>;
 const mockUpdate = db.update as ReturnType<typeof vi.fn>;
+
+const user = mockUser();
+const profile = mockProfile({ userId: user.id });
 
 beforeEach(() => {
    vi.clearAllMocks();
@@ -45,8 +45,6 @@ beforeEach(() => {
 
 describe('profile.getMe', () => {
    it('returns the profile for the authenticated user', async () => {
-      const user = mockUser();
-      const profile = mockProfile({ userId: user.id });
       mockFindFirst.mockResolvedValueOnce(profile);
 
       const caller = createAuthenticatedCaller(user);
@@ -61,7 +59,7 @@ describe('profile.getMe', () => {
    it('throws NOT_FOUND if profile does not exist', async () => {
       mockFindFirst.mockResolvedValueOnce(undefined);
 
-      const caller = createAuthenticatedCaller(mockUser());
+      const caller = createAuthenticatedCaller(user);
       await expect(caller.profile.getMe()).rejects.toThrow(
          expect.objectContaining({ code: 'NOT_FOUND' }),
       );
@@ -79,7 +77,6 @@ describe('profile.getMe', () => {
 
 describe('profile.getByUsername', () => {
    it('returns the profile for a valid username', async () => {
-      const profile = mockProfile();
       mockFindFirst.mockResolvedValueOnce(profile);
 
       const caller = createCaller();
@@ -104,11 +101,8 @@ describe('profile.getByUsername', () => {
 
 describe('profile.update', () => {
    it('updates profile fields correctly', async () => {
-      const user = mockUser();
-      const existing = mockProfile({ userId: user.id });
-      const updated = { ...existing, displayName: 'New Name' };
-
-      mockFindFirst.mockResolvedValueOnce(existing);
+      const updated = { ...profile, displayName: 'New Name' };
+      mockFindFirst.mockResolvedValueOnce(profile);
       mockUpdate.mockReturnValueOnce({
          set: vi.fn(() => ({
             where: vi.fn(() => ({
@@ -124,17 +118,11 @@ describe('profile.update', () => {
    });
 
    it('throws CONFLICT if username is already taken', async () => {
-      const user = mockUser();
-      const existing = mockProfile({ userId: user.id });
       const taken = mockProfile({
          userId: 'other-user-id',
          username: 'takenuser',
       });
-
-      // first findFirst returns existing, second returns taken
-      mockFindFirst
-         .mockResolvedValueOnce(existing)
-         .mockResolvedValueOnce(taken);
+      mockFindFirst.mockResolvedValueOnce(profile).mockResolvedValueOnce(taken);
 
       const caller = createAuthenticatedCaller(user);
       await expect(
@@ -145,7 +133,7 @@ describe('profile.update', () => {
    it('throws NOT_FOUND if profile does not exist', async () => {
       mockFindFirst.mockResolvedValueOnce(undefined);
 
-      const caller = createAuthenticatedCaller(mockUser());
+      const caller = createAuthenticatedCaller(user);
       await expect(
          caller.profile.update({ displayName: 'New Name' }),
       ).rejects.toThrow(expect.objectContaining({ code: 'NOT_FOUND' }));
@@ -163,12 +151,10 @@ describe('profile.update', () => {
 
 describe('profile.setCommissionAvailability', () => {
    it('toggles availableForCommissions correctly', async () => {
-      const user = mockUser();
       const updated = mockProfile({
          userId: user.id,
          availableForCommissions: true,
       });
-
       mockUpdate.mockReturnValueOnce({
          set: vi.fn(() => ({
             where: vi.fn(() => ({
@@ -197,7 +183,7 @@ describe('profile.setCommissionAvailability', () => {
 
 describe('profile.getProfileImageUploadSignature', () => {
    it('returns all required Cloudinary fields', async () => {
-      const caller = createAuthenticatedCaller(mockUser());
+      const caller = createAuthenticatedCaller(user);
       const result = await caller.profile.getProfileImageUploadSignature();
 
       expect(result).toHaveProperty('signature');

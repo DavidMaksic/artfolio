@@ -10,6 +10,7 @@ const RESERVED_USERNAMES = [
    'feed',
    'login',
    'logout',
+   'signin',
    'signup',
    'verify',
    'api',
