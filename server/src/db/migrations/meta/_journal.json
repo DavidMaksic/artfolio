@@ -15,6 +15,13 @@
       "when": 1786458278699,
       "tag": "0001_supreme_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787313991762,
+      "tag": "0002_clammy_tana_nile",
+      "breakpoints": true
     }
   ]
 }
