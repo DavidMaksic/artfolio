@@ -59,16 +59,14 @@ Purpose of this file is to track progress and decisions of each sprint.
 - BetterAuth with HTTP-only cookies over JWT — no token management in client code
 - Phosphor Icons (ph:) via @iconify/vue for UI icons
 - TanStack Query caches sessions with `authClient.getSession()`
-- Removed e2e helpers: now they live in `fixtures.ts` (page-dependent) and `global-setup.ts` (DB cleanup, Node-only)
+- Moved some e2e helper functions to `fixtures.ts` (page-dependent) and `global-setup.ts` (DB cleanup, Node-only)
 
 **Issues resolved:**
 
 - shadcn-vue init failing due to missing `paths` + `baseUrl` in client `tsconfig.json` — fixed by adding `ignoreDeprecations: "6.0"`
-- `authClient.useSession()` returned a `Ref` in Vue, not a plain object — destructuring failed; must be accessed via `.value`
 - `@artfolio/shared` not symlinked in `client/node_modules` — fixed by adding `"@artfolio/shared": "*"` to client/package.json and running `npm install`
 - Fixed betterAuth middleware handling by replacing `.use` with `.all` in the app configuration
 - Project references wired up (server as composite project, referenced from client) which fixes `typecheck` bugs
-- `vue-tsc --build` crawling server source via direct `../../../server/src/router` import — fixed with project references
 - `npm run build --workspaces` failing on shared — fixed with `--if-present`
 
 **Known issues carried forward:**
@@ -83,11 +81,36 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 **Completed:**
 
+- Profile row created automatically on registration via BetterAuth `databaseHooks`
+- Profile setup view (two-step form: identity → details)
+- Profile edit view with profile image upload
+- Public profile page at `/:username` visible to any visitor
+- Commission availability toggle
+- Cloudinary direct upload with server-signed URLs
+- tRPC procedures set up
+- Vitest unit tests for all profile procedures with mocked DB
+- Playwright E2E tests for setup, public visit, and edit flows
+
 **Decisions:**
+
+- Direct Cloudinary upload over server-proxied upload to avoid large file handling on Express
+- Two-step setup form to reduce onboarding friction
+- Profile image excluded from setup, available only in edit view
+- Mocked DB for Vitest unit tests, real DB integration tests deferred to Sprint 9
+- `profileImageUrl` stored as URL only, `publicId` not stored — orphaned images from cancelled edits accepted as a known trade-off given small file sizes
+- e2e file moved from `/client` to root for better project structure
 
 **Issues resolved:**
 
+- `shared/tsconfig.json` incompatible with server project references — resolved by aligning both to `NodeNext` and adding `references` to server config
+- `@artfolio/server/*` path alias added to client's `tsconfig.app.json` to avoid using relative paths when importing types from the serer
+- `drizzle.config.ts` was missing `casing: 'snake_case'` — DB columns were generated in camelCase while runtime queries expected snake_case, causing BetterAuth query failures
+
 **Known issues carried forward:**
+
+- `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
+- Profile image `publicId` not stored — Cloudinary cleanup on account deletion not implemented
+- Sign out and account deletion have no UI home until Settings page in Sprint 9
 
 ---
 
