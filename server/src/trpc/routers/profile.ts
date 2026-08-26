@@ -118,16 +118,13 @@ export const profileRouter = t.router({
    }),
 
    getProfilePalette: t.procedure
-      .input(z.object({ profileImageUrl: z.string().url() }))
+      .input(z.object({ profileImageUrl: z.url() }))
       .query(async ({ input }) => {
-         // Cloudinary URLs follow the pattern:
-         //   https://res.cloudinary.com/{cloud}/image/upload/v{version}/{publicId}.{ext}
-         // We extract the publicId by slicing after `/upload/` (and optional version).
          const match = input.profileImageUrl.match(
             /\/upload\/(?:v\d+\/)?(.+?)(?:\.[^/.]+)?$/,
          );
-         const publicId = match?.[1];
 
+         const publicId = match?.[1];
          if (!publicId) return { colors: [] };
 
          const colors = await getImageColors(publicId);

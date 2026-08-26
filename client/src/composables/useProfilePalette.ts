@@ -29,9 +29,7 @@ function hexToHsl(hex: string): [number, number, number] {
 function pickAccent(colors: { hex: string; weight: number }[]): [number, number, number] | null {
   const candidates = colors
     .map((c) => ({ ...c, hsl: hexToHsl(c.hex) }))
-    // Drop very dark (l < 15), very light (l > 85), and achromatic (s < 20)
     .filter(({ hsl: [, s, l] }) => s > 25 && l > 25 && l < 70)
-    // Most saturated first
     .sort((a, b) => b.hsl[1] - a.hsl[1]);
 
   return candidates[0]?.hsl ?? null;

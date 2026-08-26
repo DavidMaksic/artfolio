@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test';
 import { redis } from '@artfolio/server/lib/redis.js';
+import path from 'path';
 
 export async function getSignInOtp(email: string): Promise<string> {
    const raw = await redis.get(`verification:sign-in-otp-${email}`);
@@ -18,3 +19,5 @@ export async function completeProfileSetup(
    await page.getByRole('button', { name: 'Finish setup' }).click();
    await expect(page).toHaveURL(`/${username}`);
 }
+
+export const TEST_IMAGE = path.resolve('e2e/test-images/post-image.jpg');

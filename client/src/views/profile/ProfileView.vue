@@ -30,7 +30,6 @@ const {
 const { data: posts, isPending: isLoadingPosts } = useQuery({
   queryKey: computed(() => ["posts", username.value]),
   queryFn: () => trpc.post.getByUsername.query({ username: username.value }),
-  enabled: computed(() => !!profile.value),
 });
 
 const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);

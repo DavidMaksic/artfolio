@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import { usePostImageUpload } from "@/composables/usePostImageUpload";
 import { extractTrpcError } from "@/lib/trpc-error";
+import { useQueryClient } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
 const router = useRouter();
+const queryClient = useQueryClient();
 
 const {
   images,
@@ -108,14 +110,16 @@ async function handleSubmit() {
   try {
     const uploaded = await uploadAll();
 
-    const result = await trpc.post.create.mutate({
+    await trpc.post.create.mutate({
       description: description.value.trim() || undefined,
       categoryId: categoryId.value,
       tags: tags.value,
       images: uploaded,
     });
 
-    router.push(`/davidoesarts`);
+    const me = await trpc.profile.getMe.query();
+    queryClient.removeQueries({ queryKey: ["posts", me.username] });
+    router.push({ name: "profile", params: { username: me.username } });
   } catch (e) {
     submitError.value = extractTrpcError(e);
   } finally {

@@ -99,6 +99,7 @@ const rows = computed<Row[]>(() => {
       <div
         v-for="{ post, width } in row"
         :key="post.id"
+        :data-post-id="post.id"
         class="relative overflow-hidden rounded-xl border border-neutral-200 group select-none shrink-0"
         :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
       >
