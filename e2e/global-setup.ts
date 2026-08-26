@@ -1,3 +1,4 @@
+import { category } from '@artfolio/server/db/schema/post.js';
 import { user } from '@artfolio/server/db/schema/auth.js';
 import { db } from '@artfolio/server/db/index.js';
 import { eq } from 'drizzle-orm';
@@ -10,9 +11,18 @@ if (!process.env.CI) {
 }
 
 export default async function globalSetup() {
-   // any pre-suite DB seeding here
+   await seedCategories();
 }
 
 export async function cleanupTestUser(email: string) {
    await db.delete(user).where(eq(user.email, email));
+}
+
+export async function seedCategories() {
+   await db
+      .insert(category)
+      .values([
+         { id: 'cat_illustration', name: 'Illustration', slug: 'illustration' },
+      ])
+      .onConflictDoNothing();
 }
