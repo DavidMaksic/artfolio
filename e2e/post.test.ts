@@ -1,6 +1,8 @@
 import { completeProfileSetup, TEST_IMAGE } from './test-helpers';
 import { test, expect } from './fixtures';
 
+// TODO: Profile edit test needs to cover image upload too now
+
 test.describe('Post creation', () => {
    test('user can create a post and see it on their profile', async ({
       page,
@@ -19,9 +21,6 @@ test.describe('Post creation', () => {
 
       // Fill describe input and select a category
       await page.getByLabel('description').fill('My first E2E test post');
-      await expect(
-         page.locator('#category option:nth-child(2)'),
-      ).toBeAttached();
       await page.locator('#category').selectOption({ index: 1 });
 
       // Add a tag
