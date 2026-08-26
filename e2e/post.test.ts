@@ -1,8 +1,6 @@
 import { completeProfileSetup, TEST_IMAGE } from './test-helpers';
 import { test, expect } from './fixtures';
 
-// TODO: Profile edit test needs to cover image upload too now
-
 test.describe('Post creation', () => {
    test('user can create a post and see it on their profile', async ({
       page,
