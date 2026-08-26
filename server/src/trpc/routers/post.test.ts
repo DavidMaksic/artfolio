@@ -109,7 +109,10 @@ describe('post.getByUsername', () => {
       const result = await caller.post.getByUsername({ username: 'testuser' });
 
       expect(result.items).toHaveLength(1);
-      expect(result.items[0]).toMatchObject({ id: post.id, title: post.title });
+      expect(result.items[0]).toMatchObject({
+         id: post.id,
+         description: post.description,
+      });
    });
 
    it('throws NOT_FOUND for unknown username', async () => {

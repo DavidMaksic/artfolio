@@ -33,7 +33,6 @@ export function mockPost(overrides = {}) {
    return {
       id: 'post_1',
       profileId: 'test-profile-id',
-      title: 'Test Post',
       description: null,
       categoryId: 'cat_illustration',
       createdAt: new Date(),
@@ -49,6 +48,8 @@ export function mockImage(overrides = {}) {
       imageUrl: 'https://res.cloudinary.com/test/image.jpg',
       publicId: 'artfolio/posts/image',
       order: 0,
+      width: 1200,
+      height: 800,
       createdAt: new Date(),
       ...overrides,
    };
@@ -65,7 +66,7 @@ export function mockCategory(overrides = {}) {
 
 export function mockTestPost(overrides = {}) {
    return {
-      title: 'Test Post',
+      description: 'Test post description',
       categoryId: 'cat_illustration',
       tags: [],
       images: [
@@ -73,6 +74,8 @@ export function mockTestPost(overrides = {}) {
             imageUrl: 'https://res.cloudinary.com/test/image.jpg',
             publicId: 'artfolio/posts/image',
             order: 0,
+            width: 1200,
+            height: 800,
          },
       ],
       ...overrides,
