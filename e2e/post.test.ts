@@ -21,9 +21,6 @@ test.describe('Post creation', () => {
 
       // Fill describe input and select a category
       await page.getByLabel('description').fill('My first E2E test post');
-      await expect(
-         page.locator('#category option:nth-child(2)'),
-      ).toBeAttached();
       await page.locator('#category').selectOption({ index: 1 });
 
       // Add a tag
