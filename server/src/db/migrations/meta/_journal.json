@@ -22,6 +22,20 @@
       "when": 1787313991762,
       "tag": "0002_clammy_tana_nile",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787571451889,
+      "tag": "0003_lumpy_sage",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787583108049,
+      "tag": "0004_lowly_major_mapleleaf",
+      "breakpoints": true
     }
   ]
 }

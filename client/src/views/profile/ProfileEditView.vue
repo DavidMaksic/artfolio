@@ -26,15 +26,15 @@ const displayName = ref("");
 const bio = ref("");
 const location = ref("");
 const website = ref("");
+
 const availableForCommissions = ref(false);
-const profileImageUrl = ref<string | undefined>(undefined);
+const pendingProfileImage = ref<File | null>(null);
 
 const { data: profile, isPending: isLoadingProfile } = useQuery({
   queryKey: ["profile", "me"],
   queryFn: () => trpc.profile.getMe.query(),
 });
 
-// Populate fields once profile loads
 watch(
   profile,
   (p) => {
@@ -49,8 +49,39 @@ watch(
   { immediate: true },
 );
 
+function onProfileImageSelected(file: File) {
+  pendingProfileImage.value = file;
+}
+
+async function uploadProfileImage(file: File): Promise<string> {
+  const { signature, timestamp, folder, transformation, apiKey, cloudName } =
+    await trpc.profile.getProfileImageUploadSignature.mutate();
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", String(timestamp));
+  formData.append("signature", signature);
+  formData.append("folder", folder);
+  formData.append("transformation", transformation);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error("Image upload failed");
+  const data = await res.json();
+  return data.secure_url;
+}
+
 const { mutate, isPending } = useMutation({
-  mutationFn: (input: UpdateProfileInput) => trpc.profile.update.mutate(input),
+  mutationFn: async (input: UpdateProfileInput) => {
+    if (pendingProfileImage.value) {
+      input.profileImageUrl = await uploadProfileImage(pendingProfileImage.value);
+    }
+    return trpc.profile.update.mutate(input);
+  },
   onSuccess: async () => {
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
     router.push({ path: `/${username.value}` });
@@ -68,7 +99,6 @@ function onSubmit(e: SubmitEvent) {
     location: location.value || undefined,
     website: website.value || undefined,
     availableForCommissions: availableForCommissions.value,
-    profileImageUrl: profileImageUrl.value || undefined,
   });
 }
 </script>
@@ -77,7 +107,6 @@ function onSubmit(e: SubmitEvent) {
   <div
     class="min-h-screen flex flex-col justify-center bg-background gap-4 px-4 -translate-y-5 max-w-lg mx-auto"
   >
-    <!-- Header -->
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">
         <Icon icon="ph:arrow-left" class="size-5 mt-0.5" />
@@ -85,7 +114,6 @@ function onSubmit(e: SubmitEvent) {
       <h1 class="text-xl font-bold">Edit profile</h1>
     </div>
 
-    <!-- Loading -->
     <template v-if="isLoadingProfile">
       <Card>
         <CardContent class="space-y-5 pt-6">
@@ -106,7 +134,7 @@ function onSubmit(e: SubmitEvent) {
             <div class="flex justify-center mb-4">
               <ProfileImageUpload
                 :current-image-url="profile?.profileImageUrl"
-                @uploaded="(url) => (profileImageUrl = url)"
+                @file-selected="onProfileImageSelected"
                 :disabled="isPending"
               />
             </div>

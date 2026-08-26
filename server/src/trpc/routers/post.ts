@@ -1,10 +1,10 @@
 import { createPostSchema, getPostsByUsernameSchema } from '@artfolio/shared';
-import { post, postImage, postTag, tag } from '@/db/schema/post.js';
+import { category, post, postImage, postTag, tag } from '@/db/schema/post.js';
 import { generateUploadSignature } from '@/lib/cloudinary.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
 import { TRPCError } from '@trpc/server';
+import { desc, eq } from 'drizzle-orm';
 import { profile } from '@/db/schema/profile.js';
-import { asc, eq } from 'drizzle-orm';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 
@@ -30,7 +30,6 @@ export const postRouter = t.router({
             await tx.insert(post).values({
                id: postId,
                profileId: userProfile.id,
-               title: input.title,
                description: input.description ?? null,
                categoryId: input.categoryId,
                createdAt: now,
@@ -45,6 +44,8 @@ export const postRouter = t.router({
                      imageUrl: img.imageUrl,
                      publicId: img.publicId,
                      order: img.order,
+                     width: img.width,
+                     height: img.height,
                      createdAt: now,
                   })),
                );
@@ -92,7 +93,7 @@ export const postRouter = t.router({
 
          const posts = await db.query.post.findMany({
             where: eq(post.profileId, userProfile.id),
-            orderBy: [asc(post.createdAt)],
+            orderBy: [desc(post.createdAt)],
             with: {
                images: true,
                category: true,
@@ -104,16 +105,21 @@ export const postRouter = t.router({
 
          const items = posts.map((p) => ({
             id: p.id,
-            title: p.title,
             categoryId: p.categoryId,
             createdAt: p.createdAt,
             coverImage: p.images.sort((a, b) => a.order - b.order)[0],
+            description: p.description,
+            imageCount: p.images.length,
             category: p.category,
             tags: p.postTags.map((pt) => pt.tag),
          }));
 
          return { items };
       }),
+
+   getCategories: t.procedure.query(async () => {
+      return db.select().from(category).orderBy(category.name);
+   }),
 
    getPostImageUploadSignature: protectedProcedure.mutation(() => {
       return generateUploadSignature('posts');

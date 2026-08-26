@@ -13,7 +13,6 @@ export const post = pgTable('post', {
    profileId: text()
       .notNull()
       .references(() => profile.id, { onDelete: 'cascade' }),
-   title: text().notNull(),
    description: text(),
    categoryId: text()
       .notNull()
@@ -30,6 +29,8 @@ export const postImage = pgTable('post_image', {
    imageUrl: text().notNull(),
    publicId: text().notNull(),
    order: integer().notNull().default(0),
+   width: integer().notNull(),
+   height: integer().notNull(),
    createdAt: timestamp().notNull(),
 });
 

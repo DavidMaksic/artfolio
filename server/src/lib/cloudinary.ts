@@ -47,3 +47,20 @@ export function generateUploadSignature(folder: string): {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
    };
 }
+
+export async function getImageColors(
+   publicId: string,
+): Promise<{ hex: string; weight: number }[]> {
+   try {
+      // cloudinary.api.resource is part of the Admin API (server-side only).
+      // It does NOT count against upload bandwidth.
+      const result = (await cloudinary.api.resource(publicId, {
+         colors: true,
+      })) as { colors?: [string, number][] };
+
+      return (result.colors ?? []).map(([hex, weight]) => ({ hex, weight }));
+   } catch {
+      // Silently degrade — palette is a visual enhancement, never blocking.
+      return [];
+   }
+}

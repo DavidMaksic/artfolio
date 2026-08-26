@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { computed, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useProfilePalette } from "@/composables/useProfilePalette";
 import { useAuthStore } from "@/stores/auth.store";
 import { useQuery } from "@tanstack/vue-query";
-import { computed } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import PostGrid from "@/components/PostGrid.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,64 +27,100 @@ const {
   queryFn: () => trpc.profile.getByUsername.query({ username: username.value }),
 });
 
+const { data: posts, isPending: isLoadingPosts } = useQuery({
+  queryKey: computed(() => ["posts", username.value]),
+  queryFn: () => trpc.post.getByUsername.query({ username: username.value }),
+  enabled: computed(() => !!profile.value),
+});
+
 const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);
+
+// Palette theming
+
+const { accentHsl, extractPalette } = useProfilePalette();
+
+watchEffect(() => {
+  extractPalette(profile.value?.profileImageUrl);
+});
+
+const cssVars = computed(() => {
+  const [h, s, l] = accentHsl.value ?? [0, 0, 50];
+  return {
+    "--pa-h": String(h),
+    "--pa-s": `${s}%`,
+    "--pa-l": `${Math.max(l - 10, 40)}%`,
+    "--pa-ring-l": `${Math.min(l + 45, 82)}%`,
+  };
+});
+
+// Shorthand used in :style bindings so the template stays readable.
+const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
-    <div class="max-w-2xl mx-auto px-4 py-12">
-      <!-- Loading -->
-      <template v-if="isPending">
-        <div class="flex flex-col items-center gap-4">
-          <Skeleton class="w-24 h-24 rounded-full" />
-          <Skeleton class="h-5 w-40" />
-          <Skeleton class="h-4 w-24" />
-          <Skeleton class="h-16 w-full mt-2" />
-        </div>
-      </template>
+  <div class="min-h-screen bg-background" :style="cssVars">
+    <!-- Loading -->
+    <template v-if="isPending">
+      <div class="relative flex min-h-screen w-full">
+        <Skeleton class="w-72 shrink-0 h-[calc(100vh-5rem)] mt-10 ml-5 rounded-2xl" />
+      </div>
+    </template>
 
-      <!-- Profile -->
-      <template v-else-if="profile">
-        <div class="flex flex-col items-center text-center gap-4">
+    <!-- Profile -->
+    <template v-else-if="profile">
+      <div class="relative flex min-h-screen transition duration-700">
+        <div
+          class="fixed top-0 left-0 inset-0 z-0 pointer-events-none"
+          :style="`background: radial-gradient(ellipse 200% 200% at -80% 60%, hsl(${paBase} / 0.6) 0%, transparent 65%)`"
+        ></div>
+
+        <!-- Left — profile sidebar -->
+        <aside
+          class="w-72 bg-white/80 shrink-0 h-[calc(100vh-5rem)] mt-10 ml-5 px-10 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700"
+        >
           <!-- Profile image -->
-          <div class="relative">
-            <img
-              v-if="profile.profileImageUrl"
-              :src="profile.profileImageUrl"
-              :alt="profile.displayName ?? profile.username"
-              class="size-32 rounded-full object-cover ring-2 ring-border"
-            />
-            <div
-              v-else
-              class="size-32 rounded-full bg-muted flex items-center justify-center ring-2 ring-border"
-            >
-              <Icon icon="ph:user" class="text-4xl text-muted-foreground" />
-            </div>
+          <img
+            v-if="profile.profileImageUrl"
+            :src="profile.profileImageUrl"
+            :alt="profile.displayName ?? profile.username"
+            class="size-32 rounded-full object-cover ring-2 transition-shadow duration-700"
+            :style="{ boxShadow: `0 0 0 3px hsl(var(--pa-h) var(--pa-s) var(--pa-ring-l))` }"
+          />
+          <div
+            v-else
+            class="size-32 rounded-full bg-muted flex items-center justify-center ring-2 ring-border"
+          >
+            <Icon icon="ph:user" class="text-4xl text-muted-foreground" />
           </div>
 
           <!-- Name + username -->
           <div class="space-y-1">
-            <h1 class="text-2xl font-bold">
-              {{ profile.displayName }}
-            </h1>
+            <h1 class="text-xl font-bold">{{ profile.displayName }}</h1>
             <p class="text-sm text-muted-foreground">@{{ profile.username }}</p>
           </div>
 
           <!-- Commission badge -->
-          <Badge v-if="profile.availableForCommissions" variant="secondary" class="gap-1.5">
+          <Badge
+            v-if="profile.availableForCommissions"
+            variant="secondary"
+            class="gap-1.5 transition-colors duration-700"
+            :style="{
+              backgroundColor: `hsl(${paBase} / 0.15)`,
+              color: `hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) - 10%))`,
+              borderColor: `hsl(${paBase} / 0.35)`,
+            }"
+          >
             <Icon icon="ph:paint-brush" class="text-sm" />
             Available for commissions
           </Badge>
 
           <!-- Bio -->
-          <p v-if="profile.bio" class="text-sm text-muted-foreground max-w-md leading-relaxed">
+          <p v-if="profile.bio" class="text-sm text-muted-foreground leading-relaxed">
             {{ profile.bio }}
           </p>
 
-          <!-- Meta: location + website -->
-          <div
-            class="flex items-center gap-4 text-sm text-muted-foreground flex-wrap justify-center"
-          >
+          <!-- Location + website -->
+          <div class="flex flex-col items-center gap-2 text-sm text-muted-foreground w-full">
             <span v-if="profile.location" class="flex items-center gap-1">
               <Icon icon="ph:map-pin" />
               {{ profile.location }}
@@ -91,8 +129,7 @@ const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);
               v-if="profile.website"
               :href="profile.website"
               target="_blank"
-              rel="noopener
-              noreferrer"
+              rel="noopener noreferrer"
               class="flex items-center gap-1 hover:text-foreground transition-colors"
             >
               <Icon icon="ph:link" />
@@ -100,33 +137,60 @@ const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);
             </a>
           </div>
 
-          <!-- Edit button (own profile only) -->
-          <Button
-            v-if="isOwnProfile"
-            variant="outline"
-            class="mt-2"
-            @click="router.push({ name: 'profile-edit' })"
-          >
-            <Icon icon="ph:pencil-simple" class="mr-2" />
-            Edit profile
-          </Button>
-        </div>
+          <!-- Actions -->
+          <div v-if="isOwnProfile" class="flex flex-col gap-2 w-full pt-2">
+            <Button
+              variant="outline"
+              class="w-full pa-btn"
+              @click="router.push({ name: 'post-create' })"
+            >
+              <Icon icon="ph:plus" class="mr-2" />
+              New post
+            </Button>
+            <Button
+              variant="outline"
+              class="w-full pa-btn"
+              @click="router.push({ name: 'profile-edit' })"
+            >
+              <Icon icon="ph:pencil-simple" class="mr-2" />
+              Edit profile
+            </Button>
+          </div>
+        </aside>
 
-        <!-- Divider for future content (posts, portfolio, etc.) -->
-        <div class="mt-12 border-t pt-8">
-          <p class="text-center text-sm text-muted-foreground">No posts yet.</p>
-        </div>
-      </template>
+        <!-- Right — posts -->
+        <main class="flex-1 min-w-0 p-10 pl-5">
+          <template v-if="isLoadingPosts">
+            <div class="grid grid-cols-3 gap-1">
+              <Skeleton v-for="n in 9" :key="n" class="h-95 w-full rounded-xl" />
+            </div>
+          </template>
+          <PostGrid v-else :posts="posts?.items ?? []" />
+        </main>
+      </div>
+    </template>
 
-      <!-- Error / Not found -->
-      <template v-else-if="isError">
-        <div class="flex flex-col items-center gap-3 text-center py-24">
-          <Icon icon="ph:user-circle-dashed" class="text-5xl text-muted-foreground" />
-          <h1 class="text-lg font-semibold">Profile not found</h1>
-          <p class="text-sm text-muted-foreground">There's no artist at @{{ username }}.</p>
-          <Button variant="ghost" @click="router.push({ name: 'home' })"> Go home </Button>
-        </div>
-      </template>
-    </div>
+    <!-- Error / Not found -->
+    <template v-else-if="isError">
+      <div class="flex flex-col items-center gap-3 text-center py-24">
+        <Icon icon="ph:user-circle-dashed" class="text-5xl text-muted-foreground" />
+        <h1 class="text-lg font-semibold">Profile not found</h1>
+        <p class="text-sm text-muted-foreground">There's no artist at @{{ username }}.</p>
+        <Button variant="ghost" @click="router.push({ name: 'home' })">Go home</Button>
+      </div>
+    </template>
   </div>
 </template>
+
+<style scoped>
+.pa-btn {
+  border-color: hsl(var(--pa-h) var(--pa-s) var(--pa-l) / 0.2);
+  color: hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) - 25%));
+}
+
+.pa-btn:hover {
+  background-color: hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) + 30%) / 0.2);
+  border-color: hsl(var(--pa-h) var(--pa-s) var(--pa-l) / 0.3);
+  color: hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) - 25%));
+}
+</style>

@@ -1,6 +1,6 @@
 import { usernameSchema, updateProfileSchema } from '@artfolio/shared';
+import { cloudinary, getImageColors } from '@/lib/cloudinary.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
-import { cloudinary } from '@/lib/cloudinary.js';
 import { TRPCError } from '@trpc/server';
 import { profile } from '@/db/schema/profile.js';
 import { db } from '@/db/index.js';
@@ -94,7 +94,7 @@ export const profileRouter = t.router({
       }),
 
    getProfileImageUploadSignature: protectedProcedure.mutation(({ ctx }) => {
-      const timestamp = Math.round(new Date().getTime() / 1000);
+      const timestamp = Math.round(Date.now() / 1000);
 
       const params = {
          timestamp,
@@ -116,4 +116,21 @@ export const profileRouter = t.router({
          cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
       };
    }),
+
+   getProfilePalette: t.procedure
+      .input(z.object({ profileImageUrl: z.string().url() }))
+      .query(async ({ input }) => {
+         // Cloudinary URLs follow the pattern:
+         //   https://res.cloudinary.com/{cloud}/image/upload/v{version}/{publicId}.{ext}
+         // We extract the publicId by slicing after `/upload/` (and optional version).
+         const match = input.profileImageUrl.match(
+            /\/upload\/(?:v\d+\/)?(.+?)(?:\.[^/.]+)?$/,
+         );
+         const publicId = match?.[1];
+
+         if (!publicId) return { colors: [] };
+
+         const colors = await getImageColors(publicId);
+         return { colors };
+      }),
 });

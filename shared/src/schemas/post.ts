@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const createPostSchema = z.object({
-   title: z.string({ error: 'Title is required' }).min(1).max(100),
    description: z.string().max(2000).optional(),
    categoryId: z.string({ error: 'Category is required' }),
    tags: z.array(z.string().min(1).max(30)).max(10).default([]),
@@ -11,6 +10,8 @@ export const createPostSchema = z.object({
             imageUrl: z.string({ error: 'Image URL is required' }),
             publicId: z.string({ error: 'Public ID is required' }),
             order: z.number().int().min(0),
+            width: z.number().int().positive(),
+            height: z.number().int().positive(),
          }),
       )
       .min(1, { error: 'At least one image is required' })
@@ -22,13 +23,14 @@ export const postImageSchema = z.object({
    imageUrl: z.string(),
    publicId: z.string(),
    order: z.number(),
+   width: z.number(),
+   height: z.number(),
    createdAt: z.date(),
 });
 
 export const postSchema = z.object({
    id: z.string(),
    profileId: z.string(),
-   title: z.string(),
    description: z.string().nullable(),
    categoryId: z.string(),
    createdAt: z.date(),
@@ -42,10 +44,11 @@ export const postSchema = z.object({
 
 export const postSummarySchema = z.object({
    id: z.string(),
-   title: z.string(),
    categoryId: z.string(),
    createdAt: z.date(),
    coverImage: postImageSchema,
+   description: z.string().nullable().optional(),
+   imageCount: z.number(),
    category: z.object({ id: z.string(), name: z.string(), slug: z.string() }),
    tags: z.array(
       z.object({ id: z.string(), name: z.string(), slug: z.string() }),
