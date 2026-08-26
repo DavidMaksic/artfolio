@@ -14,10 +14,6 @@ export default async function globalSetup() {
    await seedCategories();
 }
 
-export async function cleanupTestUser(email: string) {
-   await db.delete(user).where(eq(user.email, email));
-}
-
 export async function seedCategories() {
    await db
       .insert(category)
@@ -25,4 +21,8 @@ export async function seedCategories() {
          { id: 'cat_illustration', name: 'Illustration', slug: 'illustration' },
       ])
       .onConflictDoNothing();
+}
+
+export async function cleanupTestUser(email: string) {
+   await db.delete(user).where(eq(user.email, email));
 }
