@@ -1,8 +1,6 @@
 import { completeProfileSetup } from '@/test-helpers';
 import { expect, test } from '@/fixtures.js';
 
-// TODO: Profile edit test needs to cover image upload
-
 test.describe('profile setup', () => {
    test('basic profile setup', async ({ page, auth }) => {
       await auth.signInViaMagicLink();
