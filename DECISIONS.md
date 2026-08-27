@@ -37,7 +37,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 **Known issues carried forward:**
 
-- `esbuild` vulnerability inside `drizzle-kit` — moderate severity, dev dependency only, not a production risk; awaiting fix from the Drizzle team
+- None
 
 ---
 
@@ -110,21 +110,39 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 - `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
 - Profile image `publicId` not stored — Cloudinary cleanup on account deletion not implemented
-- Sign out and account deletion have no UI home until Settings page in Sprint 9
 
 ---
 
-## Sprint 3 — Color Theming + Posts (Part 1)
+## Sprint 3 — Posts (Part 1) + Color Theming
 
-**Goal:** Profile background derives accent colors from the user's avatar. Users can create posts with multiple images, categories, and tags.
+**Goal:** Users can create posts with multiple images and tags, under one category. Profile page derives accent colors from the user's profile image.
 
 **Completed:**
 
+- Post, post_image, category, tag, post_tag tables created and migrated
+- Categories seeded (10 fixed options, safe to re-run)
+- Shared Zod schemas for post creation and retrieval
+- Necessary tRPC procedures defined
+- `usePostImageUpload` composable with local preview and upload-on-submit pattern
+- `PostCreateView.vue` with Twitter/Cara-style image grid, drag-to-reorder, tag chip input
+- `ProfileView.vue` reworked to sidebar + post grid layout
+- `PostGrid.vue` uses stored image dimensions for dynamic image width
+- Vitest unit tests for all post procedures
+
 **Decisions:**
+
+- Removed eager cloudinary upload on file selection in `ProfileImageUpload.vue` and `ProfileEditView.vue`; now, images are uploaded on form submission
+- Removed title on posts — description only
+- One category per post, many tags
 
 **Issues resolved:**
 
+- PostGrid prop types derived from `inferRouterOutputs<AppRouter>` to match tRPC wire types
+
 **Known issues carried forward:**
+
+- `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
+- Profile image `publicId` not stored — Cloudinary cleanup on account deletion not implemented
 
 ---
 

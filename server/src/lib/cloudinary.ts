@@ -8,18 +8,6 @@ cloudinary.config({
 
 export { cloudinary };
 
-export async function uploadImage(
-   filePath: string,
-   folder: string,
-): Promise<{ url: string; publicId: string }> {
-   const result = await cloudinary.uploader.upload(filePath, {
-      folder: `artfolio/${folder}`,
-      transformation: [{ quality: 'auto', fetch_format: 'auto' }],
-   });
-
-   return { url: result.secure_url, publicId: result.public_id };
-}
-
 export async function deleteImage(publicId: string): Promise<void> {
    await cloudinary.uploader.destroy(publicId);
 }
