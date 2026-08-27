@@ -7,6 +7,20 @@ import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  TagsInput,
+  TagsInputInput,
+  TagsInputItem,
+  TagsInputItemDelete,
+  TagsInputItemText,
+} from "@/components/ui/tags-input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -27,7 +41,6 @@ const {
 
 const description = ref("");
 const categoryId = ref("");
-const tagInput = ref("");
 const tags = ref<string[]>([]);
 const isSubmitting = ref(false);
 const submitError = ref<string | null>(null);
@@ -75,27 +88,6 @@ const gridClass = computed(() => {
   if (count === 3) return "grid-three";
   return "grid-many";
 });
-
-function addTag() {
-  const value = tagInput.value.trim().toLowerCase();
-  if (!value || tags.value.includes(value) || tags.value.length >= 10) return;
-  tags.value.push(value);
-  tagInput.value = "";
-}
-
-function removeTag(tag: string) {
-  tags.value = tags.value.filter((t) => t !== tag);
-}
-
-function handleTagKeydown(e: KeyboardEvent) {
-  if (e.key === "Enter" || e.key === ",") {
-    e.preventDefault();
-    addTag();
-  }
-  if (e.key === "Backspace" && tagInput.value === "") {
-    tags.value.pop();
-  }
-}
 
 const canSubmit = computed(
   () =>
@@ -238,49 +230,36 @@ async function handleSubmit() {
           <!-- Category -->
           <div class="space-y-1.5">
             <Label for="category">Category <span class="text-destructive">*</span></Label>
-            <select
-              id="category"
-              v-model="categoryId"
-              :disabled="isUploading || isSubmitting"
-              class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <option value="" disabled>Select a category</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
+            <Select v-model="categoryId" :disabled="isUploading || isSubmitting">
+              <SelectTrigger id="category" class="w-full">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
+                  {{ cat.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <!-- Tags -->
           <div class="space-y-1.5">
             <Label>Tags</Label>
-            <div
-              class="flex flex-wrap gap-2 rounded-md border border-input bg-background px-3 py-2 focus-within:outline-none focus-within:ring-1 focus-within:ring-ring"
-            >
-              <span
-                v-for="tag in tags"
-                :key="tag"
-                class="flex items-center gap-1 bg-muted text-sm rounded-full px-3 py-0.5"
-              >
-                {{ tag }}
-                <button
-                  type="button"
-                  :disabled="isUploading || isSubmitting"
-                  @click="removeTag(tag)"
-                >
-                  <Icon icon="ph:x-bold" class="text-xs" />
-                </button>
-              </span>
-              <input
-                v-model="tagInput"
-                type="text"
+            <TagsInput v-model="tags" :disabled="isUploading || isSubmitting">
+              <TagsInputItem v-for="tag in tags" :key="tag" :value="tag">
+                <TagsInputItemText />
+                <TagsInputItemDelete />
+              </TagsInputItem>
+              <TagsInputInput
                 placeholder="Add a tag..."
-                class="flex-1 min-w-24 bg-transparent text-sm focus:outline-none"
-                :disabled="isUploading || isSubmitting"
-                @keydown="handleTagKeydown"
-                @blur="addTag"
+                @keydown="
+                  (e: KeyboardEvent) => {
+                    if (tags.length >= 10) e.preventDefault();
+                  }
+                "
               />
-            </div>
+            </TagsInput>
             <p class="text-xs text-muted-foreground">
               Press Enter or comma to add · {{ tags.length }}/10
             </p>

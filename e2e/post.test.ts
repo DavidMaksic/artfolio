@@ -19,7 +19,8 @@ test.describe('post creation', () => {
 
       // Fill describe input and select a category
       await page.getByLabel('description').fill('My first E2E test post');
-      await page.locator('#category').selectOption({ index: 1 });
+      await page.locator('#category').click();
+      await page.getByRole('option').first().click();
 
       // Add a tag
       const tagInput = page.getByPlaceholder(/tag/i);

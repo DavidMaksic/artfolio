@@ -122,12 +122,17 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Post, post_image, category, tag, post_tag tables created and migrated
 - Categories seeded (10 fixed options, safe to re-run)
 - Shared Zod schemas for post creation and retrieval
+- `getImageColors` + `getProfilePalette` for Cloudinary color extraction
 - Necessary tRPC procedures defined
-- `usePostImageUpload` composable with local preview and upload-on-submit pattern
-- `PostCreateView.vue` with Twitter/Cara-style image grid, drag-to-reorder, tag chip input
+- `usePostImageUpload` composable with local preview + upload-on-submit pattern
+- `PostCreateView.vue` with image grid, drag-and-drop reorder, tag chips
 - `ProfileView.vue` reworked to sidebar + post grid layout
-- `PostGrid.vue` uses stored image dimensions for dynamic image width
+- `PostGrid.vue` with justified layout, hover overlay, accent gradient
 - Vitest unit tests for all post procedures
+- `useProfilePalette` composable with saturation-based accent picking
+- CSS custom properties (`--pa-h/s/l`, `--pa-ring-l`) injected into `ProfileView.vue` with neutral grey fallback
+- Sidebar radial gradient, accent ring, accent border, accent badge, accent button hovers
+- Playwright E2E for post creation flow with category seeding in `globalSetup`
 
 **Decisions:**
 
@@ -138,6 +143,8 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Issues resolved:**
 
 - PostGrid prop types derived from `inferRouterOutputs<AppRouter>` to match tRPC wire types
+- E2E category select timing on CI — fixed by seeding categories in `globalSetup`
+- Cloudinary env vars missing from CI workflow — added as GitHub secrets
 
 **Known issues carried forward:**
 
