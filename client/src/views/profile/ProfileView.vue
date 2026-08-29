@@ -75,7 +75,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 
         <!-- Left — profile sidebar -->
         <aside
-          class="w-72 bg-white/80 shrink-0 h-[calc(100vh-5rem)] mt-10 ml-5 px-10 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700"
+          class="w-72 bg-white/80 shrink-0 h-[calc(100vh-8.4rem)] mt-10 ml-5 px-10 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700"
         >
           <!-- Profile image -->
           <img

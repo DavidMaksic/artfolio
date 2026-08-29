@@ -1,5 +1,3 @@
 <template>
-  <div class="p-8">
-    <h1 class="text-3xl font-bold">Artfolio</h1>
-  </div>
+  <div></div>
 </template>
