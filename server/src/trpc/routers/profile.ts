@@ -1,3 +1,4 @@
+import { getProfileByUserId, getProfileByUsername } from '@/trpc/helpers.js';
 import { usernameSchema, updateProfileSchema } from '@artfolio/shared';
 import { cloudinary, getImageColors } from '@/lib/cloudinary.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
@@ -9,48 +10,18 @@ import { t } from '@/trpc/init.js';
 import { z } from 'zod';
 
 export const profileRouter = t.router({
-   getMe: protectedProcedure.query(async ({ ctx }) => {
-      const result = await db.query.profile.findFirst({
-         where: eq(profile.userId, ctx.user.id),
-      });
-
-      if (!result)
-         throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Profile not found.',
-         });
-
-      return result;
-   }),
+   getMe: protectedProcedure.query(async ({ ctx }) =>
+      getProfileByUserId(ctx.user.id),
+   ),
 
    getByUsername: t.procedure
       .input(z.object({ username: usernameSchema }))
-      .query(async ({ input }) => {
-         const result = await db.query.profile.findFirst({
-            where: eq(profile.username, input.username),
-         });
-
-         if (!result)
-            throw new TRPCError({
-               code: 'NOT_FOUND',
-               message: 'Profile not found.',
-            });
-
-         return result;
-      }),
+      .query(async ({ input }) => getProfileByUsername(input.username)),
 
    update: protectedProcedure
       .input(updateProfileSchema)
       .mutation(async ({ ctx, input }) => {
-         const existing = await db.query.profile.findFirst({
-            where: eq(profile.userId, ctx.user.id),
-         });
-
-         if (!existing)
-            throw new TRPCError({
-               code: 'NOT_FOUND',
-               message: 'Profile not found.',
-            });
+         const existing = await getProfileByUserId(ctx.user.id);
 
          if (input.username && input.username !== existing.username) {
             const taken = await db.query.profile.findFirst({

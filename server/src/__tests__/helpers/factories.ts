@@ -81,3 +81,23 @@ export function mockTestPost(overrides = {}) {
       ...overrides,
    };
 }
+
+export function mockUpdateTestPost(overrides = {}) {
+   return {
+      id: 'post_1',
+      description: 'Updated description',
+      categoryId: 'cat_illustration',
+      tags: [],
+      images: [
+         {
+            imageUrl: 'https://res.cloudinary.com/test/image.jpg',
+            publicId: 'artfolio/posts/image',
+            order: 0,
+            width: 1200,
+            height: 800,
+         },
+      ],
+      removedImageIds: [],
+      ...overrides,
+   };
+}

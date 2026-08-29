@@ -55,8 +55,36 @@ export const postSummarySchema = z.object({
    ),
 });
 
-export const getPostsByUsernameSchema = z.object({ username: z.string() });
+export const updatePostSchema = z.object({
+   id: z.string(),
+   description: z.string().max(2000).optional(),
+   categoryId: z.string({ error: 'Category is required' }),
+   tags: z.array(z.string().min(1).max(30)).max(10).default([]),
+   images: z
+      .array(
+         z.object({
+            imageUrl: z.string({ error: 'Image URL is required' }),
+            publicId: z.string({ error: 'Public ID is required' }),
+            order: z.number().int().min(0),
+            width: z.number().int().positive(),
+            height: z.number().int().positive(),
+         }),
+      )
+      .min(1, { error: 'At least one image is required' })
+      .max(10),
+   removedImageIds: z.array(z.string()).default([]),
+});
+
+export const postDetailSchema = postSchema.extend({
+   profile: z.object({
+      username: z.string(),
+      displayName: z.string().nullable(),
+      profileImageUrl: z.string().nullable(),
+   }),
+});
 
 export type Post = z.infer<typeof postSchema>;
 export type PostSummary = z.infer<typeof postSummarySchema>;
 export type CreatePostInput = z.infer<typeof createPostSchema>;
+export type UpdatePostInput = z.infer<typeof updatePostSchema>;
+export type PostDetail = z.infer<typeof postDetailSchema>;
