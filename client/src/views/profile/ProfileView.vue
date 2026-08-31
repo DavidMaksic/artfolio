@@ -168,7 +168,11 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
               <Skeleton v-for="n in 9" :key="n" class="h-95 w-full rounded-xl" />
             </div>
           </template>
-          <PostGrid :posts="posts?.items ?? []" @open="activePostId = $event" />
+          <PostGrid
+            :posts="posts?.items ?? []"
+            :is-owner="isOwnProfile"
+            @open="activePostId = $event"
+          />
 
           <PostDetailModal
             v-if="activePostId"

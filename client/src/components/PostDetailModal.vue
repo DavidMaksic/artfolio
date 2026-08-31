@@ -35,12 +35,8 @@ const auth = useAuthStore();
 const queryClient = useQueryClient();
 
 // Lock body scroll
-onMounted(() => {
-  document.body.style.overflow = "hidden";
-});
-onUnmounted(() => {
-  document.body.style.overflow = "";
-});
+onMounted(() => (document.body.style.overflow = "hidden"));
+onUnmounted(() => (document.body.style.overflow = ""));
 
 // Keyboard navigation
 function handleKeydown(e: KeyboardEvent) {
@@ -67,6 +63,7 @@ function navigateNext() {
 const { data: post, isPending } = useQuery({
   queryKey: computed(() => ["post", props.postId]),
   queryFn: () => trpc.post.getById.query({ id: props.postId }),
+  staleTime: 1000 * 60 * 2, // 2 minutes
 });
 
 const { data: me } = useQuery({

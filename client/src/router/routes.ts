@@ -9,13 +9,13 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
+      component: () => import("@/views/HomeView.vue"),
       beforeEnter: async () => {
         const profile = await trpc.profile.getMe.query();
         if (!profile.profileSetupSkipped && !profile.displayName) {
           return { name: "profile-setup" };
         }
       },
-      component: () => import("@/views/HomeView.vue"),
     },
     {
       path: "/profile-setup",
@@ -49,8 +49,21 @@ const router = createRouter({
     {
       path: "/posts/:id/edit",
       name: "post-edit",
-      component: () => import("@/views/posts/PostEditView.vue"),
       meta: { requiresAuth: true },
+      component: () => import("@/views/posts/PostEditView.vue"),
+      beforeEnter: async (to) => {
+        const post = await trpc.post.getById
+          .query({ id: to.params.id as string })
+          .catch(() => null);
+        if (!post) return { name: "home" };
+
+        const me = await trpc.profile.getMe.query().catch(() => null);
+        if (!me) return { name: "sign-in" };
+
+        if (post.profile.username !== me.username) {
+          return { name: "profile", params: { username: post.profile.username } };
+        }
+      },
     },
     {
       path: "/:username",

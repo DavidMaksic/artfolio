@@ -331,6 +331,7 @@ async function handleSubmit() {
   cursor: grab;
   border: 1px solid var(--color-neutral-200);
   border-radius: 12px;
+  max-height: 40rem;
 }
 
 .image-cell:active {

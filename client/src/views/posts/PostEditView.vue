@@ -29,7 +29,6 @@ import { Label } from "@/components/ui/label";
 const route = useRoute();
 const router = useRouter();
 const queryClient = useQueryClient();
-
 const postId = computed(() => route.params.id as string);
 
 const {
@@ -50,10 +49,13 @@ const tags = ref<string[]>([]);
 const categories = ref<{ id: string; name: string; slug: string }[]>([]);
 const submitError = ref<string | null>(null);
 const isSubmitting = ref(false);
-
 const dragFromIndex = ref<number | null>(null);
 
-const { data: post, isPending } = useQuery({
+const {
+  data: post,
+  isPending,
+  isError,
+} = useQuery({
   queryKey: computed(() => ["post", postId.value]),
   queryFn: () => trpc.post.getById.query({ id: postId.value }),
 });
@@ -163,6 +165,12 @@ async function handleSubmit() {
     <div v-if="isPending" class="space-y-3">
       <div class="h-64 bg-muted rounded-2xl animate-pulse" />
       <div class="h-10 bg-muted rounded animate-pulse" />
+    </div>
+
+    <div v-else-if="isError" class="flex flex-col items-center gap-3 text-center py-24">
+      <Icon icon="ph:image-broken" class="text-5xl text-muted-foreground" />
+      <p class="text-lg font-semibold">Post not found</p>
+      <Button variant="ghost" @click="router.back()">Go back</Button>
     </div>
 
     <Card v-else>
@@ -329,24 +337,30 @@ async function handleSubmit() {
   overflow: hidden;
   gap: 4px;
 }
+
 .grid-single {
   grid-template-columns: 1fr;
 }
+
 .grid-two {
   grid-template-columns: 1fr 1fr;
   aspect-ratio: 3 / 2;
 }
+
 .grid-three {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   aspect-ratio: 3 / 2;
 }
+
 .grid-many {
   grid-template-columns: 1fr 1fr;
 }
+
 .grid-many .image-cell {
   aspect-ratio: 1 / 1;
 }
+
 .image-cell {
   position: relative;
   overflow: hidden;
@@ -355,9 +369,11 @@ async function handleSubmit() {
   border-radius: 12px;
   max-height: 40rem;
 }
+
 .image-cell:active {
   cursor: grabbing;
 }
+
 .grid-three .image-cell--large {
   grid-row: 1 / 3;
 }
