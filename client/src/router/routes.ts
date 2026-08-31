@@ -1,9 +1,10 @@
-import { createRouter, createWebHistory, useRouter } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import { registerAuthGuards } from "./guards";
 import { trpc } from "@/lib/trpc";
 
 const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior: () => ({ top: 0 }),
   routes: [
     {
       path: "/",
@@ -43,6 +44,12 @@ const router = createRouter({
       path: "/posts/create",
       name: "post-create",
       component: () => import("@/views/posts/PostCreateView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/posts/:id/edit",
+      name: "post-edit",
+      component: () => import("@/views/posts/PostEditView.vue"),
       meta: { requiresAuth: true },
     },
     {

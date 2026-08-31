@@ -15,6 +15,10 @@ const { data: me } = useQuery({
   queryFn: () => trpc.profile.getMe.query(),
   enabled: computed(() => auth.isAuthenticated),
 });
+
+const profileReady = computed(
+  () => !!me.value && (me.value.profileSetupSkipped || !!me.value.displayName),
+);
 </script>
 
 <template>
@@ -31,19 +35,24 @@ const { data: me } = useQuery({
       <!-- Right side -->
       <div class="flex items-center gap-2">
         <template v-if="auth.isAuthenticated">
-          <Button variant="ghost" size="sm" @click="router.push({ name: 'post-create' })">
+          <Button
+            v-if="profileReady"
+            variant="ghost"
+            size="sm"
+            @click="router.push({ name: 'post-create' })"
+          >
             <Icon icon="ph:plus" class="mr-1.5" />
             New post
           </Button>
 
           <Button
-            v-if="me"
+            v-if="profileReady"
             variant="ghost"
             size="sm"
-            @click="router.push({ name: 'profile', params: { username: me.username } })"
+            @click="router.push({ name: 'profile', params: { username: me!.username } })"
           >
             <Icon icon="ph:user" class="mr-1.5" />
-            {{ me.username }}
+            {{ me!.username }}
           </Button>
 
           <Button variant="ghost" size="sm" @click="auth.signOut()">

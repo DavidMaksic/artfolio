@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useProfilePalette } from "@/composables/useProfilePalette";
 import { useAuthStore } from "@/stores/auth.store";
@@ -10,6 +10,8 @@ import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+import PostDetailModal from "@/components/PostDetailModal.vue";
 import PostGrid from "@/components/PostGrid.vue";
 
 const route = useRoute();
@@ -33,6 +35,8 @@ const { data: posts, isPending: isLoadingPosts } = useQuery({
 });
 
 const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);
+const activePostId = ref<string | null>(null);
+const postIds = computed(() => posts.value?.items.map((p) => p.id) ?? []);
 
 // Palette theming
 
@@ -75,7 +79,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 
         <!-- Left — profile sidebar -->
         <aside
-          class="w-72 bg-white/80 shrink-0 h-[calc(100vh-8.4rem)] mt-10 ml-5 px-10 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700"
+          class="w-72 bg-white/80 shrink-0 h-[calc(100vh-7.2rem)] mt-5 ml-5 px-10 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700"
         >
           <!-- Profile image -->
           <img
@@ -158,13 +162,21 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
         </aside>
 
         <!-- Right — posts -->
-        <main class="flex-1 min-w-0 p-10 pl-5">
+        <main class="flex-1 min-w-0 p-5 pl-5">
           <template v-if="isLoadingPosts">
             <div class="grid grid-cols-3 gap-1">
               <Skeleton v-for="n in 9" :key="n" class="h-95 w-full rounded-xl" />
             </div>
           </template>
-          <PostGrid v-else :posts="posts?.items ?? []" />
+          <PostGrid :posts="posts?.items ?? []" @open="activePostId = $event" />
+
+          <PostDetailModal
+            v-if="activePostId"
+            :post-id="activePostId"
+            :post-ids="postIds"
+            @close="activePostId = null"
+            @navigate="activePostId = $event"
+          />
         </main>
       </div>
     </template>

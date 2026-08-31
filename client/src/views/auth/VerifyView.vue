@@ -107,15 +107,7 @@ const { mutate: resendCode, isPending } = useMutation({
 </script>
 
 <template>
-  <div
-    class="min-h-screen flex flex-col items-center justify-center bg-background gap-6 px-4 -translate-y-5"
-  >
-    <!-- Logo / Brand -->
-    <div class="flex items-center gap-2 text-foreground">
-      <Icon icon="ph:paint-brush-duotone" class="text-2xl text-primary" />
-      <span class="text-lg font-semibold tracking-tight">Artfolio</span>
-    </div>
-
+  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-background gap-6 px-4">
     <Card v-if="!autoCode" class="w-full max-w-sm shadow-2xl">
       <CardHeader class="space-y-1 pb-2">
         <CardTitle class="text-xl">Check your email</CardTitle>

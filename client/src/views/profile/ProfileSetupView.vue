@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { UpdateProfileInput } from "@artfolio/shared";
 import { extractTrpcError } from "@/lib/trpc-error";
 import { ref, computed } from "vue";
-import { useMutation } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 const router = useRouter();
+const queryClient = useQueryClient();
 
 const error = ref<string | null>(null);
 const step = ref<1 | 2>(1);
@@ -36,6 +37,7 @@ const isStep1Valid = computed(
 const { mutate, isPending } = useMutation({
   mutationFn: (input: UpdateProfileInput) => trpc.profile.update.mutate(input),
   onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["me"] });
     router.push({ path: `/${username.value}` });
   },
   onError: (err) => (error.value = extractTrpcError(err)),
@@ -47,6 +49,7 @@ async function redirect() {
     displayName: displayName.value,
     profileSetupSkipped: true,
   });
+  queryClient.invalidateQueries({ queryKey: ["me"] });
   router.push({ path: `/${username.value}` });
 }
 
@@ -65,15 +68,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <div
-    class="min-h-screen flex flex-col items-center justify-center bg-background gap-6 px-4 -translate-y-5"
-  >
-    <!-- Logo / Brand -->
-    <div class="flex items-center gap-2 text-foreground">
-      <Icon icon="ph:paint-brush-duotone" class="text-2xl text-primary" />
-      <span class="text-lg font-semibold tracking-tight">Artfolio</span>
-    </div>
-
+  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-background gap-6 px-4">
     <Card class="w-full max-w-md shadow-2xl">
       <CardHeader class="pb-2">
         <!-- Step indicator -->

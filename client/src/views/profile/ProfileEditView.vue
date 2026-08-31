@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { UpdateProfileInput } from "@artfolio/shared";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { extractTrpcError } from "@/lib/trpc-error";
+import { useAuthStore } from "@/stores/auth.store";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
+import {
+  AlertDialog,
+  AlertDialogTitle,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import ProfileImageUpload from "@/components/ProfileImageUpload.vue";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +30,7 @@ import { Label } from "@/components/ui/label";
 
 const router = useRouter();
 const queryClient = useQueryClient();
+const auth = useAuthStore();
 
 const error = ref<string | null>(null);
 
@@ -105,7 +118,7 @@ function onSubmit(e: SubmitEvent) {
 
 <template>
   <div
-    class="min-h-screen flex flex-col justify-center bg-background gap-4 px-4 -translate-y-5 max-w-lg mx-auto"
+    class="min-h-screen flex flex-col justify-center bg-background gap-4 pt-4 pb-20 px-4 max-w-lg mx-auto"
   >
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">
@@ -248,6 +261,49 @@ function onSubmit(e: SubmitEvent) {
                 <Icon v-if="isPending" icon="ph:spinner" class="animate-spin mr-2" />
                 {{ isPending ? "Saving..." : "Save changes" }}
               </Button>
+
+              <div class="flex gap-2 pt-1">
+                <!-- existing cancel + save buttons -->
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-border">
+              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+                Danger zone
+              </p>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium">Delete account</p>
+                  <p class="text-xs text-muted-foreground">
+                    Permanently removes your profile and all posts.
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger as-child>
+                    <Button variant="destructive" size="sm" class="px-6" type="button">
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently remove your profile, all your posts, and their images.
+                        This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        class="bg-destructive hover:bg-destructive/90"
+                        @click="auth.deleteAccount()"
+                      >
+                        Yes, delete everything
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </form>
         </CardContent>

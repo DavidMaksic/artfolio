@@ -3,19 +3,29 @@ import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@artfolio/server/router";
 
 import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type PostSummaryItem = RouterOutputs["post"]["getByUsername"]["items"][number];
 
+const props = defineProps<{
+  posts: PostSummaryItem[];
+  isOwner?: boolean;
+}>();
+
+const emit = defineEmits<{
+  delete: [postId: string];
+  open: [postId: string];
+}>();
+
+const router = useRouter();
 const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
 const TARGET_ROW_HEIGHT = 380;
 
 function updateWidth() {
-  if (containerRef.value) {
-    containerWidth.value = containerRef.value.clientWidth;
-  }
+  if (containerRef.value) containerWidth.value = containerRef.value.clientWidth;
 }
 
 onMounted(() => {
@@ -27,12 +37,7 @@ onUnmounted(() => {
   window.removeEventListener("resize", updateWidth);
 });
 
-const props = defineProps<{ posts: PostSummaryItem[] }>();
-
-type Row = {
-  post: PostSummaryItem;
-  width: number;
-}[];
+type Row = { post: PostSummaryItem; width: number }[];
 
 const rows = computed<Row[]>(() => {
   if (!containerWidth.value || props.posts.length === 0) return [];
@@ -54,23 +59,19 @@ const rows = computed<Row[]>(() => {
     const availableWidth = containerWidth.value - totalGaps;
 
     if (currentRowWidth >= availableWidth) {
-      // Scale row to fill container
       const scale = availableWidth / currentRowWidth;
       const rowHeight = TARGET_ROW_HEIGHT * scale;
-
       rows.push(
         currentRow.map(({ post, aspectRatio }) => ({
           post,
           width: aspectRatio * rowHeight,
         })),
       );
-
       currentRow = [];
       currentRowWidth = 0;
     }
   }
 
-  // Last incomplete row — don't stretch, just render at target height
   if (currentRow.length > 0) {
     rows.push(
       currentRow.map(({ post, aspectRatio }) => ({
@@ -85,13 +86,12 @@ const rows = computed<Row[]>(() => {
 </script>
 
 <template>
-  <!-- Empty state -->
   <div
     v-if="posts.length === 0"
-    class="flex flex-col items-center justify-center py-24 text-center gap-3"
+    class="fixed top-1/2 left-1/2 -translate-y-1/2 translate-x-1/2 flex flex-col items-center justify-center py-24 text-center gap-2"
   >
-    <Icon icon="ph:image-square-duotone" class="text-5xl text-muted-foreground" />
-    <p class="text-sm text-muted-foreground">No posts yet</p>
+    <Icon icon="ph:image-square-duotone" class="text-6xl text-muted-foreground" />
+    <p class="text-lg text-muted-foreground">No posts yet</p>
   </div>
 
   <div v-else ref="containerRef" class="w-full">
@@ -102,12 +102,15 @@ const rows = computed<Row[]>(() => {
         :data-post-id="post.id"
         class="relative overflow-hidden rounded-xl border border-neutral-200 group select-none shrink-0"
         :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
+        @click="emit('open', post.id)"
       >
         <img
           :src="post.coverImage?.imageUrl"
           :alt="post.category.name"
           class="w-full h-full object-cover transition-transform duration-300"
         />
+
+        <!-- Hover overlay -->
         <div
           class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3"
           style="
@@ -135,6 +138,26 @@ const rows = computed<Row[]>(() => {
         >
           "{{ post.description }}"
         </span>
+
+        <!-- Owner controls -->
+        <div
+          v-if="isOwner"
+          class="absolute top-2 left-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+          @click.stop
+        >
+          <button
+            class="bg-black/60 hover:bg-black/80 rounded-full p-1.5 transition"
+            @click="router.push({ name: 'post-edit', params: { id: post.id } })"
+          >
+            <Icon icon="ph:pencil-simple" class="text-white text-xs" />
+          </button>
+          <button
+            class="bg-black/60 hover:bg-destructive rounded-full p-1.5 transition"
+            @click="emit('delete', post.id)"
+          >
+            <Icon icon="ph:trash" class="text-white text-xs" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
