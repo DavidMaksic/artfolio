@@ -124,7 +124,7 @@ export function usePostImageEdit() {
             height: img.height,
           };
         }
-        return uploadedPending[pendingIdx++];
+        return uploadedPending[pendingIdx++]!;
       });
 
       return merged.map((img, i) => ({ ...img, order: i }));
