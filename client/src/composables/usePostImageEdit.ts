@@ -124,7 +124,9 @@ export function usePostImageEdit() {
             height: img.height,
           };
         }
-        return uploadedPending[pendingIdx++]!;
+        const uploaded = uploadedPending[pendingIdx++];
+        if (!uploaded) throw new Error("Uploaded pending image missing at expected index");
+        return uploaded;
       });
 
       return merged.map((img, i) => ({ ...img, order: i }));

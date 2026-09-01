@@ -109,7 +109,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Known issues carried forward:**
 
 - `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
-- Profile image `publicId` not stored — Cloudinary cleanup on account deletion not implemented
+- Cloudinary cleanup on account deletion not yet implemented
 
 ---
 
@@ -149,27 +149,50 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Known issues carried forward:**
 
 - `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
-- Profile image `publicId` not stored — Cloudinary cleanup on account deletion not implemented
+- Cloudinary cleanup on account deletion not yet implemented
 
 ---
 
 ## Sprint 4 — Posts (Part 2) + Post Detail View
 
-**Goal:** Users can edit and delete their posts. Any visitor can view a full post detail page.
+**Goal:** Users can edit and delete their posts. Any visitor can view a full post detail modal overlay.
 
 **Completed:**
 
+- New Zod schemas added to shared schemas
+- `getById`, `update`, `delete` procedures created
+- `deleteImage` added to Cloudinary lib
+- Vitest unit tests for all new and existing procedures
+- `usePostImageEdit` composable with `ExistingImage | PendingImage` union type
+- `PostDetailModal.vue` — full-screen 80/20 overlay, backdrop blur, scroll lock, keyboard nav, prev/next navigation
+- `PostEditView.vue` at /posts/:id/edit
+- `AppHeader.vue` and `AppFooter.vue` created
+- Delete account danger zone section in `ProfileEditView.vue`
+- Playwright E2E tests for modal, edit, delete, and non-owner guard flows
+
 **Decisions:**
+
+- Post detail implemented as a full-screen modal rather than a separate route
+- Full image replace strategy on update — delete all existing `post_image` rows and reinsert, simpler than diffing
+- Cloudinary cleanup is always fire-and-forget, never blocks the DB transaction
+- Post ownership guard lives in router `beforeEnter`, not in the component — user never sees the edit form if they're not the owner
+- Modal-behind-grid double-match: always scope text assertions to `modal.locator(...)` rather than `page.getByText(...)`
 
 **Issues resolved:**
 
+- `getByText('Second post')` matching two elements, fix: scope to modal
+- `secondAuth` fixture added for multi-user E2E tests via `createAuthFixture` factory, as there was no logic in place for testing with more than one user
+
 **Known issues carried forward:**
+
+- `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
+- Cloudinary cleanup on account deletion not yet implemented
 
 ---
 
 ## Sprint 5 — Feed
 
-**Goal:** Signed-in users see a chronological feed. New users see discovery posts. Feed paginates to a limit with a well-being reminder.
+**Goal:** Signed-in users see a chronological feed. New users see discovery posts. Feed is limited with a 'Load more' button.
 
 **Completed:**
 
