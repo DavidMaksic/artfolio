@@ -333,11 +333,9 @@ async function handleSubmit() {
   border-radius: 12px;
   max-height: 40rem;
 }
-
 .image-cell:active {
   cursor: grabbing;
 }
-
 .grid-three .image-cell--large {
   grid-row: 1 / 3;
 }

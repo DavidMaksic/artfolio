@@ -32,6 +32,7 @@ const {
 const { data: posts, isPending: isLoadingPosts } = useQuery({
   queryKey: computed(() => ["posts", username.value]),
   queryFn: () => trpc.post.getByUsername.query({ username: username.value }),
+  staleTime: 0,
 });
 
 const isOwnProfile = computed(() => auth.user?.id === profile.value?.userId);
@@ -145,6 +146,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
             <Button
               variant="outline"
               class="w-full pa-btn"
+              aria-label="Create post"
               @click="router.push({ name: 'post-create' })"
             >
               <Icon icon="ph:plus" class="mr-2" />
@@ -169,6 +171,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
             </div>
           </template>
           <PostGrid
+            v-else
             :posts="posts?.items ?? []"
             :is-owner="isOwnProfile"
             @open="activePostId = $event"

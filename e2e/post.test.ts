@@ -8,7 +8,7 @@ test.describe('post creation', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await page.getByRole('button', { name: 'New post' }).click();
+      await page.getByLabel('Create post').click();
       await expect(page).toHaveURL('/posts/create');
 
       // Upload an image
@@ -32,7 +32,7 @@ test.describe('post creation', () => {
       await page.getByRole('button', { name: 'Publish' }).click();
       await expect(page).toHaveURL(`/${auth.username}`, { timeout: 30_000 });
       await expect(page.locator('[data-post-id]').first()).toBeVisible({
-         timeout: 10_000,
+         timeout: 15_000,
       });
    });
 });

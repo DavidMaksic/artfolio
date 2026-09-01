@@ -88,7 +88,10 @@ const deleteMutation = useMutation({
 
 <template>
   <Teleport to="body">
-    <div class="fixed inset-0 z-50 flex backdrop-blur-2xl bg-neutral-100/40">
+    <div
+      class="fixed inset-0 z-50 flex backdrop-blur-2xl bg-neutral-100/40"
+      data-testid="post-modal"
+    >
       <!-- Left 80% — blurred backdrop + images -->
       <div
         class="relative flex-4 scrollbar-none"
@@ -138,9 +141,10 @@ const deleteMutation = useMutation({
           </div>
         </template>
 
-        <!-- Prev button -->
+        <!-- Close button -->
         <button
           class="fixed left-4 top-8 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors z-10"
+          aria-label="Close button"
           @click="emit('close')"
         >
           <Icon icon="ph:x" class="text-xl" />
@@ -150,6 +154,7 @@ const deleteMutation = useMutation({
         <button
           v-if="hasPrev"
           class="fixed left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors z-10"
+          aria-label="Previous post"
           @click="navigatePrev"
         >
           <Icon icon="ph:caret-left-bold" class="text-xl" />
@@ -159,6 +164,7 @@ const deleteMutation = useMutation({
         <button
           v-if="hasNext"
           class="fixed right-104 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors z-10"
+          aria-label="Next post"
           @click="navigateNext"
         >
           <Icon icon="ph:caret-right-bold" class="text-xl" />
@@ -175,6 +181,7 @@ const deleteMutation = useMutation({
             <Button
               variant="outline"
               size="sm"
+              aria-label="Edit button"
               @click="router.push({ name: 'post-edit', params: { id: postId } })"
             >
               <Icon icon="ph:pencil-simple" class="mr-1" />

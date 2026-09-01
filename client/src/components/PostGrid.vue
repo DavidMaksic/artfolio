@@ -2,7 +2,7 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@artfolio/server/router";
 
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onUnmounted } from "vue";
 import { Icon } from "@iconify/vue";
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
@@ -22,16 +22,21 @@ const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
 const TARGET_ROW_HEIGHT = 380;
 
-function updateWidth() {
-  if (containerRef.value) containerWidth.value = containerRef.value.clientWidth;
-}
+let ro: ResizeObserver | null = null;
 
-onMounted(() => {
-  updateWidth();
-  window.addEventListener("resize", updateWidth);
+watch(containerRef, (el) => {
+  ro?.disconnect();
+  ro = null;
+  if (!el) return;
+
+  ro = new ResizeObserver(() => {
+    containerWidth.value = el.clientWidth;
+  });
+  ro.observe(el);
+  containerWidth.value = el.clientWidth;
 });
 
-onUnmounted(() => window.removeEventListener("resize", updateWidth));
+onUnmounted(() => ro?.disconnect());
 
 const rows = computed<Row[]>(() => {
   if (!containerWidth.value || props.posts.length === 0) return [];

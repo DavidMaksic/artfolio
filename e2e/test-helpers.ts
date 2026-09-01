@@ -2,6 +2,8 @@ import { expect, Page } from '@playwright/test';
 import { redis } from '@artfolio/server/lib/redis.js';
 import path from 'path';
 
+export const TEST_IMAGE = path.resolve('e2e/test-images/post-image.jpg');
+
 export async function getSignInOtp(email: string): Promise<string> {
    const raw = await redis.get(`verification:sign-in-otp-${email}`);
    if (!raw) throw new Error(`No OTP found for ${email}`);
@@ -20,4 +22,28 @@ export async function completeProfileSetup(
    await expect(page).toHaveURL(`/${username}`);
 }
 
-export const TEST_IMAGE = path.resolve('e2e/test-images/post-image.jpg');
+export async function createPost(
+   page: Page,
+   options: { description?: string } = {},
+) {
+   await page.getByLabel('Create post').click();
+   await expect(page).toHaveURL('/posts/create');
+
+   // Upload an image
+   await page.locator('input[type="file"]').setInputFiles(TEST_IMAGE);
+   await expect(page.locator("img[src^='blob:']").first()).toBeVisible();
+
+   // Fill describe input (if it exists) and select a category
+   if (options.description) {
+      await page.getByLabel('description').fill(options.description);
+   }
+   await page.locator('#category').click();
+   await page.getByRole('option').first().click();
+
+   // Submit — this triggers the Cloudinary upload, then the tRPC mutation. Allow generous timeout for the network round-trips.
+   await page.getByRole('button', { name: 'Publish' }).click();
+   await expect(page).toHaveURL(/\/[^/]+$/, { timeout: 30_000 });
+   await expect(page.locator('[data-post-id]').first()).toBeVisible({
+      timeout: 10_000,
+   });
+}
