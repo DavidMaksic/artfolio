@@ -22,7 +22,7 @@ const profileReady = computed(
 </script>
 
 <template>
-  <header class="z-50 w-full border-b border-b-neutral-300/80 border-border">
+  <header class="z-50 w-full border-b border-b-neutral-300/80">
     <div class="mx-auto px-10 h-14 flex items-center justify-between gap-4">
       <!-- Logo -->
       <button
@@ -37,16 +37,18 @@ const profileReady = computed(
         <template v-if="auth.isAuthenticated">
           <Button
             v-if="profileReady"
+            class="hover:bg-neutral-200/60"
             variant="ghost"
             size="sm"
             @click="router.push({ name: 'post-create' })"
           >
-            <Icon icon="ph:plus" class="mr-1.5" />
+            <Icon icon="ph:plus" class="mr-1.5" aria-label="New post" />
             New post
           </Button>
 
           <Button
             v-if="profileReady"
+            class="hover:bg-neutral-200/60"
             variant="ghost"
             size="sm"
             @click="router.push({ name: 'profile', params: { username: me!.username } })"
@@ -55,7 +57,7 @@ const profileReady = computed(
             {{ me!.username }}
           </Button>
 
-          <Button variant="ghost" size="sm" @click="auth.signOut()">
+          <Button class="hover:bg-neutral-200/60" variant="ghost" size="sm" @click="auth.signOut()">
             <Icon icon="ph:sign-out" class="mr-1.5" />
             Sign out
           </Button>

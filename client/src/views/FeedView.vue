@@ -31,7 +31,7 @@ const postIds = computed(() => posts.value.map((p) => p.id));
 <template>
   <div class="min-h-screen bg-neutral-100">
     <!-- Discovery banner — guests only -->
-    <div v-if="!auth.user" class="border-b bg-muted/50 px-6 py-3">
+    <div v-if="!auth.user" class="border-b border-b-neutral-300/80 bg-neutral-200/40 px-6 py-3">
       <p class="text-center text-sm text-muted-foreground">
         Discover work from artists on Artfolio —
         <RouterLink :to="{ name: 'sign-in' }" class="text-foreground underline">
@@ -45,7 +45,7 @@ const postIds = computed(() => posts.value.map((p) => p.id));
       <!-- Loading -->
       <template v-if="isPending">
         <div class="grid grid-cols-1 gap-8">
-          <Skeleton v-for="n in 9" :key="n" class="h-80 rounded-2xl" />
+          <Skeleton v-for="n in 4" :key="n" class="h-140 rounded-2xl" />
         </div>
       </template>
 

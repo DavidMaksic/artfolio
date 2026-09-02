@@ -26,7 +26,7 @@ export async function createPost(
    page: Page,
    options: { description?: string } = {},
 ) {
-   await page.getByLabel('Create post').click();
+   await page.getByLabel('New post').click();
    await expect(page).toHaveURL('/posts/create');
 
    // Upload an image

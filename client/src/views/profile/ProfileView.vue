@@ -145,7 +145,6 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
             <Button
               variant="outline"
               class="w-full pa-btn"
-              aria-label="Create post"
               @click="router.push({ name: 'post-create' })"
             >
               <Icon icon="ph:plus" class="mr-2" />

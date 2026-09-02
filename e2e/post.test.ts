@@ -8,7 +8,7 @@ test.describe('post creation', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await page.getByLabel('Create post').click();
+      await page.getByLabel('New post').click();
       await expect(page).toHaveURL('/posts/create');
 
       // Upload an image

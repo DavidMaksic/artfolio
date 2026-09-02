@@ -191,7 +191,7 @@ export const postRouter = t.router({
             id: p.id,
             categoryId: p.categoryId,
             createdAt: p.createdAt,
-            coverImage: p.images.sort((a, b) => a.order - b.order)[0],
+            coverImage: p.images.sort((a, b) => a.order - b.order)[0]!,
             description: p.description,
             imageCount: p.images.length,
             category: p.category,

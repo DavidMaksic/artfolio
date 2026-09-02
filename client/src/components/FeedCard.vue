@@ -12,7 +12,7 @@ const router = useRouter();
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col" :data-post-id="post.id">
     <!-- Card body -->
     <div class="space-y-2.5 py-2.5">
       <!-- Author -->
@@ -25,9 +25,9 @@ const router = useRouter();
             <img
               v-if="post.profile.profileImageUrl"
               :src="post.profile.profileImageUrl"
-              class="size-10 rounded-full object-cover"
+              class="size-9 rounded-full object-cover"
             />
-            <div v-else class="size-10 rounded-full bg-muted flex items-center justify-center">
+            <div v-else class="size-9 rounded-full bg-muted flex items-center justify-center">
               <Icon icon="ph:user" class="text-muted-foreground" />
             </div>
             <p class="truncate text-sm font-medium leading-tight min-w-0 ml-1">

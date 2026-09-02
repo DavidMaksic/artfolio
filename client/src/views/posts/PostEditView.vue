@@ -140,11 +140,11 @@ async function handleSubmit() {
       removedImageIds: removedImageIds.value,
     });
 
-    queryClient.invalidateQueries({ queryKey: ["post", postId.value] });
     const me = await trpc.profile.getMe.query();
+    queryClient.invalidateQueries({ queryKey: ["post", postId.value] });
     queryClient.invalidateQueries({ queryKey: ["posts", me.username] });
-
-    router.push({ name: "profile", params: { username: me.username } });
+    queryClient.invalidateQueries({ queryKey: ["feed"] });
+    router.back();
   } catch (e) {
     submitError.value = extractTrpcError(e);
   } finally {
@@ -154,7 +154,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen pt-4 pb-20 flex flex-col bg-background gap-4 px-8 max-w-xl mx-auto">
+  <div class="min-h-screen pt-4 pb-20 flex flex-col bg-neutral-100 gap-4 px-8 max-w-xl mx-auto">
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">
         <Icon icon="ph:arrow-left" class="size-5 mt-0.5" />

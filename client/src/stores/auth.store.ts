@@ -54,7 +54,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function signOut() {
     await authClient.signOut();
     await queryClient.invalidateQueries({ queryKey: ["session"] });
-    await router.push({ name: "sign-in" });
+    await router.push({ name: "home" });
   }
 
   // ── Delete profile ──────────────
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore("auth", () => {
     const result = await authClient.deleteUser();
     if (result.error) throw new Error(result.error.message);
     await queryClient.invalidateQueries({ queryKey: ["session"] });
-    await router.push({ name: "sign-in" });
+    await router.push({ name: "home" });
   }
 
   return {
