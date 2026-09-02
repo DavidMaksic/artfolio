@@ -9,11 +9,15 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: () => import("@/views/HomeView.vue"),
+      component: () => import("@/views/FeedView.vue"),
       beforeEnter: async () => {
-        const profile = await trpc.profile.getMe.query();
-        if (!profile.profileSetupSkipped && !profile.displayName) {
-          return { name: "profile-setup" };
+        try {
+          const profile = await trpc.profile.getMe.query();
+          if (!profile.profileSetupSkipped && !profile.displayName) {
+            return { name: "profile-setup" };
+          }
+        } catch {
+          // Unauthenticated — let them through to the discovery feed
         }
       },
     },

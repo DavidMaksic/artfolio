@@ -61,7 +61,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 </script>
 
 <template>
-  <div class="min-h-screen bg-background" :style="cssVars">
+  <div class="min-h-screen bg-neutral-100" :style="cssVars">
     <!-- Loading -->
     <template v-if="isPending">
       <div class="relative flex min-h-screen w-full">

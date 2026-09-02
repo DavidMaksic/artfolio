@@ -212,7 +212,7 @@ const deleteMutation = useMutation({
               ><Icon class="size-5" icon="ph:heart" />Like</Button
             >
             <Button class="flex-1" variant="outline"
-              ><Icon class="size-5" icon="ph:bookmark-simple-fill" />Save</Button
+              ><Icon class="size-5" icon="ph:bookmark-simple" />Save</Button
             >
           </div>
 

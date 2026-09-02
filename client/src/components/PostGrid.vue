@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "@artfolio/server/router";
-
+import type { PostSummary } from "@artfolio/shared";
 import { ref, computed, watch, onUnmounted } from "vue";
 import { Icon } from "@iconify/vue";
 
-type RouterOutputs = inferRouterOutputs<AppRouter>;
-type PostSummaryItem = RouterOutputs["post"]["getByUsername"]["items"][number];
-type Row = { post: PostSummaryItem; width: number }[];
+type Row = { post: PostSummary; width: number }[];
 
 const props = defineProps<{
-  posts: PostSummaryItem[];
+  posts: PostSummary[];
   isOwner: boolean;
 }>();
 
@@ -43,7 +39,7 @@ const rows = computed<Row[]>(() => {
 
   const gap = 4;
   const rows: Row[] = [];
-  let currentRow: { post: PostSummaryItem; aspectRatio: number }[] = [];
+  let currentRow: { post: PostSummary; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
 
   for (const post of props.posts) {
