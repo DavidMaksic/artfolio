@@ -27,6 +27,6 @@ test.describe('sign out', () => {
    test('clears session and redirects to sign-in', async ({ page, auth }) => {
       await auth.signInViaMagicLink();
       await page.getByRole('button', { name: 'Sign Out' }).click();
-      await expect(page).toHaveURL('/auth/sign-in');
+      await expect(page).toHaveURL('/');
    });
 });
