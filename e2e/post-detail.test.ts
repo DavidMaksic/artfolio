@@ -72,7 +72,7 @@ test.describe('post detail modal', () => {
          await page.getByLabel('Description').fill('Updated description');
          await page.getByRole('button', { name: 'Save changes' }).click();
 
-         await expect(page).toHaveURL(`/${auth.username}`, { timeout: 10_000 });
+         await expect(page).toHaveURL('/', { timeout: 10_000 });
 
          // Reopen modal and assert updated description
          await page.locator('[data-post-id]').first().click();

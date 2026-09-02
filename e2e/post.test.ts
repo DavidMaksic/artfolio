@@ -30,7 +30,7 @@ test.describe('post creation', () => {
 
       // Submit — this triggers the Cloudinary upload, then the tRPC mutation. Allow generous timeout for the network round-trips.
       await page.getByRole('button', { name: 'Publish' }).click();
-      await expect(page).toHaveURL(`/${auth.username}`, { timeout: 30_000 });
+      await expect(page).toHaveURL('/', { timeout: 30_000 });
       await expect(page.locator('[data-post-id]').first()).toBeVisible({
          timeout: 15_000,
       });

@@ -21,7 +21,7 @@ test.describe('profile setup', () => {
       await page.getByLabel('Website').fill('https://ethos-blog.vercel.app');
       await page.getByRole('switch').click();
       await page.getByRole('button', { name: 'Finish setup' }).click();
-      await expect(page).toHaveURL(`/${auth.username}`);
+      await expect(page).toHaveURL('/');
    });
 
    test('skip profile setup', async ({ page, auth }) => {
@@ -32,7 +32,7 @@ test.describe('profile setup', () => {
       await page.getByLabel('Display name').fill(auth.displayName);
       await page.getByRole('button', { name: 'Continue' }).click();
       await page.getByRole('button', { name: 'Skip for now' }).click();
-      await expect(page).toHaveURL(`/${auth.username}`);
+      await expect(page).toHaveURL('/');
    });
 });
 

@@ -38,7 +38,7 @@ const { mutate, isPending } = useMutation({
   mutationFn: (input: UpdateProfileInput) => trpc.profile.update.mutate(input),
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["me"] });
-    router.push({ path: `/${username.value}` });
+    router.push({ name: "home" });
   },
   onError: (err) => (error.value = extractTrpcError(err)),
 });
@@ -50,7 +50,7 @@ async function redirect() {
     profileSetupSkipped: true,
   });
   queryClient.invalidateQueries({ queryKey: ["me"] });
-  router.push({ path: `/${username.value}` });
+  router.push({ name: "home" });
 }
 
 function onSubmit() {
@@ -68,7 +68,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-background gap-6 px-4">
+  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
     <Card class="w-full max-w-md shadow-2xl">
       <CardHeader class="pb-2">
         <!-- Step indicator -->
