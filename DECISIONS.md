@@ -196,11 +196,31 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 **Completed:**
 
+- New types added to shared schemas
+- Created `getFeed` procedure, which uses cursor-based pagination and limit + 1 trick for next page detection
+- `FeedCard.vue` — card component with minimal post data and placeholder user actions (like, comment, bookmark)
+- `FeedView.vue` at `/` — single column layout, discovery banner for guests, load more button, reuses `PostDetailModal.vue`
+- `superjson` added to both server and client for proper Date serialization over tRPC
+- Vitest unit tests for `getFeed` — 6 cases covering pagination, cursor forwarding, shape mapping, empty state, public access
+- Playwright E2E tests — guest discovery banner, signed-in banner absence, modal open, load more absence on single page
+
 **Decisions:**
+
+- Feed and discovery are the same query — personalisation deferred to follows sprint
+- Cursor-based pagination using `createdAt` ISO string as cursor
+- `feed.ts` procedure kept separate from `post.ts`; `explore.ts` will follow the same pattern in two sprints
+- Sign out and sign in now redirects to `/` instead of `/auth/sign-in`
 
 **Issues resolved:**
 
+- `coverImage` typed as `T | undefined` from array index — fixed with non-null assertion (`images[0]!`) in both `getByUsername` and `getFeed` mappers
+- `Date` fields serializing as strings over tRPC — fixed by adding `superjson` transformer to server init and `httpBatchLink`
+
 **Known issues carried forward:**
+
+- `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
+- Cloudinary cleanup on account deletion not yet implemented
+- Load more E2E test not written — requires 21+ posts with Cloudinary uploads; better covered via a DB seeding fixture in a future sprint
 
 ---
 

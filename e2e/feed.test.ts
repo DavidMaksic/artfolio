@@ -1,4 +1,4 @@
-import { completeProfileSetup, createPost, TEST_IMAGE } from './test-helpers';
+import { completeProfileSetup, createPost } from './test-helpers';
 import { test, expect } from './fixtures';
 
 test.describe('feed', () => {
@@ -61,7 +61,6 @@ test.describe('feed', () => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
       await createPost(page);
-
       await page.goto('/');
 
       // With a single post the next page cursor is null — button should be absent
