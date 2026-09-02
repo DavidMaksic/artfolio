@@ -101,3 +101,50 @@ export function mockUpdateTestPost(overrides = {}) {
       ...overrides,
    };
 }
+
+export function mockFeedPost(
+   overrides?: Partial<{ createdAt: Date; id: string }>,
+) {
+   const id = overrides?.id ?? crypto.randomUUID();
+   const createdAt = overrides?.createdAt;
+   return {
+      id,
+      profileId: 'profile-1',
+      description: 'Test post',
+      categoryId: 'cat-1',
+      createdAt,
+      updatedAt: createdAt,
+      images: [
+         {
+            id: 'img-1',
+            postId: id,
+            imageUrl: 'https://example.com/image.jpg',
+            publicId: 'artfolio/posts/image',
+            order: 0,
+            width: 1200,
+            height: 800,
+            createdAt,
+         },
+      ],
+      category: { id: 'cat-1', name: 'Illustration', slug: 'illustration' },
+      postTags: [{ tag: { id: 'tag-1', name: 'digital', slug: 'digital' } }],
+      profile: {
+         username: 'alice',
+         displayName: 'Alice',
+         profileImageUrl: null,
+      },
+   };
+}
+
+export function mockPosts(
+   count: number,
+   baseDate = new Date('2024-06-01T12:00:00Z'),
+) {
+   return Array.from({ length: count }, (_, i) =>
+      mockFeedPost({
+         id: `post-${i}`,
+         // Each post is 1 minute older than the previous — gives distinct cursors
+         createdAt: new Date(baseDate.getTime() - i * 60_000),
+      }),
+   );
+}
