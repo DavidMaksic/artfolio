@@ -97,7 +97,7 @@ const { mutate, isPending } = useMutation({
   },
   onSuccess: async () => {
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
-    router.push({ name: "home" });
+    router.push({ name: "profile", params: { username: username.value } });
   },
   onError: (err) => (error.value = extractTrpcError(err)),
 });

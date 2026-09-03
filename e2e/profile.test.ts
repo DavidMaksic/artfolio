@@ -55,6 +55,8 @@ test.describe('profile edit', () => {
       await auth.signInViaMagicLink();
       await expect(page).toHaveURL('/profile-setup');
       await completeProfileSetup(page, auth.username, auth.displayName);
+
+      await page.goto(`/${auth.username}`);
       await expect(
          page.getByRole('button', { name: 'Edit profile' }),
       ).toBeVisible();
@@ -73,6 +75,7 @@ test.describe('profile edit', () => {
       await expect(page).toHaveURL('/profile-setup');
       await completeProfileSetup(page, auth.username, auth.displayName);
 
+      await page.goto(`/${auth.username}`);
       await page.getByRole('button', { name: 'Edit profile' }).click();
       await expect(page).toHaveURL('/profile/edit');
 

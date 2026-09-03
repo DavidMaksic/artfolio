@@ -9,7 +9,7 @@ test.describe('feed', () => {
       // Create a post as a signed-in user first so the feed has content
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page);
+      await createPost(page, auth.username);
 
       // Sign out
       await page.getByRole('button', { name: 'Sign out' }).click();
@@ -28,7 +28,7 @@ test.describe('feed', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page);
+      await createPost(page, auth.username);
 
       await page.goto('/');
       await expect(
@@ -44,7 +44,7 @@ test.describe('feed', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, { description: 'Modal test post' });
+      await createPost(page, auth.username, { description: 'Modal test post' });
 
       await page.goto('/');
       await page.locator('[data-post-id]').first().click();
@@ -60,7 +60,7 @@ test.describe('feed', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page);
+      await createPost(page, auth.username);
       await page.goto('/');
 
       // With a single post the next page cursor is null — button should be absent

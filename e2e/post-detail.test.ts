@@ -5,7 +5,7 @@ test.describe('post detail modal', () => {
    test('opens when clicking a post cell', async ({ page, auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, { description: 'Modal test post' });
+      await createPost(page, auth.username, { description: 'Modal test post' });
       const modal = page.locator('[data-testid="post-modal"]');
 
       await page.locator('[data-post-id]').first().click();
@@ -16,7 +16,7 @@ test.describe('post detail modal', () => {
    test('closes on Escape key', async ({ page, auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page);
+      await createPost(page, auth.username);
       const modal = page.locator('[data-testid="post-modal"]');
 
       await page.locator('[data-post-id]').first().click();
@@ -33,8 +33,8 @@ test.describe('post detail modal', () => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
 
-      await createPost(page, { description: 'First post' });
-      await createPost(page, { description: 'Second post' });
+      await createPost(page, auth.username, { description: 'First post' });
+      await createPost(page, auth.username, { description: 'Second post' });
       const modal = page.locator('[data-testid="post-modal"]');
 
       // Open the first post in grid (most recent = second post)
@@ -54,88 +54,90 @@ test.describe('post detail modal', () => {
          timeout: 10_000,
       });
    });
+});
 
-   test.describe('post edit', () => {
-      test('user can edit a post description', async ({ page, auth }) => {
-         await auth.signInViaMagicLink();
-         await completeProfileSetup(page, auth.username, auth.displayName);
-         await createPost(page, { description: 'Original description' });
-         const modal = page.locator('[data-testid="post-modal"]');
-
-         await page.locator('[data-post-id]').first().click();
-         await expect(modal).toBeVisible();
-
-         await page.getByLabel('Edit button').click();
-         await expect(page).toHaveURL(/\/posts\/.+\/edit/);
-
-         await page.getByLabel('Description').clear();
-         await page.getByLabel('Description').fill('Updated description');
-         await page.getByRole('button', { name: 'Save changes' }).click();
-
-         await expect(page).toHaveURL('/', { timeout: 10_000 });
-
-         // Reopen modal and assert updated description
-         await page.locator('[data-post-id]').first().click();
-         await expect(modal.getByText('Updated description')).toBeVisible({
-            timeout: 10_000,
-         });
+test.describe('post edit', () => {
+   test('user can edit a post description', async ({ page, auth }) => {
+      await auth.signInViaMagicLink();
+      await completeProfileSetup(page, auth.username, auth.displayName);
+      await createPost(page, auth.username, {
+         description: 'Original description',
       });
+      const modal = page.locator('[data-testid="post-modal"]');
 
-      test('non-owner cannot access edit route', async ({
-         page,
-         auth,
-         secondAuth,
-      }) => {
-         // User 1 creates the post
-         await auth.signInViaMagicLink();
-         await completeProfileSetup(page, auth.username, auth.displayName);
-         await createPost(page);
+      await page.locator('[data-post-id]').first().click();
+      await expect(modal).toBeVisible();
 
-         const postId = await page
-            .locator('[data-post-id]')
-            .first()
-            .getAttribute('data-post-id');
+      await page.getByLabel('Edit button').click();
+      await expect(page).toHaveURL(/\/posts\/.+\/edit/);
 
-         await page.getByRole('button', { name: 'Sign out' }).click();
+      await page.getByLabel('Description').clear();
+      await page.getByLabel('Description').fill('Updated description');
+      await page.getByRole('button', { name: 'Save changes' }).click();
 
-         // User 2 tries to access user 1's post edit route
-         await secondAuth.signInViaMagicLink();
-         await completeProfileSetup(
-            page,
-            secondAuth.username,
-            secondAuth.displayName,
-         );
+      await expect(page).toHaveURL(`/${auth.username}`, { timeout: 10_000 });
 
-         await page.goto(`/posts/${postId}/edit`);
-         await expect(page).not.toHaveURL(/\/posts\/.+\/edit/);
+      // Reopen modal and assert updated description
+      await page.locator('[data-post-id]').first().click();
+      await expect(modal.getByText('Updated description')).toBeVisible({
+         timeout: 10_000,
       });
    });
 
-   test.describe('post delete', () => {
-      test('user can delete a post from the modal', async ({ page, auth }) => {
-         await auth.signInViaMagicLink();
-         await completeProfileSetup(page, auth.username, auth.displayName);
-         await createPost(page, { description: 'Modal test post' });
+   test('non-owner cannot access edit route', async ({
+      page,
+      auth,
+      secondAuth,
+   }) => {
+      // User 1 creates the post
+      await auth.signInViaMagicLink();
+      await completeProfileSetup(page, auth.username, auth.displayName);
+      await createPost(page, auth.username);
 
-         const modal = page.locator('[data-testid="post-modal"]');
-         const postId = await page
-            .locator('[data-post-id]')
-            .first()
-            .getAttribute('data-post-id');
+      const postId = await page
+         .locator('[data-post-id]')
+         .first()
+         .getAttribute('data-post-id');
 
-         await page.locator('[data-post-id]').first().click();
-         await expect(modal).toBeVisible();
-         await page.getByRole('button', { name: 'Delete' }).click();
+      await page.getByRole('button', { name: 'Sign out' }).click();
 
-         // Confirm dialog
-         await expect(page.getByRole('alertdialog')).toBeVisible();
-         await page.getByRole('button', { name: 'Delete' }).click();
+      // User 2 tries to access user 1's post edit route
+      await secondAuth.signInViaMagicLink();
+      await completeProfileSetup(
+         page,
+         secondAuth.username,
+         secondAuth.displayName,
+      );
 
-         // Modal closes and post disappears from grid
-         await expect(modal).not.toBeVisible({ timeout: 10_000 });
-         await expect(
-            page.locator(`[data-post-id="${postId}"]`),
-         ).not.toBeVisible();
-      });
+      await page.goto(`/posts/${postId}/edit`);
+      await expect(page).not.toHaveURL(/\/posts\/.+\/edit/);
+   });
+});
+
+test.describe('post delete', () => {
+   test('user can delete a post from the modal', async ({ page, auth }) => {
+      await auth.signInViaMagicLink();
+      await completeProfileSetup(page, auth.username, auth.displayName);
+      await createPost(page, auth.username, { description: 'Modal test post' });
+
+      const modal = page.locator('[data-testid="post-modal"]');
+      const postId = await page
+         .locator('[data-post-id]')
+         .first()
+         .getAttribute('data-post-id');
+
+      await page.locator('[data-post-id]').first().click();
+      await expect(modal).toBeVisible();
+      await page.getByRole('button', { name: 'Delete' }).click();
+
+      // Confirm dialog
+      await expect(page.getByRole('alertdialog')).toBeVisible();
+      await page.getByRole('button', { name: 'Delete' }).click();
+
+      // Modal closes and post disappears from grid
+      await expect(modal).not.toBeVisible({ timeout: 10_000 });
+      await expect(
+         page.locator(`[data-post-id="${postId}"]`),
+      ).not.toBeVisible();
    });
 });

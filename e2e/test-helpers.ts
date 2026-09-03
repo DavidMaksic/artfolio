@@ -19,11 +19,12 @@ export async function completeProfileSetup(
    await page.getByLabel('Display name').fill(displayName);
    await page.getByRole('button', { name: 'Continue' }).click();
    await page.getByRole('button', { name: 'Finish setup' }).click();
-   await expect(page).toHaveURL(`/${username}`);
+   await expect(page).toHaveURL('/');
 }
 
 export async function createPost(
    page: Page,
+   username: string,
    options: { description?: string } = {},
 ) {
    await page.getByLabel('New post').click();
@@ -42,7 +43,9 @@ export async function createPost(
 
    // Submit — this triggers the Cloudinary upload, then the tRPC mutation. Allow generous timeout for the network round-trips.
    await page.getByRole('button', { name: 'Publish' }).click();
-   await expect(page).toHaveURL(/\/[^/]+$/, { timeout: 30_000 });
+   await expect(page).toHaveURL('/', { timeout: 30_000 });
+
+   await page.goto(`/${username}`);
    await expect(page.locator('[data-post-id]').first()).toBeVisible({
       timeout: 10_000,
    });
