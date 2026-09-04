@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import type { UpdateProfileInput } from "@artfolio/shared";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { extractTrpcError } from "@/lib/trpc-error";
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";

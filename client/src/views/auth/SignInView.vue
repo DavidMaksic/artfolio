@@ -22,6 +22,7 @@ const error = ref<string | null>(null);
 const { mutate: submitEmail, isPending } = useMutation({
   mutationFn: (email: string) => auth.requestOtp(email),
   onSuccess: async (_, email) => {
+    console.log(email);
     await router.push({
       name: "auth-verify",
       query: { email },

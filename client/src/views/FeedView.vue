@@ -41,7 +41,7 @@ const postIds = computed(() => posts.value.map((p) => p.id));
       </p>
     </div>
 
-    <main class="mx-auto max-w-xl px-5 py-8">
+    <main class="mx-auto max-w-xl px-5 pt-4 pb-8">
       <!-- Loading -->
       <template v-if="isPending">
         <div class="grid grid-cols-1 gap-8">

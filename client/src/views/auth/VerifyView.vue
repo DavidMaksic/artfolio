@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { REGEXP_ONLY_DIGITS } from "vue-input-otp";
 import { useAuthStore } from "@/stores/auth.store";
 import { otpSchema } from "@artfolio/shared";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useMutation } from "@tanstack/vue-query";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
@@ -16,10 +18,7 @@ const auth = useAuthStore();
 const email = computed(() => (route.query.email as string) ?? "");
 const autoCode = computed(() => route.query.code as string | undefined);
 
-const digits = ref<string[]>(Array(6).fill(""));
-const inputRefs = ref<HTMLInputElement[]>([]);
-
-const otp = computed(() => digits.value.join(""));
+const otp = ref("");
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const resendCooldown = ref(0);
@@ -31,10 +30,8 @@ onMounted(async () => {
   }
 
   if (autoCode.value) {
-    digits.value = autoCode.value.split("").slice(0, 6);
-    await verify(autoCode.value);
-  } else {
-    inputRefs.value[0]?.focus();
+    otp.value = autoCode.value.slice(0, 6);
+    await verify(otp.value);
   }
 });
 
@@ -54,41 +51,15 @@ async function verify(code: string) {
     await router.replace(redirect);
   } catch (err) {
     error.value = err instanceof Error ? err.message : "Invalid or expired code";
-    digits.value = Array(6).fill("");
-    inputRefs.value[0]?.focus();
+    otp.value = "";
   } finally {
     isLoading.value = false;
   }
 }
 
-function onDigitInput(index: number, event: Event) {
-  const input = event.target as HTMLInputElement;
-  const value = input.value.replace(/\D/g, "").slice(-1);
-  digits.value[index] = value;
-
-  if (value && index < 5) {
-    inputRefs.value[index + 1]?.focus();
-  }
-
-  if (otp.value.length === 6) {
-    verify(otp.value);
-  }
-}
-
-function onDigitKeydown(index: number, event: KeyboardEvent) {
-  if (event.key === "Backspace" && !digits.value[index] && index > 0) {
-    digits.value[index - 1] = "";
-    inputRefs.value[index - 1]?.focus();
-  }
-}
-
-function onDigitPaste(event: ClipboardEvent) {
-  const pasted = event.clipboardData?.getData("text").replace(/\D/g, "").slice(0, 6) ?? "";
-  if (!pasted) return;
-  event.preventDefault();
-
-  digits.value = [...pasted.padEnd(6, "").split("").slice(0, 6)];
-  if (pasted.length === 6) verify(pasted);
+// Auto-submit when all 6 digits are entered
+function onOtpComplete(value: string) {
+  if (value.length === 6) verify(value);
 }
 
 const { mutate: resendCode, isPending } = useMutation({
@@ -109,7 +80,7 @@ const { mutate: resendCode, isPending } = useMutation({
 <template>
   <div class="min-h-[85vh] flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
     <Card v-if="!autoCode" class="w-full max-w-sm shadow-2xl">
-      <CardHeader class="space-y-1 pb-2">
+      <CardHeader class="space-y-1">
         <CardTitle class="text-xl">Check your email</CardTitle>
         <CardDescription>
           We sent a sign-in code to
@@ -118,29 +89,19 @@ const { mutate: resendCode, isPending } = useMutation({
       </CardHeader>
 
       <CardContent class="space-y-4">
-        <!-- OTP digit inputs -->
-        <div
-          class="flex gap-2 justify-between"
-          :class="{ 'opacity-50 pointer-events-none': isLoading }"
-        >
-          <input
-            v-for="(_, i) in digits"
-            :key="i"
-            :ref="
-              (el) => {
-                if (el) inputRefs[i] = el as HTMLInputElement;
-              }
-            "
-            v-model="digits[i]"
-            type="text"
-            inputmode="numeric"
-            maxlength="1"
-            class="w-11 h-12 rounded-md border border-input bg-background text-center text-lg font-bold text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-            :class="{ 'border-destructive focus:ring-destructive': error }"
-            @input="onDigitInput(i, $event)"
-            @keydown="onDigitKeydown(i, $event)"
-            @paste="onDigitPaste"
-          />
+        <!-- OTP input -->
+        <div class="flex justify-center" :class="{ 'opacity-50 pointer-events-none': isLoading }">
+          <InputOTP
+            v-model="otp"
+            :maxlength="6"
+            :pattern="REGEXP_ONLY_DIGITS"
+            :class="{ 'border-destructive': error }"
+            @update:model-value="onOtpComplete"
+          >
+            <InputOTPGroup>
+              <InputOTPSlot v-for="index in 6" :key="index" :index="index - 1" />
+            </InputOTPGroup>
+          </InputOTP>
         </div>
 
         <!-- Error -->
@@ -187,7 +148,7 @@ const { mutate: resendCode, isPending } = useMutation({
       </CardContent>
     </Card>
 
-    <!-- Show a simple loading state when auto-verifying via magic link -->
+    <!-- Auto-verify loading state -->
     <div v-else class="flex flex-col items-center gap-3 text-muted-foreground">
       <Icon icon="ph:spinner" class="text-5xl animate-spin" />
       <p>Signing you in…</p>
