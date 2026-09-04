@@ -4,6 +4,7 @@ import {
 } from '@/__tests__/helpers/trpc-helper.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockUser, mockProfile } from '@/__tests__/helpers/factories.js';
+import { deleteImage } from '@/lib/cloudinary.js';
 import { db } from '@/db/index.js';
 
 vi.mock('@/db/index.js', () => ({
@@ -11,6 +12,9 @@ vi.mock('@/db/index.js', () => ({
       query: {
          profile: {
             findFirst: vi.fn(),
+         },
+         post: {
+            findMany: vi.fn(),
          },
       },
       update: vi.fn(() => ({
@@ -29,10 +33,20 @@ vi.mock('@/lib/cloudinary.js', () => ({
          api_sign_request: vi.fn(() => 'mock-signature'),
       },
    },
+   generateUploadSignature: vi.fn(() => ({
+      signature: 'mock-signature',
+      timestamp: 123456789,
+      folder: 'artfolio/posts',
+      apiKey: 'mock-api-key',
+      cloudName: 'mock-cloud-name',
+   })),
+   deleteImage: vi.fn().mockResolvedValue(undefined),
 }));
 
 const mockFindFirst = db.query.profile.findFirst as ReturnType<typeof vi.fn>;
+const mockPostFindMany = db.query.post.findMany as ReturnType<typeof vi.fn>;
 const mockUpdate = db.update as ReturnType<typeof vi.fn>;
+const mockDeleteImage = deleteImage as ReturnType<typeof vi.fn>;
 
 const user = mockUser();
 const profile = mockProfile({ userId: user.id });
@@ -117,6 +131,62 @@ describe('profile.update', () => {
       expect(result.displayName).toBe('New Name');
    });
 
+   it('deletes old profile image from Cloudinary when a new one is provided', async () => {
+      const profileWithImage = mockProfile({
+         userId: user.id,
+         profileImageUrl:
+            'https://res.cloudinary.com/mock/image/upload/artfolio/profiles/old-image.jpg',
+      });
+      const updated = {
+         ...profileWithImage,
+         profileImageUrl:
+            'https://res.cloudinary.com/mock/image/upload/artfolio/profiles/new-image.jpg',
+      };
+
+      mockFindFirst.mockResolvedValueOnce(profileWithImage);
+      mockUpdate.mockReturnValueOnce({
+         set: vi.fn(() => ({
+            where: vi.fn(() => ({
+               returning: vi.fn().mockResolvedValueOnce([updated]),
+            })),
+         })),
+      });
+
+      const caller = createAuthenticatedCaller(user);
+      await caller.profile.update({
+         profileImageUrl:
+            'https://res.cloudinary.com/mock/image/upload/artfolio/profiles/new-image.jpg',
+      });
+
+      await vi.waitFor(() => {
+         expect(mockDeleteImage).toHaveBeenCalledWith(
+            'artfolio/profiles/old-image',
+         );
+      });
+   });
+
+   it('does not delete Cloudinary image when profile image has not changed', async () => {
+      const profileWithImage = mockProfile({
+         userId: user.id,
+         profileImageUrl:
+            'https://res.cloudinary.com/mock/image/upload/artfolio/profiles/same-image.jpg',
+      });
+
+      mockFindFirst.mockResolvedValueOnce(profileWithImage);
+      mockUpdate.mockReturnValueOnce({
+         set: vi.fn(() => ({
+            where: vi.fn(() => ({
+               returning: vi.fn().mockResolvedValueOnce([profileWithImage]),
+            })),
+         })),
+      });
+
+      const caller = createAuthenticatedCaller(user);
+      await caller.profile.update({ displayName: 'New Name' });
+
+      expect(mockDeleteImage).not.toHaveBeenCalled();
+   });
+
    it('throws CONFLICT if username is already taken', async () => {
       const taken = mockProfile({
          userId: 'other-user-id',
@@ -144,6 +214,80 @@ describe('profile.update', () => {
       await expect(
          caller.profile.update({ displayName: 'New Name' }),
       ).rejects.toThrow(expect.objectContaining({ code: 'UNAUTHORIZED' }));
+   });
+});
+
+// ── deleteAccount ───────────────────────
+
+describe('profile.deleteAccount', () => {
+   it('deletes profile image from Cloudinary when one exists', async () => {
+      const profileWithImage = mockProfile({
+         userId: user.id,
+         profileImageUrl:
+            'https://res.cloudinary.com/mock/image/upload/artfolio/profiles/avatar.jpg',
+      });
+
+      mockFindFirst.mockResolvedValueOnce(profileWithImage);
+      mockPostFindMany.mockResolvedValueOnce([]);
+
+      const caller = createAuthenticatedCaller(user);
+      await caller.profile.deleteAccount();
+
+      await vi.waitFor(() => {
+         expect(mockDeleteImage).toHaveBeenCalledWith(
+            'artfolio/profiles/avatar',
+         );
+      });
+   });
+
+   it('deletes all post images from Cloudinary', async () => {
+      mockFindFirst.mockResolvedValueOnce(profile);
+      mockPostFindMany.mockResolvedValueOnce([
+         {
+            images: [
+               { publicId: 'artfolio/posts/image-1' },
+               { publicId: 'artfolio/posts/image-2' },
+            ],
+         },
+         {
+            images: [{ publicId: 'artfolio/posts/image-3' }],
+         },
+      ]);
+
+      const caller = createAuthenticatedCaller(user);
+      await caller.profile.deleteAccount();
+
+      await vi.waitFor(() => {
+         expect(mockDeleteImage).toHaveBeenCalledWith('artfolio/posts/image-1');
+         expect(mockDeleteImage).toHaveBeenCalledWith('artfolio/posts/image-2');
+         expect(mockDeleteImage).toHaveBeenCalledWith('artfolio/posts/image-3');
+      });
+   });
+
+   it('does not call deleteImage when profile has no image and no posts', async () => {
+      mockFindFirst.mockResolvedValueOnce(profile); // profileImageUrl: null
+      mockPostFindMany.mockResolvedValueOnce([]);
+
+      const caller = createAuthenticatedCaller(user);
+      await caller.profile.deleteAccount();
+
+      expect(mockDeleteImage).not.toHaveBeenCalled();
+   });
+
+   it('throws NOT_FOUND if profile does not exist', async () => {
+      mockFindFirst.mockResolvedValueOnce(undefined);
+
+      const caller = createAuthenticatedCaller(user);
+      await expect(caller.profile.deleteAccount()).rejects.toThrow(
+         expect.objectContaining({ code: 'NOT_FOUND' }),
+      );
+   });
+
+   it('throws UNAUTHORIZED if not signed in', async () => {
+      const caller = createCaller();
+      await expect(caller.profile.deleteAccount()).rejects.toThrow(
+         expect.objectContaining({ code: 'UNAUTHORIZED' }),
+      );
    });
 });
 

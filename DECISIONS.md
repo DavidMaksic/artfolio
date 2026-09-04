@@ -210,8 +210,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Cursor-based pagination using `createdAt` ISO string as cursor
 - `feed.ts` procedure kept separate from `post.ts`; `explore.ts` will follow the same pattern in two sprints
 - Sign out and sign in now redirects to `/` instead of `/auth/sign-in`
-- Cloudinary profile image cleanup on profile image update (fire-and-forget, same pattern as post cleanup)
-- Cloudinary profile image + all post images cleanup on account deletion via `deleteAccount` procedure called before `authClient.deleteUser()`
+- Cloudinary image cleanup on profile-image update (fire-and-forget, same pattern as post cleanup)
+- Cloudinary profile-image + all post images cleanup on account deletion via `deleteAccount` procedure
+- Vitest unit tests added for `profile.update` and `profile.deleteAccount`
 
 **Issues resolved:**
 
