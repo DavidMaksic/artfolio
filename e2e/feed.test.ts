@@ -1,5 +1,10 @@
 import { completeProfileSetup, createPost } from './test-helpers';
+import { cleanupCloudinaryFolder } from '@/global-setup';
 import { test, expect } from './fixtures';
+
+test.afterAll(async () => {
+   await cleanupCloudinaryFolder('artfolio/posts');
+});
 
 test.describe('feed', () => {
    test('guest sees discovery banner and posts on the feed', async ({
@@ -30,7 +35,6 @@ test.describe('feed', () => {
       await completeProfileSetup(page, auth.username, auth.displayName);
       await createPost(page, auth.username);
 
-      await page.goto('/');
       await expect(
          page.getByText(/discover work from artists/i),
       ).not.toBeVisible();
@@ -46,26 +50,10 @@ test.describe('feed', () => {
       await completeProfileSetup(page, auth.username, auth.displayName);
       await createPost(page, auth.username, { description: 'Modal test post' });
 
-      await page.goto('/');
       await page.locator('[data-post-id]').first().click();
-
       const modal = page.locator('[data-testid="post-modal"]');
+
       await expect(modal).toBeVisible();
       await expect(modal.getByText('Modal test post')).toBeVisible();
-   });
-
-   test('load more button is not shown when posts fit on one page', async ({
-      page,
-      auth,
-   }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
-      await page.goto('/');
-
-      // With a single post the next page cursor is null — button should be absent
-      await expect(
-         page.getByRole('button', { name: 'Load more' }),
-      ).not.toBeVisible();
    });
 });

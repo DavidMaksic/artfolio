@@ -1,5 +1,10 @@
 import { completeProfileSetup, TEST_IMAGE } from './test-helpers';
+import { cleanupCloudinaryFolder } from '@/global-setup';
 import { test, expect } from './fixtures';
+
+test.afterAll(async () => {
+   await cleanupCloudinaryFolder('artfolio/posts');
+});
 
 test.describe('post creation', () => {
    test('user can create a post and see it on their profile', async ({

@@ -1,5 +1,10 @@
 import { completeProfileSetup, createPost } from '@/test-helpers';
+import { cleanupCloudinaryFolder } from '@/global-setup';
 import { test, expect } from './fixtures';
+
+test.afterAll(async () => {
+   await cleanupCloudinaryFolder('artfolio/posts');
+});
 
 test.describe('post detail modal', () => {
    test('opens when clicking a post cell', async ({ page, auth }) => {
@@ -75,9 +80,8 @@ test.describe('post edit', () => {
       await page.getByLabel('Description').fill('Updated description');
       await page.getByRole('button', { name: 'Save changes' }).click();
 
-      await expect(page).toHaveURL(`/${auth.username}`, { timeout: 10_000 });
-
       // Reopen modal and assert updated description
+      await expect(page).toHaveURL('/', { timeout: 10_000 });
       await page.locator('[data-post-id]').first().click();
       await expect(modal.getByText('Updated description')).toBeVisible({
          timeout: 10_000,

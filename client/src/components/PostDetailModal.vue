@@ -81,6 +81,7 @@ const deleteMutation = useMutation({
   onSuccess: () => {
     if (me.value) queryClient.invalidateQueries({ queryKey: ["posts", me.value.username] });
     queryClient.invalidateQueries({ queryKey: ["post", props.postId] });
+    queryClient.invalidateQueries({ queryKey: ["feed"] });
     emit("close");
   },
 });
