@@ -8,6 +8,7 @@ test.describe('OTP flows', () => {
 
    test('manual entry', async ({ page, auth }) => {
       const otp = await auth.emailSubmit();
+      await page.locator('input[autocomplete="one-time-code"]').click();
       await page.keyboard.type(otp);
       await expect(page).toHaveURL('/profile-setup');
    });
