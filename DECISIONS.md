@@ -210,17 +210,19 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Cursor-based pagination using `createdAt` ISO string as cursor
 - `feed.ts` procedure kept separate from `post.ts`; `explore.ts` will follow the same pattern in two sprints
 - Sign out and sign in now redirects to `/` instead of `/auth/sign-in`
+- Cloudinary profile image cleanup on profile image update (fire-and-forget, same pattern as post cleanup)
+- Cloudinary profile image + all post images cleanup on account deletion via `deleteAccount` procedure called before `authClient.deleteUser()`
 
 **Issues resolved:**
 
 - `coverImage` typed as `T | undefined` from array index — fixed with non-null assertion (`images[0]!`) in both `getByUsername` and `getFeed` mappers
 - `Date` fields serializing as strings over tRPC — fixed by adding `superjson` transformer to server init and `httpBatchLink`
+- E2E tests uploading to real Cloudinary cloud — fixed by swapping to test cloud credentials in `server/.env` during E2E runs (real credentials commented out)
 
 **Known issues carried forward:**
 
 - `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
-- Cloudinary cleanup on account deletion not yet implemented
-- Load more E2E test not written — requires 21+ posts with Cloudinary uploads; better covered via a DB seeding fixture in a future sprint
+- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint.
 
 ---
 

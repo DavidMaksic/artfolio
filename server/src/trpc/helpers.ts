@@ -73,3 +73,9 @@ export async function upsertTagsForPost(
       await tx.insert(postTag).values({ postId, tagId });
    }
 }
+
+export function extractPublicId(cloudinaryUrl: string): string | null {
+   // URL format: https://res.cloudinary.com/<cloud>/image/upload/<transformations?>/<publicId>.<ext>
+   const match = cloudinaryUrl.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-z]+$/);
+   return match ? match[1] : null;
+}

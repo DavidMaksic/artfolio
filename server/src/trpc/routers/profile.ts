@@ -1,9 +1,16 @@
-import { getProfileByUserId, getProfileByUsername } from '@/trpc/helpers.js';
+import {
+   extractPublicId,
+   getProfileByUserId,
+   getProfileByUsername,
+} from '@/trpc/helpers.js';
+import { cloudinary, deleteImage, getImageColors } from '@/lib/cloudinary.js';
 import { usernameSchema, updateProfileSchema } from '@artfolio/shared';
-import { cloudinary, getImageColors } from '@/lib/cloudinary.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
+import { fromNodeHeaders } from 'better-auth/node';
 import { TRPCError } from '@trpc/server';
 import { profile } from '@/db/schema/profile.js';
+import { post } from '@/db/schema/post.js';
+import { auth } from '@/lib/auth.js';
 import { db } from '@/db/index.js';
 import { eq } from 'drizzle-orm';
 import { t } from '@/trpc/init.js';
@@ -34,6 +41,18 @@ export const profileRouter = t.router({
                });
          }
 
+         // Fire-and-forget cleanup of old profile image
+         if (
+            input.profileImageUrl &&
+            existing.profileImageUrl &&
+            input.profileImageUrl !== existing.profileImageUrl
+         ) {
+            const publicId = extractPublicId(existing.profileImageUrl);
+            if (publicId) {
+               deleteImage(publicId).catch(console.error);
+            }
+         }
+
          const [updated] = await db
             .update(profile)
             .set({ ...input, updatedAt: new Date() })
@@ -42,6 +61,30 @@ export const profileRouter = t.router({
 
          return updated;
       }),
+
+   deleteAccount: protectedProcedure.mutation(async ({ ctx }) => {
+      const existing = await getProfileByUserId(ctx.user.id);
+
+      if (existing.profileImageUrl) {
+         const publicId = extractPublicId(existing.profileImageUrl);
+         if (publicId) {
+            deleteImage(publicId).catch(console.error);
+         }
+      }
+
+      const userPosts = await db.query.post.findMany({
+         where: eq(post.profileId, existing.id),
+         with: { images: true },
+      });
+
+      const postImages = userPosts.flatMap((p) => p.images);
+
+      if (postImages.length > 0) {
+         Promise.all(postImages.map((img) => deleteImage(img.publicId))).catch(
+            console.error,
+         );
+      }
+   }),
 
    setCommissionAvailability: protectedProcedure
       .input(z.object({ available: z.boolean() }))

@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "vue-router";
 import { computed } from "vue";
+import { trpc } from "@/lib/trpc";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
@@ -59,8 +60,13 @@ export const useAuthStore = defineStore("auth", () => {
 
   // ── Delete profile ──────────────
   async function deleteAccount() {
+    // Cleanup Cloudinary first
+    await trpc.profile.deleteAccount.mutate();
+
+    // Then delete the user via Better Auth
     const result = await authClient.deleteUser();
     if (result.error) throw new Error(result.error.message);
+
     await queryClient.invalidateQueries({ queryKey: ["session"] });
     await router.push({ name: "home" });
   }
