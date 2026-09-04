@@ -213,6 +213,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Cloudinary image cleanup on profile-image update (fire-and-forget, same pattern as post cleanup)
 - Cloudinary profile-image + all post images cleanup on account deletion via `deleteAccount` procedure
 - Vitest unit tests added for `profile.update` and `profile.deleteAccount`
+- Replaced manual OTP digit input implementation with shadcn-vue `InputOTP` component
 
 **Issues resolved:**
 
