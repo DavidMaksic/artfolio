@@ -142,12 +142,16 @@ async function handleSubmit() {
               <div
                 v-for="(image, index) in images"
                 :key="image.preview"
-                class="image-cell group"
-                :class="{ 'image-cell--large': gridClass === 'grid-three' && index === 0 }"
-                draggable="true"
-                @dragstart="onDragStart(index)"
-                @dragover="onDragOver($event, index)"
-                @dragend="onDragEnd"
+                class="image-cell transition"
+                :class="{
+                  'image-cell--large': gridClass === 'grid-three' && index === 0,
+                  'opacity-50 cursor-not-allowed!': isUploading || isSubmitting,
+                  group: !isUploading && !isSubmitting,
+                }"
+                :draggable="!isUploading && !isSubmitting"
+                @dragstart="!isUploading && !isSubmitting && onDragStart(index)"
+                @dragover="!isUploading && !isSubmitting && onDragOver($event, index)"
+                @dragend="!isUploading && !isSubmitting && onDragEnd()"
               >
                 <img :src="image.preview" class="w-full h-full object-cover" />
 
@@ -164,7 +168,8 @@ async function handleSubmit() {
                 <!-- Remove button -->
                 <button
                   type="button"
-                  class="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 rounded-full p-1 transition z-10"
+                  class="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 rounded-full p-1 transition z-10 disabled:pointer-events-none"
+                  :disabled="isUploading || isSubmitting"
                   @click.stop="removeImage(index)"
                 >
                   <Icon icon="ph:x-bold" class="text-white text-xs" />
@@ -175,12 +180,17 @@ async function handleSubmit() {
             <!-- Drop zone (always visible, compact when images exist) -->
             <div
               :class="[
-                'border-2 border-dashed rounded-lg text-center cursor-pointer transition hover:border-muted-foreground',
-                images.length > 0 ? 'py-3' : 'py-8',
+                'border-2 border-dashed rounded-lg text-center transition',
+                isUploading || isSubmitting
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:border-muted-foreground',
+                images.length > 0 ? 'py-3' : 'py-24',
               ]"
-              @drop="handleDrop"
+              @drop="!isUploading && !isSubmitting && handleDrop($event)"
               @dragover.prevent
-              @click="($refs.fileInput as HTMLInputElement).click()"
+              @click="
+                !isUploading && !isSubmitting && ($refs.fileInput as HTMLInputElement).click()
+              "
             >
               <Icon
                 icon="ph:image-square-duotone"
