@@ -9,7 +9,7 @@ import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
-import FeedCard from "@/components/FeedCard.vue";
+import FeedCard from "@/components/post/FeedCard.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
