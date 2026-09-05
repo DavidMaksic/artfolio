@@ -46,7 +46,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 </script>
 
 <template>
-  <div
+  <section
     class="relative flex-4 scrollbar-none"
     :class="
       post && post.images.length > 1
@@ -122,5 +122,5 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     >
       <Icon icon="ph:caret-right-bold" class="text-xl" />
     </button>
-  </div>
+  </section>
 </template>

@@ -41,7 +41,7 @@ const { data: post, isPending } = useQuery({
       />
 
       <!-- Right 20% — post details -->
-      <PostSidebar :post :isPending :postId />
+      <PostSidebar :post :postId />
     </div>
   </Teleport>
 </template>
