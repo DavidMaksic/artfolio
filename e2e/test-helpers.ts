@@ -47,4 +47,7 @@ export async function createPost(
    await expect(page.locator('[data-post-id]').first()).toBeVisible({
       timeout: 10_000,
    });
+
+   // Wait for the grid's click handlers to be attached before returning
+   await page.waitForLoadState('networkidle');
 }
