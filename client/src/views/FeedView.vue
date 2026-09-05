@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
-import PostDetailModal from "@/components/PostDetailModal.vue";
+import PostDetailModal from "@/components/post/PostDetailModal.vue";
 import FeedCard from "@/components/FeedCard.vue";
 
 const auth = useAuthStore();

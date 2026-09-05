@@ -11,8 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import PostDetailModal from "@/components/PostDetailModal.vue";
-import PostGrid from "@/components/PostGrid.vue";
+import PostDetailModal from "@/components/post/PostDetailModal.vue";
+import PostGrid from "@/components/post/PostGrid.vue";
 
 const route = useRoute();
 const router = useRouter();

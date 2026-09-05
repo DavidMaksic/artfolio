@@ -44,8 +44,8 @@ const router = useRouter();
     <div
       class="border border-neutral-200 rounded-2xl overflow-hidden transition-shadow duration-300 bg-white"
     >
+      <!-- Cover image -->
       <div class="relative group" @click="$emit('open', post.id)">
-        <!-- Cover image -->
         <img
           :src="post.coverImage.imageUrl"
           :alt="post.category.name"
@@ -69,6 +69,7 @@ const router = useRouter();
         />
       </div>
 
+      <!-- Actions -->
       <div class="flex items-center justify-start gap-1.5 p-1.5 text-neutral-700">
         <div class="flex-1 flex items-center">
           <Button variant="ghost" class="flex items-center justify-center gap-2">
