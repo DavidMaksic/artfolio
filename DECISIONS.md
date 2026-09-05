@@ -203,6 +203,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - `superjson` added to both server and client for proper Date serialization over tRPC
 - Vitest unit tests for `getFeed` — 6 cases covering pagination, cursor forwarding, shape mapping, empty state, public access
 - Playwright E2E tests — guest discovery banner, signed-in banner absence, modal open, load more absence on single page
+- Refactored `PostDetailModal.vue` and `ProfileView.vue` into multiple standalone components
 
 **Decisions:**
 
@@ -214,12 +215,15 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Cloudinary profile-image + all post images cleanup on account deletion via `deleteAccount` procedure
 - Vitest unit tests added for `profile.update` and `profile.deleteAccount`
 - Replaced manual OTP digit input implementation with shadcn-vue `InputOTP` component
+- Moved `beforeEnter` guard logic to feed route for faster first navigation
 
 **Issues resolved:**
 
 - `coverImage` typed as `T | undefined` from array index — fixed with non-null assertion (`images[0]!`) in both `getByUsername` and `getFeed` mappers
 - `Date` fields serializing as strings over tRPC — fixed by adding `superjson` transformer to server init and `httpBatchLink`
 - E2E tests uploading to real Cloudinary cloud — fixed by swapping to test cloud credentials in `server/.env` during E2E runs (real credentials commented out)
+- Disabled all image interactions (remove, drag, drop zone, hover styles) during post submit
+- Fixed flaky e2e tests on post modal opening
 
 **Known issues carried forward:**
 
