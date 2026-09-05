@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useInfiniteQuery } from "@tanstack/vue-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
+import { computed, ref, watch } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
+import { useRouter } from "vue-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
@@ -10,8 +11,20 @@ import { trpc } from "@/lib/trpc";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 import FeedCard from "@/components/FeedCard.vue";
 
+const router = useRouter();
 const auth = useAuthStore();
 const activePostId = ref<string | null>(null);
+
+const { data: me } = useQuery({
+  queryKey: ["me"],
+  queryFn: () => trpc.profile.getMe.query(),
+});
+
+watch(me, (profile) => {
+  if (profile && !profile.profileSetupSkipped && !profile.displayName) {
+    router.push({ name: "profile-setup" });
+  }
+});
 
 const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery({
   queryKey: ["feed"],
@@ -45,7 +58,7 @@ const postIds = computed(() => posts.value.map((p) => p.id));
       <!-- Loading -->
       <template v-if="isPending">
         <div class="grid grid-cols-1 gap-8">
-          <Skeleton v-for="n in 4" :key="n" class="h-140 rounded-2xl" />
+          <Skeleton v-for="n in 5" :key="n" class="h-160 rounded-2xl" />
         </div>
       </template>
 

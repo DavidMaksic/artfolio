@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { registerAuthGuards } from "./guards";
 import { trpc } from "@/lib/trpc";
+import FeedView from "@/views/FeedView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -9,17 +10,7 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: () => import("@/views/FeedView.vue"),
-      beforeEnter: async () => {
-        try {
-          const profile = await trpc.profile.getMe.query();
-          if (!profile.profileSetupSkipped && !profile.displayName) {
-            return { name: "profile-setup" };
-          }
-        } catch {
-          // Unauthenticated — let them through to the discovery feed
-        }
-      },
+      component: FeedView,
     },
     {
       path: "/profile-setup",

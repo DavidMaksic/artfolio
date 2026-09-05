@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
-import PostGrid from "@/components/post/PostGrid.vue";
+import PostGrid from "@/components/PostGrid.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -65,7 +65,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
     <!-- Loading -->
     <template v-if="isPending">
       <div class="relative flex min-h-screen w-full">
-        <Skeleton class="w-72 shrink-0 h-[calc(100vh-5rem)] mt-10 ml-5 rounded-2xl" />
+        <Skeleton class="w-72 shrink-0 h-[calc(100vh-7.2rem)] mt-10 ml-5 rounded-2xl" />
       </div>
     </template>
 
