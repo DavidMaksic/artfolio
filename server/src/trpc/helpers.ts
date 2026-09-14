@@ -19,6 +19,17 @@ export async function getProfileByUserId(userId: string) {
    return userProfile;
 }
 
+export async function getViewerProfileId(
+   userId: string | null,
+): Promise<string | null> {
+   if (!userId) return null;
+   const viewerProfile = await db.query.profile.findFirst({
+      where: eq(profile.userId, userId),
+      columns: { id: true },
+   });
+   return viewerProfile?.id ?? null;
+}
+
 export async function getProfileByUsername(username: string) {
    const userProfile = await db.query.profile.findFirst({
       where: eq(profile.username, username),

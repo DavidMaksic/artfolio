@@ -133,6 +133,9 @@ export function mockFeedPost(
          displayName: 'Alice',
          profileImageUrl: null,
       },
+      likes: [],
+      bookmarks: [],
+      comments: [],
    };
 }
 
@@ -147,4 +150,24 @@ export function mockPosts(
          createdAt: new Date(baseDate.getTime() - i * 60_000),
       }),
    );
+}
+
+export function mockComment(overrides = {}) {
+   return {
+      id: 'test-comment-id',
+      postId: 'test-post-id',
+      profileId: 'test-profile-id',
+      body: 'Great post!',
+      createdAt: new Date('2024-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+      profile: {
+         username: 'testuser',
+         displayName: 'Test User',
+         profileImageUrl: null,
+      },
+      post: {
+         profileId: 'test-profile-id',
+      },
+      ...overrides,
+   };
 }

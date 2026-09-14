@@ -1,12 +1,15 @@
-import { post, postImage } from '@/db/schema/post.js';
+import { getViewerProfileId } from '@/trpc/helpers.js';
 import { feedInputSchema } from '@artfolio/shared';
-import { desc, lt, asc } from 'drizzle-orm';
+import { post, postImage } from '@/db/schema/post.js';
+import { asc, desc, lt } from 'drizzle-orm';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 
 export const feedRouter = t.router({
-   getFeed: t.procedure.input(feedInputSchema).query(async ({ input }) => {
+   getFeed: t.procedure.input(feedInputSchema).query(async ({ ctx, input }) => {
       const { limit, cursor } = input;
+
+      const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
 
       const posts = await db.query.post.findMany({
          where: cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
@@ -17,6 +20,9 @@ export const feedRouter = t.router({
             category: true,
             postTags: { with: { tag: true } },
             profile: true,
+            likes: { columns: { profileId: true } },
+            bookmarks: { columns: { profileId: true } },
+            comments: { columns: { id: true } },
          },
       });
 
@@ -40,6 +46,15 @@ export const feedRouter = t.router({
             displayName: p.profile.displayName,
             profileImageUrl: p.profile.profileImageUrl,
          },
+         likeCount: p.likes.length,
+         bookmarkCount: p.bookmarks.length,
+         commentCount: p.comments.length,
+         userHasLiked: viewerProfileId
+            ? p.likes.some((l) => l.profileId === viewerProfileId)
+            : false,
+         userHasBookmarked: viewerProfileId
+            ? p.bookmarks.some((b) => b.profileId === viewerProfileId)
+            : false,
       }));
 
       return { items, nextCursor };

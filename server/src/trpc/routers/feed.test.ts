@@ -94,6 +94,11 @@ describe('feed.getFeed', () => {
             displayName: 'Alice',
             profileImageUrl: null,
          },
+         likeCount: 0,
+         bookmarkCount: 0,
+         commentCount: 0,
+         userHasLiked: false,
+         userHasBookmarked: false,
       });
    });
 

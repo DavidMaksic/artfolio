@@ -1,5 +1,6 @@
 import {
    getProfileByUsername,
+   getViewerProfileId,
    getProfileByUserId,
    upsertTagsForPost,
    assertPostOwner,
@@ -134,7 +135,9 @@ export const postRouter = t.router({
 
    getById: t.procedure
       .input(z.object({ id: z.string() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+         const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
+
          const result = await db.query.post.findFirst({
             where: eq(post.id, input.id),
             with: {
@@ -142,6 +145,9 @@ export const postRouter = t.router({
                category: true,
                postTags: { with: { tag: true } },
                profile: true,
+               likes: { columns: { profileId: true } },
+               bookmarks: { columns: { profileId: true } },
+               comments: { columns: { id: true } },
             },
          });
 
@@ -167,9 +173,17 @@ export const postRouter = t.router({
                displayName: result.profile.displayName,
                profileImageUrl: result.profile.profileImageUrl,
             },
+            likeCount: result.likes.length,
+            bookmarkCount: result.bookmarks.length,
+            commentCount: result.comments.length,
+            userHasLiked: viewerProfileId
+               ? result.likes.some((l) => l.profileId === viewerProfileId)
+               : false,
+            userHasBookmarked: viewerProfileId
+               ? result.bookmarks.some((b) => b.profileId === viewerProfileId)
+               : false,
          };
       }),
-
    getByUsername: t.procedure
       .input(z.object({ username: z.string() }))
       .query(async ({ input }) => {

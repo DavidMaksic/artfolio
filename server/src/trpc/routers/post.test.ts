@@ -100,13 +100,6 @@ describe('post.create', () => {
          code: 'NOT_FOUND',
       });
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(caller.post.create(mockTestPost())).rejects.toMatchObject({
-         code: 'UNAUTHORIZED',
-      });
-   });
 });
 
 // ── update ───────────────────────
@@ -152,13 +145,6 @@ describe('post.update', () => {
          caller.post.update(mockUpdateTestPost()),
       ).rejects.toMatchObject({ code: 'FORBIDDEN' });
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(
-         caller.post.update(mockUpdateTestPost()),
-      ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
-   });
 });
 
 // ── delete ───────────────────────
@@ -203,13 +189,6 @@ describe('post.delete', () => {
          code: 'FORBIDDEN',
       });
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(caller.post.delete({ id: 'post_1' })).rejects.toMatchObject({
-         code: 'UNAUTHORIZED',
-      });
-   });
 });
 
 // ── getById ───────────────────────
@@ -223,6 +202,9 @@ describe('post.getById', () => {
          category: mockCategory(),
          postTags: [],
          profile,
+         likes: [],
+         bookmarks: [],
+         comments: [],
       });
 
       const caller = createCaller();
@@ -238,6 +220,11 @@ describe('post.getById', () => {
             displayName: profile.displayName,
             profileImageUrl: profile.profileImageUrl,
          },
+         likeCount: 0,
+         bookmarkCount: 0,
+         commentCount: 0,
+         userHasLiked: false,
+         userHasBookmarked: false,
       });
       expect(result.images).toHaveLength(1);
    });
@@ -304,13 +291,26 @@ describe('post.getPostImageUploadSignature', () => {
          cloudName: expect.any(String),
       });
    });
+});
 
-   it('throws UNAUTHORIZED if not logged in', async () => {
+// ── Protected procedures ──────────────────────────────────────
+
+describe('protected procedures', () => {
+   it('throws UNAUTHORIZED if user is not signed in', async () => {
       const caller = createCaller();
-      await expect(
-         caller.post.getPostImageUploadSignature(),
-      ).rejects.toMatchObject({
-         code: 'UNAUTHORIZED',
-      });
+      await Promise.all([
+         expect(caller.post.create(mockTestPost())).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+         }),
+         expect(caller.post.update(mockUpdateTestPost())).rejects.toMatchObject(
+            { code: 'UNAUTHORIZED' },
+         ),
+         expect(caller.post.delete({ id: 'post_1' })).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+         }),
+         expect(
+            caller.post.getPostImageUploadSignature(),
+         ).rejects.toMatchObject({ code: 'UNAUTHORIZED' }),
+      ]);
    });
 });

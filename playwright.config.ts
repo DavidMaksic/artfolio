@@ -24,6 +24,7 @@ export default defineConfig({
          : 'http://localhost:5173',
       trace: 'on-first-retry',
       headless: !!process.env.CI,
+      screenshot: 'only-on-failure',
    },
    globalSetup: './e2e/global-setup.ts',
    webServer: [

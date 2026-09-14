@@ -78,13 +78,6 @@ describe('profile.getMe', () => {
          expect.objectContaining({ code: 'NOT_FOUND' }),
       );
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(caller.profile.getMe()).rejects.toThrow(
-         expect.objectContaining({ code: 'UNAUTHORIZED' }),
-      );
-   });
 });
 
 // ── getByUsername ───────────────────────
@@ -208,13 +201,6 @@ describe('profile.update', () => {
          caller.profile.update({ displayName: 'New Name' }),
       ).rejects.toThrow(expect.objectContaining({ code: 'NOT_FOUND' }));
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(
-         caller.profile.update({ displayName: 'New Name' }),
-      ).rejects.toThrow(expect.objectContaining({ code: 'UNAUTHORIZED' }));
-   });
 });
 
 // ── deleteAccount ───────────────────────
@@ -282,13 +268,6 @@ describe('profile.deleteAccount', () => {
          expect.objectContaining({ code: 'NOT_FOUND' }),
       );
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(caller.profile.deleteAccount()).rejects.toThrow(
-         expect.objectContaining({ code: 'UNAUTHORIZED' }),
-      );
-   });
 });
 
 // ── setCommissionAvailability ───────────────────────
@@ -314,13 +293,6 @@ describe('profile.setCommissionAvailability', () => {
 
       expect(result.availableForCommissions).toBe(true);
    });
-
-   it('throws UNAUTHORIZED if not signed in', async () => {
-      const caller = createCaller();
-      await expect(
-         caller.profile.setCommissionAvailability({ available: true }),
-      ).rejects.toThrow(expect.objectContaining({ code: 'UNAUTHORIZED' }));
-   });
 });
 
 // ── getProfileImageUploadSignature ───────────────────────
@@ -336,11 +308,33 @@ describe('profile.getProfileImageUploadSignature', () => {
       expect(result).toHaveProperty('apiKey');
       expect(result).toHaveProperty('cloudName');
    });
+});
 
-   it('throws UNAUTHORIZED if not signed in', async () => {
+// ── Protected procedures ──────────────────────────────────────
+
+describe('protected procedures', () => {
+   it('throws UNAUTHORIZED if user is not signed in', async () => {
       const caller = createCaller();
-      await expect(
-         caller.profile.getProfileImageUploadSignature(),
-      ).rejects.toThrow(expect.objectContaining({ code: 'UNAUTHORIZED' }));
+      await Promise.all([
+         expect(caller.profile.getMe()).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+         }),
+         expect(
+            caller.profile.update({ displayName: 'New Name' }),
+         ).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+         }),
+         expect(caller.profile.deleteAccount()).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+         }),
+         expect(
+            caller.profile.setCommissionAvailability({ available: true }),
+         ).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+         }),
+         expect(
+            caller.profile.getProfileImageUploadSignature(),
+         ).rejects.toMatchObject({ code: 'UNAUTHORIZED' }),
+      ]);
    });
 });

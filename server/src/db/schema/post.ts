@@ -61,6 +61,47 @@ export const postTag = pgTable(
    (t) => [primaryKey({ columns: [t.postId, t.tagId] })],
 );
 
+export const like = pgTable(
+   'like',
+   {
+      postId: text()
+         .notNull()
+         .references(() => post.id, { onDelete: 'cascade' }),
+      profileId: text()
+         .notNull()
+         .references(() => profile.id, { onDelete: 'cascade' }),
+      createdAt: timestamp().notNull(),
+   },
+   (t) => [primaryKey({ columns: [t.postId, t.profileId] })],
+);
+
+export const bookmark = pgTable(
+   'bookmark',
+   {
+      postId: text()
+         .notNull()
+         .references(() => post.id, { onDelete: 'cascade' }),
+      profileId: text()
+         .notNull()
+         .references(() => profile.id, { onDelete: 'cascade' }),
+      createdAt: timestamp().notNull(),
+   },
+   (t) => [primaryKey({ columns: [t.postId, t.profileId] })],
+);
+
+export const comment = pgTable('comment', {
+   id: text().primaryKey(),
+   postId: text()
+      .notNull()
+      .references(() => post.id, { onDelete: 'cascade' }),
+   profileId: text()
+      .notNull()
+      .references(() => profile.id, { onDelete: 'cascade' }),
+   body: text().notNull(),
+   createdAt: timestamp().notNull(),
+   updatedAt: timestamp().notNull(),
+});
+
 // Relations
 
 export const postRelations = relations(post, ({ one, many }) => ({
@@ -74,6 +115,9 @@ export const postRelations = relations(post, ({ one, many }) => ({
    }),
    images: many(postImage),
    postTags: many(postTag),
+   likes: many(like),
+   bookmarks: many(bookmark),
+   comments: many(comment),
 }));
 
 export const postImageRelations = relations(postImage, ({ one }) => ({
@@ -93,6 +137,33 @@ export const postTagRelations = relations(postTag, ({ one }) => ({
    tag: one(tag, { fields: [postTag.tagId], references: [tag.id] }),
 }));
 
+export const likeRelations = relations(like, ({ one }) => ({
+   post: one(post, { fields: [like.postId], references: [post.id] }),
+   profile: one(profile, {
+      fields: [like.profileId],
+      references: [profile.id],
+   }),
+}));
+
+export const bookmarkRelations = relations(bookmark, ({ one }) => ({
+   post: one(post, { fields: [bookmark.postId], references: [post.id] }),
+   profile: one(profile, {
+      fields: [bookmark.profileId],
+      references: [profile.id],
+   }),
+}));
+
+export const commentRelations = relations(comment, ({ one }) => ({
+   post: one(post, { fields: [comment.postId], references: [post.id] }),
+   profile: one(profile, {
+      fields: [comment.profileId],
+      references: [profile.id],
+   }),
+}));
+
 export const profileRelations = relations(profile, ({ many }) => ({
    posts: many(post),
+   likes: many(like),
+   bookmarks: many(bookmark),
+   comments: many(comment),
 }));

@@ -28,6 +28,18 @@ export const postImageSchema = z.object({
    createdAt: z.date(),
 });
 
+// ── Engagement counts + viewer state ────────────────────────────────────────
+
+export const engagementSchema = z.object({
+   likeCount: z.number(),
+   bookmarkCount: z.number(),
+   commentCount: z.number(),
+   userHasLiked: z.boolean(),
+   userHasBookmarked: z.boolean(),
+});
+
+// ── Post schemas ────────────────────────────────────────
+
 export const postSchema = z.object({
    id: z.string(),
    profileId: z.string(),
@@ -42,18 +54,24 @@ export const postSchema = z.object({
    ),
 });
 
-export const postSummarySchema = z.object({
-   id: z.string(),
-   categoryId: z.string(),
-   createdAt: z.date(),
-   coverImage: postImageSchema,
-   description: z.string().nullable().optional(),
-   imageCount: z.number(),
-   category: z.object({ id: z.string(), name: z.string(), slug: z.string() }),
-   tags: z.array(
-      z.object({ id: z.string(), name: z.string(), slug: z.string() }),
-   ),
-});
+export const postSummarySchema = z
+   .object({
+      id: z.string(),
+      categoryId: z.string(),
+      createdAt: z.date(),
+      coverImage: postImageSchema,
+      description: z.string().nullable().optional(),
+      imageCount: z.number(),
+      category: z.object({
+         id: z.string(),
+         name: z.string(),
+         slug: z.string(),
+      }),
+      tags: z.array(
+         z.object({ id: z.string(), name: z.string(), slug: z.string() }),
+      ),
+   })
+   .extend(engagementSchema.shape);
 
 export const updatePostSchema = z.object({
    id: z.string(),
@@ -76,6 +94,7 @@ export const updatePostSchema = z.object({
 });
 
 export const postDetailSchema = postSchema.extend({
+   ...engagementSchema.shape,
    profile: z.object({
       username: z.string(),
       displayName: z.string().nullable(),
@@ -91,15 +110,56 @@ export const feedItemSchema = postSummarySchema.extend({
    }),
 });
 
+// ── Feed input ────────────────────────────────────────
+
 export const feedInputSchema = z.object({
    limit: z.number().int().min(1).max(50).default(20),
    cursor: z.string().optional(), // ISO string of last item's createdAt
 });
 
+// ── Comment schemas ────────────────────────────────────────
+
+export const commentSchema = z.object({
+   id: z.string(),
+   postId: z.string(),
+   body: z.string(),
+   createdAt: z.date(),
+   profile: z.object({
+      username: z.string(),
+      displayName: z.string().nullable(),
+      profileImageUrl: z.string().nullable(),
+   }),
+});
+
+export const createCommentSchema = z.object({
+   postId: z.string(),
+   body: z.string().min(1).max(1000),
+});
+
+export const deleteCommentSchema = z.object({
+   commentId: z.string(),
+   postId: z.string(), // needed to assert post ownership for owner deletes
+});
+
+export const getCommentsSchema = z.object({
+   postId: z.string(),
+   limit: z.number().int().min(1).max(50).default(20),
+   cursor: z.string().optional(), // ISO string of last item's createdAt
+});
+
+// ── Types ────────────────────────────────────────
+
 export type Post = z.infer<typeof postSchema>;
 export type PostSummary = z.infer<typeof postSummarySchema>;
-export type CreatePostInput = z.infer<typeof createPostSchema>;
-export type UpdatePostInput = z.infer<typeof updatePostSchema>;
 export type PostDetail = z.infer<typeof postDetailSchema>;
+
 export type FeedItem = z.infer<typeof feedItemSchema>;
 export type FeedInput = z.infer<typeof feedInputSchema>;
+
+export type CreatePostInput = z.infer<typeof createPostSchema>;
+export type UpdatePostInput = z.infer<typeof updatePostSchema>;
+
+export type Comment = z.infer<typeof commentSchema>;
+export type CreateCommentInput = z.infer<typeof createCommentSchema>;
+export type DeleteCommentInput = z.infer<typeof deleteCommentSchema>;
+export type GetCommentsInput = z.infer<typeof getCommentsSchema>;
