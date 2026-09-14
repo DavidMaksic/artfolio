@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { PostSummary } from "@artfolio/shared";
+import type { ProfilePost } from "@artfolio/shared";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 
 import { ref, computed, watch, onUnmounted } from "vue";
 import { Icon } from "@iconify/vue";
 
-type Row = { post: PostSummary; width: number }[];
+type Row = { post: ProfilePost; width: number }[];
 
 const props = defineProps<{
-  posts: PostSummary[] | undefined;
+  posts: ProfilePost[] | undefined;
   isOwner: boolean;
   isLoadingPosts: boolean;
 }>();
@@ -41,7 +41,7 @@ const rows = computed<Row[]>(() => {
 
   const gap = 4;
   const rows: Row[] = [];
-  let currentRow: { post: PostSummary; aspectRatio: number }[] = [];
+  let currentRow: { post: ProfilePost; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
 
   for (const post of props.posts ?? []) {

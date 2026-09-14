@@ -57,7 +57,7 @@ const deleteMutation = useMutation({
 </script>
 
 <template>
-  <aside class="flex-1 p-6 flex flex-col justify-between gap-3" @click="emit('close')">
+  <aside class="flex-1 py-6 pr-6 flex flex-col justify-between gap-3" @click="emit('close')">
     <!-- Post content -->
     <template v-if="post">
       <div

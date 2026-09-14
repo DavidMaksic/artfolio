@@ -1,22 +1,6 @@
 import { z } from 'zod';
 
-export const createPostSchema = z.object({
-   description: z.string().max(2000).optional(),
-   categoryId: z.string({ error: 'Category is required' }),
-   tags: z.array(z.string().min(1).max(30)).max(10).default([]),
-   images: z
-      .array(
-         z.object({
-            imageUrl: z.string({ error: 'Image URL is required' }),
-            publicId: z.string({ error: 'Public ID is required' }),
-            order: z.number().int().min(0),
-            width: z.number().int().positive(),
-            height: z.number().int().positive(),
-         }),
-      )
-      .min(1, { error: 'At least one image is required' })
-      .max(10),
-});
+// ── Shared schemas ────────────────────────────────────────
 
 export const postImageSchema = z.object({
    id: z.string(),
@@ -28,7 +12,33 @@ export const postImageSchema = z.object({
    createdAt: z.date(),
 });
 
-// ── Engagement counts + viewer state ────────────────────────────────────────
+const imageInputSchema = z.object({
+   imageUrl: z.string({ error: 'Image URL is required' }),
+   publicId: z.string({ error: 'Public ID is required' }),
+   order: z.number().int().min(0),
+   width: z.number().int().positive(),
+   height: z.number().int().positive(),
+});
+
+const categorySchema = z.object({
+   id: z.string(),
+   name: z.string(),
+   slug: z.string(),
+});
+
+const tagSchema = z.object({
+   id: z.string(),
+   name: z.string(),
+   slug: z.string(),
+});
+
+const profileSchema = z.object({
+   username: z.string(),
+   displayName: z.string().nullable(),
+   profileImageUrl: z.string().nullable(),
+});
+
+// ── Engagement ────────────────────────────────────────
 
 export const engagementSchema = z.object({
    likeCount: z.number(),
@@ -38,84 +48,67 @@ export const engagementSchema = z.object({
    userHasBookmarked: z.boolean(),
 });
 
-// ── Post schemas ────────────────────────────────────────
+// ── Input schemas ────────────────────────────────────────
 
-export const postSchema = z.object({
-   id: z.string(),
-   profileId: z.string(),
-   description: z.string().nullable(),
-   categoryId: z.string(),
-   createdAt: z.date(),
-   updatedAt: z.date(),
-   images: z.array(postImageSchema),
-   category: z.object({ id: z.string(), name: z.string(), slug: z.string() }),
-   tags: z.array(
-      z.object({ id: z.string(), name: z.string(), slug: z.string() }),
-   ),
-});
-
-export const postSummarySchema = z
-   .object({
-      id: z.string(),
-      categoryId: z.string(),
-      createdAt: z.date(),
-      coverImage: postImageSchema,
-      description: z.string().nullable().optional(),
-      imageCount: z.number(),
-      category: z.object({
-         id: z.string(),
-         name: z.string(),
-         slug: z.string(),
-      }),
-      tags: z.array(
-         z.object({ id: z.string(), name: z.string(), slug: z.string() }),
-      ),
-   })
-   .extend(engagementSchema.shape);
-
-export const updatePostSchema = z.object({
-   id: z.string(),
+export const createPostSchema = z.object({
    description: z.string().max(2000).optional(),
    categoryId: z.string({ error: 'Category is required' }),
    tags: z.array(z.string().min(1).max(30)).max(10).default([]),
    images: z
-      .array(
-         z.object({
-            imageUrl: z.string({ error: 'Image URL is required' }),
-            publicId: z.string({ error: 'Public ID is required' }),
-            order: z.number().int().min(0),
-            width: z.number().int().positive(),
-            height: z.number().int().positive(),
-         }),
-      )
-      .min(1, { error: 'At least one image is required' })
+      .array(imageInputSchema)
+      .min(1, {
+         error: 'At least one image is required',
+      })
       .max(10),
+});
+
+export const updatePostSchema = createPostSchema.extend({
+   id: z.string(),
    removedImageIds: z.array(z.string()).default([]),
 });
 
-export const postDetailSchema = postSchema.extend({
-   ...engagementSchema.shape,
-   profile: z.object({
-      username: z.string(),
-      displayName: z.string().nullable(),
-      profileImageUrl: z.string().nullable(),
-   }),
-});
-
-export const feedItemSchema = postSummarySchema.extend({
-   profile: z.object({
-      username: z.string(),
-      displayName: z.string().nullable(),
-      profileImageUrl: z.string().nullable(),
-   }),
-});
-
-// ── Feed input ────────────────────────────────────────
-
 export const feedInputSchema = z.object({
    limit: z.number().int().min(1).max(50).default(20),
-   cursor: z.string().optional(), // ISO string of last item's createdAt
+   cursor: z.string().optional(),
 });
+
+// ── Post response schemas ────────────────────────────────────────
+
+const postSummarySchema = z.object({
+   id: z.string(),
+   categoryId: z.string(),
+   createdAt: z.date(),
+   coverImage: postImageSchema,
+   description: z.string().nullable().optional(),
+   imageCount: z.number(),
+   category: categorySchema,
+   tags: z.array(tagSchema),
+});
+
+export const profilePostSchema = postSummarySchema;
+export const postSchema = postSummarySchema.extend(engagementSchema.shape);
+export const feedItemSchema = postSchema.extend({
+   profile: profileSchema,
+});
+
+// ── Full post detail ────────────────────────────────────────
+
+export const postDetailSchema = z
+   .object({
+      id: z.string(),
+      profileId: z.string(),
+      description: z.string().nullable(),
+      categoryId: z.string(),
+      createdAt: z.date(),
+      updatedAt: z.date(),
+      images: z.array(postImageSchema),
+      category: categorySchema,
+      tags: z.array(tagSchema),
+   })
+   .extend(engagementSchema.shape)
+   .extend({
+      profile: profileSchema,
+   });
 
 // ── Comment schemas ────────────────────────────────────────
 
@@ -124,11 +117,7 @@ export const commentSchema = z.object({
    postId: z.string(),
    body: z.string(),
    createdAt: z.date(),
-   profile: z.object({
-      username: z.string(),
-      displayName: z.string().nullable(),
-      profileImageUrl: z.string().nullable(),
-   }),
+   profile: profileSchema,
 });
 
 export const createCommentSchema = z.object({
@@ -138,21 +127,20 @@ export const createCommentSchema = z.object({
 
 export const deleteCommentSchema = z.object({
    commentId: z.string(),
-   postId: z.string(), // needed to assert post ownership for owner deletes
+   postId: z.string(),
 });
 
 export const getCommentsSchema = z.object({
    postId: z.string(),
    limit: z.number().int().min(1).max(50).default(20),
-   cursor: z.string().optional(), // ISO string of last item's createdAt
+   cursor: z.string().optional(),
 });
 
 // ── Types ────────────────────────────────────────
 
 export type Post = z.infer<typeof postSchema>;
-export type PostSummary = z.infer<typeof postSummarySchema>;
+export type ProfilePost = z.infer<typeof profilePostSchema>;
 export type PostDetail = z.infer<typeof postDetailSchema>;
-
 export type FeedItem = z.infer<typeof feedItemSchema>;
 export type FeedInput = z.infer<typeof feedInputSchema>;
 

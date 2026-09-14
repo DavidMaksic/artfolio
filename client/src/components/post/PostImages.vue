@@ -63,7 +63,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     <!-- Single image — centered -->
     <template v-else-if="post && post.images.length === 1">
       <div
-        class="w-full h-full flex items-center justify-center px-10 py-6"
+        class="w-full h-full flex items-center justify-center px-18 py-6"
         @click.self="emit('close')"
       >
         <img
@@ -77,7 +77,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
     <!-- Multiple images — scrollable column -->
     <template v-else-if="post">
-      <div class="flex flex-col items-center gap-6 py-8 px-10" @click.self="emit('close')">
+      <div class="flex flex-col items-center gap-6 py-8 px-18" @click.self="emit('close')">
         <div
           v-for="image in post.images"
           :key="image.id"
@@ -116,7 +116,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     <!-- Next button — sits just inside the left panel -->
     <button
       v-if="hasNext"
-      class="fixed right-104 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors z-10"
+      class="fixed right-104.5 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors z-10"
       aria-label="Next post"
       @click="navigateNext"
     >
