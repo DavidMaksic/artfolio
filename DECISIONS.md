@@ -233,15 +233,40 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Sprint 6 — Engagement
 
-**Goal:** Users can like posts, bookmark them to a private collection, and comment on posts.
+**Goal:** Users can like, bookmark, and comment on posts.
 
 **Completed:**
 
+- DB schema: `like`, `bookmark`, `comment` tables with composite PKs on like/bookmark, cascade deletes
+- Shared zod schemas implemented
+- `engagement.router.ts` router set up
+- `getById` and `getFeed` extended with eager-loaded likes/bookmarks/comments, engagement counts and viewer state resolved in JS
+- `useEngagement.ts` composable with optimistic updates and rollback on error
+- `FeedCard.vue`: live like/bookmark/comment counts, interactive buttons, guest redirect to sign in
+- `PostSidebar.vue`: like/bookmark wired via `useEngagement.ts`, full comment thread with `useInfiniteQuery` load more, create and delete comments, guest sign in prompt
+- `PostDetailModal.vue` refactored into `PostImages.vue` + `PostSidebar.vue`
+- Per-post comment draft preservation in parent via `commentBodies` record
+- Vitest unit tests for all engagement procedures, updated `getById` and `getFeed` tests
+- Playwright E2E tests implemented
+
 **Decisions:**
+
+- Likes: optimistic updates with rollback
+- Bookmarks: flat, no collections
+- Comments: flat, no threading
 
 **Issues resolved:**
 
+- `fetchNextPage` type mismatch on `@click` — wrapped in `() => fetchNextPage()`
+
 **Known issues carried forward:**
+
+- `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
+- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint.
+- Like/bookmark/comment counts on feed not updated in real time across tabs — delegated to Sprint 8, as it requires websockets
+- Load more comments resets to page 1 after create/delete mutation — acceptable for now
+- Follow button is UI-only, not wired — Sprint 7
+- Relative timestamps on feed cards hardcoded as "1 day" — needs a `formatRelative` utility
 
 ---
 
