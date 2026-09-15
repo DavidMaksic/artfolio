@@ -124,6 +124,7 @@ const deleteCommentMutation = useMutation({
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: ["comments", props.postId] });
     queryClient.invalidateQueries({ queryKey: ["post", props.postId] });
+    queryClient.invalidateQueries({ queryKey: ["feed"] });
   },
 });
 
