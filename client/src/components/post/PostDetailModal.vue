@@ -9,12 +9,15 @@ import PostSidebar from "@/components/post/PostSidebar.vue";
 const props = defineProps<{
   postId: string;
   postIds: string[];
+  focusComment?: boolean;
 }>();
 
 const emit = defineEmits<{
   close: [];
   navigate: [postId: string];
 }>();
+
+const commentBody = defineModel<string>("commentBody", { default: "" });
 
 const { data: post, isPending } = useQuery({
   queryKey: computed(() => ["post", props.postId]),
@@ -41,7 +44,13 @@ const { data: post, isPending } = useQuery({
       />
 
       <!-- Right 20% — post details -->
-      <PostSidebar :post :postId @close="emit('close')" />
+      <PostSidebar
+        :post
+        :postId
+        :focus-comment
+        v-model:comment-body="commentBody"
+        @close="emit('close')"
+      />
     </div>
   </Teleport>
 </template>

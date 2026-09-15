@@ -14,6 +14,8 @@ import FeedCard from "@/components/post/FeedCard.vue";
 const router = useRouter();
 const auth = useAuthStore();
 const activePostId = ref<string | null>(null);
+const focusComment = ref(false);
+const commentBodies = ref<Record<string, string>>({});
 
 const { data: me } = useQuery({
   queryKey: ["me"],
@@ -39,6 +41,11 @@ const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useI
 
 const posts = computed(() => data.value?.pages.flatMap((p) => p.items) ?? []);
 const postIds = computed(() => posts.value.map((p) => p.id));
+
+function openPost(id: string, focus = false) {
+  activePostId.value = id;
+  focusComment.value = focus;
+}
 </script>
 
 <template>
@@ -69,7 +76,8 @@ const postIds = computed(() => posts.value.map((p) => p.id));
             v-for="post in posts"
             :key="post.id"
             :post="post"
-            @open="activePostId = $event"
+            @open="openPost($event)"
+            @open-with-comment="openPost($event, true)"
           />
         </div>
 
@@ -94,8 +102,11 @@ const postIds = computed(() => posts.value.map((p) => p.id));
       v-if="activePostId"
       :post-id="activePostId"
       :post-ids="postIds"
+      :focus-comment="focusComment"
+      :comment-body="commentBodies[activePostId] ?? ''"
       @close="activePostId = null"
       @navigate="activePostId = $event"
+      @update:comment-body="commentBodies[activePostId] = $event"
     />
   </div>
 </template>

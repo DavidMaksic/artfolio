@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { PostDetail } from "@artfolio/shared";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/vue-query";
+import { computed, ref, watch } from "vue";
+import { useEngagement } from "@/composables/useEngagement";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
-import { computed } from "vue";
+import { nextTick } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
@@ -25,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 const props = defineProps<{
   post: PostDetail | undefined;
   postId: string;
+  focusComment?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -35,6 +38,20 @@ const router = useRouter();
 const auth = useAuthStore();
 const queryClient = useQueryClient();
 
+// ── Focus on comment ───────────────────────────────────────────
+
+const commentInput = ref<HTMLInputElement | null>(null);
+
+watch(
+  () => props.focusComment,
+  (val) => {
+    if (val) nextTick(() => commentInput.value?.focus());
+  },
+  { immediate: true },
+);
+
+// ── Auth ───────────────────────────────────────────
+
 const { data: me } = useQuery({
   queryKey: ["me"],
   queryFn: () => trpc.profile.getMe.query(),
@@ -44,6 +61,83 @@ const { data: me } = useQuery({
 const isPostOwner = computed(
   () => !!me.value && !!props.post && me.value.username === props.post.profile.username,
 );
+
+// ── Engagement ───────────────────────────────────────────
+
+const engagementSource = computed(() => ({
+  id: props.postId,
+  likeCount: props.post?.likeCount ?? 0,
+  bookmarkCount: props.post?.bookmarkCount ?? 0,
+  commentCount: props.post?.commentCount ?? 0,
+  userHasLiked: props.post?.userHasLiked ?? false,
+  userHasBookmarked: props.post?.userHasBookmarked ?? false,
+}));
+
+const {
+  liked,
+  bookmarked,
+  likeCount,
+  bookmarkCount,
+  toggleLike,
+  toggleBookmark,
+  isLikePending,
+  isBookmarkPending,
+} = useEngagement(engagementSource);
+
+// ── Comments ───────────────────────────────────────────
+
+const commentBody = defineModel<string>("commentBody", { default: "" });
+
+const {
+  data: commentsData,
+  isPending: isCommentsPending,
+  fetchNextPage,
+} = useInfiniteQuery({
+  queryKey: computed(() => ["comments", props.postId]),
+  queryFn: ({ pageParam }) =>
+    trpc.engagement.getComments.query({
+      postId: props.postId,
+      limit: 20,
+      cursor: pageParam,
+    }),
+  getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  initialPageParam: undefined as string | undefined,
+});
+
+const comments = computed(() => commentsData.value?.pages.flatMap((p) => p.items) ?? []);
+const nextCursor = computed(() => commentsData.value?.pages.at(-1)?.nextCursor ?? null);
+
+const createCommentMutation = useMutation({
+  mutationFn: () =>
+    trpc.engagement.createComment.mutate({ postId: props.postId, body: commentBody.value }),
+  onSuccess: () => {
+    commentBody.value = "";
+    queryClient.invalidateQueries({ queryKey: ["comments", props.postId] });
+    queryClient.invalidateQueries({ queryKey: ["post", props.postId] });
+    queryClient.invalidateQueries({ queryKey: ["feed"] });
+  },
+});
+
+const deleteCommentMutation = useMutation({
+  mutationFn: (commentId: string) =>
+    trpc.engagement.deleteComment.mutate({ commentId, postId: props.postId }),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["comments", props.postId] });
+    queryClient.invalidateQueries({ queryKey: ["post", props.postId] });
+  },
+});
+
+function canDeleteComment(commentUsername: string) {
+  if (!me.value) return false;
+  return me.value.username === commentUsername || isPostOwner.value;
+}
+
+function submitComment() {
+  if (!commentBody.value.trim()) return;
+  createCommentMutation.mutate();
+}
+
+// ── Delete post ───────────────────────────────────────────
 
 const deleteMutation = useMutation({
   mutationFn: () => trpc.post.delete.mutate({ id: props.postId }),
@@ -58,8 +152,8 @@ const deleteMutation = useMutation({
 
 <template>
   <aside class="flex-1 py-6 pr-6 flex flex-col justify-between gap-3" @click="emit('close')">
-    <!-- Post content -->
     <template v-if="post">
+      <!-- Post content -->
       <div
         class="p-6 flex flex-col gap-5 bg-background rounded-2xl border border-border shadow-2xl"
         @click.stop
@@ -91,14 +185,29 @@ const deleteMutation = useMutation({
         <!-- Actions -->
         <div class="flex items-center justify-between gap-1.5">
           <Button class="bg-black/80 hover:bg-black/60 text-white flex-1">
-            <Icon class="size-5" icon="ph:user-plus" />Follow</Button
+            <Icon class="size-5" icon="ph:user-plus" />Follow
+          </Button>
+          <Button class="flex-1" variant="secondary" :disabled="isLikePending" @click="toggleLike">
+            <Icon
+              class="size-5 transition-colors"
+              :icon="liked ? 'ph:heart-fill' : 'ph:heart'"
+              :class="liked ? 'text-red-500' : ''"
+            />
+            Like
+          </Button>
+          <Button
+            class="flex-1"
+            variant="outline"
+            :disabled="isBookmarkPending"
+            @click="toggleBookmark"
           >
-          <Button class="flex-1" variant="secondary"
-            ><Icon class="size-5" icon="ph:heart" />Like</Button
-          >
-          <Button class="flex-1" variant="outline"
-            ><Icon class="size-5" icon="ph:bookmark-simple" />Save</Button
-          >
+            <Icon
+              class="size-5 transition-colors"
+              :icon="bookmarked ? 'ph:bookmark-simple-fill' : 'ph:bookmark-simple'"
+              :class="bookmarked ? 'text-blue-500' : ''"
+            />
+            Save
+          </Button>
         </div>
 
         <!-- Description -->
@@ -109,14 +218,20 @@ const deleteMutation = useMutation({
           {{ post.description }}
         </p>
 
-        <!-- Misc -->
+        <!-- Counts -->
         <div class="space-x-5 text-md text-neutral-600 leading-relaxed">
-          <span><span class="font-bold">23</span> likes</span>
-          <span><span class="font-bold">4</span> comments</span>
-          <span></span>
+          <span v-if="likeCount > 0">
+            <span class="font-bold">{{ likeCount }}</span> likes
+          </span>
+          <span v-if="post.commentCount > 0">
+            <span class="font-bold">{{ post.commentCount }}</span> comments
+          </span>
+          <span v-if="bookmarkCount > 0">
+            <span class="font-bold">{{ bookmarkCount }}</span> saves
+          </span>
         </div>
 
-        <!-- Panel header -->
+        <!-- Owner actions -->
         <div class="flex items-center justify-end shrink-0">
           <div v-if="isPostOwner" class="flex gap-2">
             <Button
@@ -166,27 +281,130 @@ const deleteMutation = useMutation({
 
       <!-- Comments -->
       <div
-        class="flex flex-1 flex-col gap-1.5 bg-background rounded-2xl border border-border p-6 space-y-3 shadow-2xl"
+        class="flex flex-1 flex-col bg-background rounded-2xl border border-border shadow-2xl overflow-hidden"
         @click.stop
       >
-        <span class="font-semibold">Comments</span>
+        <div class="flex flex-col flex-1 overflow-y-auto p-6 gap-4">
+          <span class="font-semibold">Comments</span>
+
+          <!-- Loading -->
+          <div v-if="isCommentsPending" class="flex flex-col gap-3">
+            <div v-for="i in 3" :key="i" class="flex items-start gap-2">
+              <Skeleton class="size-8 rounded-full shrink-0" />
+              <div class="flex flex-col gap-1.5 flex-1">
+                <Skeleton class="h-3 w-24 rounded" />
+                <Skeleton class="h-3 w-full rounded" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty -->
+          <p v-else-if="comments.length === 0" class="text-sm text-muted-foreground">
+            No comments yet.
+          </p>
+
+          <!-- Comment list -->
+          <div v-else class="flex flex-col gap-4">
+            <div v-for="comment in comments" :key="comment.id" class="flex items-start gap-2 group">
+              <img
+                v-if="comment.profile.profileImageUrl"
+                :src="comment.profile.profileImageUrl"
+                class="size-8 rounded-full object-cover shrink-0"
+              />
+              <div
+                v-else
+                class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
+              >
+                <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+              </div>
+              <div class="flex flex-col flex-1 min-w-0">
+                <span class="text-sm font-semibold">
+                  {{ comment.profile.displayName ?? comment.profile.username }}
+                </span>
+                <p class="text-sm text-neutral-700 wrap-break-words">{{ comment.body }}</p>
+              </div>
+              <button
+                v-if="canDeleteComment(comment.profile.username)"
+                class="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                :disabled="deleteCommentMutation.isPending.value"
+                aria-label="Delete comment"
+                @click="deleteCommentMutation.mutate(comment.id)"
+              >
+                <Icon icon="ph:trash" class="text-sm" />
+              </button>
+            </div>
+
+            <!-- Load more -->
+            <button
+              v-if="nextCursor"
+              class="text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
+              @click="() => fetchNextPage()"
+            >
+              Load more comments
+            </button>
+          </div>
+        </div>
+
+        <!-- Comment input -->
+        <div v-if="auth.isAuthenticated" class="border-t border-border p-4 flex items-center gap-2">
+          <img
+            v-if="me?.profileImageUrl"
+            :src="me.profileImageUrl"
+            class="size-8 rounded-full object-cover shrink-0"
+          />
+          <div
+            v-else
+            class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
+          >
+            <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+          </div>
+          <input
+            v-model="commentBody"
+            ref="commentInput"
+            type="text"
+            placeholder="Add a comment…"
+            maxlength="1000"
+            class="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
+            @keydown.enter="submitComment"
+          />
+          <button
+            class="text-sm font-semibold text-neutral-800 hover:text-neutral-500 transition-colors disabled:opacity-40"
+            :disabled="!commentBody.trim() || createCommentMutation.isPending.value"
+            @click="submitComment"
+          >
+            <Icon
+              v-if="createCommentMutation.isPending.value"
+              icon="ph:spinner"
+              class="animate-spin"
+            />
+            <span v-else>Post</span>
+          </button>
+        </div>
+
+        <div v-else class="border-t border-border p-4 text-sm text-muted-foreground text-center">
+          <span
+            class="cursor-pointer hover:text-foreground transition-colors"
+            @click="router.push({ name: 'sign-in' })"
+          >
+            Sign in to comment
+          </span>
+        </div>
       </div>
 
       <!-- Category + tags -->
       <div
-        v-if="post"
         class="flex flex-col gap-1.5 bg-background rounded-2xl border border-border p-6 space-y-3 shadow-2xl"
         @click.stop
       >
-        <p class="font-semibold">Category <span v-if="post.tags">and Tags</span></p>
+        <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>
         <div class="flex flex-wrap gap-1.5">
-          <Badge class="py-1.5 px-3.5 text-xs border-neutral-200" variant="secondary">{{
-            post.category.name
-          }}</Badge>
+          <Badge class="py-1.5 px-3.5 text-xs border-neutral-200" variant="secondary">
+            {{ post.category.name }}
+          </Badge>
           <Badge
-            class="py-1.5 px-3.5 text-xs"
             v-for="tag in post.tags"
             :key="tag.id"
+            class="py-1.5 px-3.5 text-xs"
             variant="outline"
           >
             {{ tag.name }}
@@ -195,6 +413,7 @@ const deleteMutation = useMutation({
       </div>
     </template>
 
+    <!-- Skeleton -->
     <template v-else>
       <div class="flex-1 p-6 flex flex-col justify-between gap-3">
         <Skeleton class="h-72 rounded-2xl" />

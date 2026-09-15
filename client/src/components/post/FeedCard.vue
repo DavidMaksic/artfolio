@@ -1,14 +1,30 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
+import { useEngagement } from "@/composables/useEngagement";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/vue";
 
-defineProps<{ post: FeedItem }>();
-defineEmits<{ open: [id: string] }>();
+const props = defineProps<{ post: FeedItem }>();
+defineEmits<{
+  open: [id: string];
+  openWithComment: [id: string];
+}>();
 
 const router = useRouter();
+
+const {
+  liked,
+  bookmarked,
+  likeCount,
+  bookmarkCount,
+  toggleLike,
+  toggleBookmark,
+  isLikePending,
+  isBookmarkPending,
+} = useEngagement(computed(() => props.post));
 </script>
 
 <template>
@@ -37,15 +53,17 @@ const router = useRouter();
           <span class="text-xs text-muted-foreground">• 1 day</span>
         </div>
 
-        <Button class="bg-black/80 hover:bg-black/60 text-white h-8 px-5 rounded-lg">Follow</Button>
+        <Button class="bg-black/80 hover:bg-black/60 text-white h-8 px-5 rounded-lg">
+          Follow
+        </Button>
       </div>
     </div>
 
     <div
       class="border border-neutral-200 rounded-2xl overflow-hidden transition-shadow duration-300 bg-white"
     >
-      <!-- Cover image -->
       <div class="relative group" @click="$emit('open', post.id)">
+        <!-- Cover image -->
         <img
           :src="post.coverImage.imageUrl"
           :alt="post.category.name"
@@ -69,23 +87,58 @@ const router = useRouter();
         />
       </div>
 
-      <!-- Actions -->
       <div class="flex items-center justify-start gap-1.5 p-1.5 text-neutral-700">
         <div class="flex-1 flex items-center">
-          <Button variant="ghost" class="flex items-center justify-center gap-2">
-            <Icon class="size-6" icon="ph:heart" />123</Button
+          <!-- Like -->
+          <Button
+            variant="ghost"
+            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-red-400"
+            :disabled="isLikePending"
+            @click="toggleLike"
           >
-          <Button class="flex items-center justify-center gap-2" variant="ghost"
-            ><Icon class="size-6" icon="ph:chat-circle" />32</Button
+            <Icon
+              class="size-6 transition-colors"
+              :icon="liked ? 'ph:heart-fill' : 'ph:heart'"
+              :class="liked && 'text-red-400'"
+            />
+            <span v-if="likeCount" class="inline-block text-left text-sm tabular-nums">
+              {{ likeCount || "" }}
+            </span>
+          </Button>
+
+          <!-- Comment — opens modal -->
+          <Button
+            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-yellow-600"
+            variant="ghost"
+            @click="$emit('openWithComment', post.id)"
           >
-          <Button class="flex items-center justify-center gap-2" variant="ghost"
-            ><Icon class="size-6" icon="ph:bookmark-simple" />2</Button
+            <Icon class="size-6" icon="ph:chat-circle" />
+            <span v-if="post.commentCount" class="inline-block text-left text-sm tabular-nums">{{
+              post.commentCount || ""
+            }}</span>
+          </Button>
+
+          <!-- Bookmark -->
+          <Button
+            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-blue-400"
+            variant="ghost"
+            :disabled="isBookmarkPending"
+            @click="toggleBookmark"
           >
+            <Icon
+              class="size-6 transition-colors"
+              :icon="bookmarked ? 'ph:bookmark-simple-fill' : 'ph:bookmark-simple'"
+              :class="bookmarked && 'text-blue-400'"
+            />
+            <span v-if="bookmarkCount" class="inline-block text-left text-sm tabular-nums">{{
+              bookmarkCount || ""
+            }}</span>
+          </Button>
         </div>
 
-        <Badge variant="secondary" class="py-1 px-3 text-xs border-neutral-200">{{
-          post.category.name
-        }}</Badge>
+        <Badge variant="secondary" class="py-1 px-3 text-xs border-neutral-200">
+          {{ post.category.name }}
+        </Badge>
       </div>
 
       <div
