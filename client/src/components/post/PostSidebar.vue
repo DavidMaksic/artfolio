@@ -368,8 +368,9 @@ const deleteMutation = useMutation({
             class="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
             @keydown.enter="submitComment"
           />
-          <button
-            class="text-sm font-semibold text-neutral-800 hover:text-neutral-500 transition-colors disabled:opacity-40"
+          <Button
+            variant="ghost"
+            class="text-sm font-semibold text-neutral-800 transition-colors disabled:opacity-40"
             :disabled="!commentBody.trim() || createCommentMutation.isPending.value"
             @click="submitComment"
           >
@@ -379,7 +380,7 @@ const deleteMutation = useMutation({
               class="animate-spin"
             />
             <span v-else>Post</span>
-          </button>
+          </Button>
         </div>
 
         <div v-else class="border-t border-border p-4 text-sm text-muted-foreground text-center">

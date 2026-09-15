@@ -28,7 +28,6 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Chose Docker for Postgres instead of installing it locally, in order to use this chance to familiarize myself with containerization
 - Chose Drizzle over Prisma to avoid too much abstraction
 - Used `@artfolio/shared` workspace package for Zod schemas and TypeScript types shared between client and server, avoiding duplication and keeping validation in sync across the stack
-- Adopted `.test.ts` convention for Vitest files and `.spec.ts` convention for Playwright files to avoid test runner confusion
 - Currently disabled e2e testing on CI pipeline, to reduce time needed to commit changes
 
 **Issues resolved:**

@@ -92,6 +92,8 @@ const {
           <!-- Like -->
           <Button
             variant="ghost"
+            data-testid="like-button"
+            :data-liked="liked"
             class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-red-400"
             :disabled="isLikePending"
             @click="toggleLike"
@@ -108,8 +110,9 @@ const {
 
           <!-- Comment — opens modal -->
           <Button
-            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-yellow-600"
             variant="ghost"
+            data-testid="comment-button"
+            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-yellow-600"
             @click="$emit('openWithComment', post.id)"
           >
             <Icon class="size-6" icon="ph:chat-circle" />
@@ -120,8 +123,10 @@ const {
 
           <!-- Bookmark -->
           <Button
-            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-blue-400"
             variant="ghost"
+            data-testid="bookmark-button"
+            :data-bookmarked="bookmarked"
+            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-blue-400"
             :disabled="isBookmarkPending"
             @click="toggleBookmark"
           >
