@@ -36,6 +36,7 @@ const profileSchema = z.object({
    username: z.string(),
    displayName: z.string().nullable(),
    profileImageUrl: z.string().nullable(),
+   userIsFollowing: z.boolean(),
 });
 
 // ── Engagement ────────────────────────────────────────

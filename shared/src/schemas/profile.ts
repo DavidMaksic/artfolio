@@ -63,5 +63,16 @@ export const profileSchema = z.object({
    updatedAt: z.date(),
 });
 
+export const followCountsSchema = z.object({
+   followerCount: z.number(),
+   followingCount: z.number(),
+   userIsFollowing: z.boolean(),
+});
+
+export const profileWithFollowSchema = profileSchema.extend(
+   followCountsSchema.shape,
+);
+
 export type Profile = z.infer<typeof profileSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type ProfileWithFollow = z.infer<typeof profileWithFollowSchema>;
