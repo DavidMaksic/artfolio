@@ -9,11 +9,12 @@ import { deleteImage, generateUploadSignature } from '@/lib/cloudinary.js';
 import { createPostSchema, updatePostSchema } from '@artfolio/shared';
 import { category, post, postImage } from '@/db/schema/post.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
-import { asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 import z from 'zod';
+import { follow } from '@/db/schema/profile.js';
 
 export const postRouter = t.router({
    create: protectedProcedure
@@ -158,6 +159,18 @@ export const postRouter = t.router({
             });
          }
 
+         // Resolve follow state for the post author
+         let userIsFollowing = false;
+         if (viewerProfileId && viewerProfileId !== result.profileId) {
+            const existingFollow = await db.query.follow.findFirst({
+               where: and(
+                  eq(follow.followerId, viewerProfileId),
+                  eq(follow.followingId, result.profileId),
+               ),
+            });
+            userIsFollowing = !!existingFollow;
+         }
+
          return {
             id: result.id,
             profileId: result.profileId,
@@ -172,6 +185,7 @@ export const postRouter = t.router({
                username: result.profile.username,
                displayName: result.profile.displayName,
                profileImageUrl: result.profile.profileImageUrl,
+               userIsFollowing,
             },
             likeCount: result.likes.length,
             bookmarkCount: result.bookmarks.length,
@@ -184,6 +198,7 @@ export const postRouter = t.router({
                : false,
          };
       }),
+
    getByUsername: t.procedure
       .input(z.object({ username: z.string() }))
       .query(async ({ input }) => {

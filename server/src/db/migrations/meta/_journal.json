@@ -50,6 +50,13 @@
       "when": 1789557262656,
       "tag": "0006_happy_iron_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789558400753,
+      "tag": "0007_silly_ultimo",
+      "breakpoints": true
     }
   ]
 }

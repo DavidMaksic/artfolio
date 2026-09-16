@@ -13,7 +13,7 @@ test.describe('likes', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
       await page.getByRole('button', { name: 'Sign out' }).click();
 
       await page.locator('[data-testid="like-button"]').first().click();
@@ -23,7 +23,7 @@ test.describe('likes', () => {
    test('signed in user can like and unlike a post', async ({ page, auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
 
       const likeButton = page.locator('[data-testid="like-button"]').first();
 
@@ -50,7 +50,7 @@ test.describe('bookmarks', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
       await page.getByRole('button', { name: 'Sign out' }).click();
 
       await page.locator('[data-testid="bookmark-button"]').first().click();
@@ -63,7 +63,7 @@ test.describe('bookmarks', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
 
       const bookmarkButton = page
          .locator('[data-testid="bookmark-button"]')
@@ -94,7 +94,7 @@ test.describe('comments', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
       await page.getByRole('button', { name: 'Sign out' }).click();
 
       await page.locator('[data-post-id]').first().click();
@@ -110,7 +110,7 @@ test.describe('comments', () => {
    test('signed in user can submit a comment', async ({ page, auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
 
       await page.locator('[data-post-id]').first().click();
       const modal = page.locator('[data-testid="post-modal"]');
@@ -132,7 +132,7 @@ test.describe('comments', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
 
       await page.locator('[data-post-id]').first().click();
       const modal = page.locator('[data-testid="post-modal"]');
@@ -161,7 +161,7 @@ test.describe('comments', () => {
       // User 1 creates the post
       await auth.signInViaMagicLink();
       await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, auth.username);
+      await createPost(page);
       await page.getByRole('button', { name: 'Sign out' }).click();
 
       // User 2 leaves a comment

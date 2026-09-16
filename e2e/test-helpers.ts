@@ -24,7 +24,6 @@ export async function completeProfileSetup(
 
 export async function createPost(
    page: Page,
-   username: string,
    options: { description?: string } = {},
 ) {
    await page.getByLabel('New post').click();

@@ -36,6 +36,7 @@ export const follow = pgTable(
       followingId: text()
          .notNull()
          .references(() => profile.id, { onDelete: 'cascade' }),
+      createdAt: timestamp().notNull().defaultNow(),
    },
    (t) => [primaryKey({ columns: [t.followerId, t.followingId] })],
 );

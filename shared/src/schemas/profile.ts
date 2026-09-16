@@ -69,6 +69,12 @@ export const followCountsSchema = z.object({
    userIsFollowing: z.boolean(),
 });
 
+export const getFollowsInputSchema = z.object({
+   profileId: z.string(),
+   limit: z.number().min(1).max(50).default(20),
+   cursor: z.string().optional(), // createdAt ISO string
+});
+
 export const profileWithFollowSchema = profileSchema.extend(
    followCountsSchema.shape,
 );

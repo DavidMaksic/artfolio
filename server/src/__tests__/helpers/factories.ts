@@ -1,3 +1,5 @@
+import { profile } from '@/db/schema/profile.js';
+
 export function mockUser(overrides = {}) {
    return {
       id: 'test-user-id',
@@ -102,40 +104,27 @@ export function mockUpdateTestPost(overrides = {}) {
    };
 }
 
-export function mockFeedPost(
-   overrides?: Partial<{ createdAt: Date; id: string }>,
-) {
-   const id = overrides?.id ?? crypto.randomUUID();
-   const createdAt = overrides?.createdAt;
+export function mockFeedPost(overrides = {}) {
    return {
-      id,
-      profileId: 'profile-1',
-      description: 'Test post',
+      id: crypto.randomUUID(),
       categoryId: 'cat-1',
-      createdAt,
-      updatedAt: createdAt,
+      createdAt: new Date(),
+      profileId: 'other-profile-id',
+      description: null,
       images: [
-         {
-            id: 'img-1',
-            postId: id,
-            imageUrl: 'https://example.com/image.jpg',
-            publicId: 'artfolio/posts/image',
-            order: 0,
-            width: 1200,
-            height: 800,
-            createdAt,
-         },
+         { id: 'img-1', imageUrl: 'https://example.com/img.jpg', order: 0 },
       ],
-      category: { id: 'cat-1', name: 'Illustration', slug: 'illustration' },
-      postTags: [{ tag: { id: 'tag-1', name: 'digital', slug: 'digital' } }],
+      category: { id: 'cat-1', name: 'Illustration' },
+      postTags: [],
       profile: {
-         username: 'alice',
-         displayName: 'Alice',
+         username: 'otheruser',
+         displayName: 'Other User',
          profileImageUrl: null,
       },
       likes: [],
       bookmarks: [],
       comments: [],
+      ...overrides,
    };
 }
 
@@ -168,6 +157,15 @@ export function mockComment(overrides = {}) {
       post: {
          profileId: 'test-profile-id',
       },
+      ...overrides,
+   };
+}
+
+export function mockFollowRow(overrides = {}) {
+   return {
+      followerId: profile.id,
+      followingId: 'other-profile-id',
+      createdAt: new Date(),
       ...overrides,
    };
 }
