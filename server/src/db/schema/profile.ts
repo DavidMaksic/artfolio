@@ -1,4 +1,10 @@
-import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import {
+   text,
+   boolean,
+   pgTable,
+   timestamp,
+   primaryKey,
+} from 'drizzle-orm/pg-core';
 import { user } from './auth.js';
 
 export const profile = pgTable('profile', {
@@ -18,3 +24,18 @@ export const profile = pgTable('profile', {
    createdAt: timestamp().notNull(),
    updatedAt: timestamp().notNull(),
 });
+
+// Junction table
+
+export const follow = pgTable(
+   'follow',
+   {
+      followerId: text()
+         .notNull()
+         .references(() => profile.id, { onDelete: 'cascade' }),
+      followingId: text()
+         .notNull()
+         .references(() => profile.id, { onDelete: 'cascade' }),
+   },
+   (t) => [primaryKey({ columns: [t.followerId, t.followingId] })],
+);
