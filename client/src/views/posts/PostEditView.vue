@@ -195,7 +195,7 @@ async function handleSubmit() {
                 @dragover="!isUploading && !isSubmitting && onDragOver($event, index)"
                 @dragend="!isUploading && !isSubmitting && onDragEnd()"
               >
-                <img :src="previewUrl(image)" class="w-full h-full object-cover" />
+                <img :src="previewUrl(image)" class="size-full object-cover" />
 
                 <div
                   class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"

@@ -218,6 +218,7 @@ export const postRouter = t.router({
 
          const items = posts.map((p) => ({
             id: p.id,
+            profileId: p.profileId,
             categoryId: p.categoryId,
             createdAt: p.createdAt,
             coverImage: p.images.sort((a, b) => a.order - b.order)[0]!,

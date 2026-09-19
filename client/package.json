@@ -23,6 +23,7 @@
       "better-auth": "^1.6.24",
       "class-variance-authority": "^0.7.1",
       "clsx": "^2.1.1",
+      "date-fns": "^4.4.0",
       "motion": "^12.42.1",
       "pinia": "^3.0.4",
       "reka-ui": "^2.10.4",

@@ -153,7 +153,7 @@ async function handleSubmit() {
                 @dragover="!isUploading && !isSubmitting && onDragOver($event, index)"
                 @dragend="!isUploading && !isSubmitting && onDragEnd()"
               >
-                <img :src="image.preview" class="w-full h-full object-cover" />
+                <img :src="image.preview" class="size-full object-cover" />
 
                 <!-- Hover overlay -->
                 <div

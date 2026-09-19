@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icon } from "@iconify/vue";
+import image from "/sign-in-image.webp";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -43,67 +44,76 @@ function handleEmailSubmit() {
 </script>
 
 <template>
-  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
-    <Card class="w-full max-w-sm shadow-2xl">
-      <CardHeader class="pb-3 mr-3">
-        <CardTitle class="text-xl">Sign in</CardTitle>
-        <CardDescription>Enter your email to receive a sign-in code</CardDescription>
-      </CardHeader>
+  <div class="grid grid-cols-[1.5fr_2fr] items-start">
+    <img :src="image" class="h-screen w-full object-cover object-center" />
 
-      <CardContent class="space-y-4">
-        <!-- Email form -->
-        <form class="space-y-3" @submit.prevent="handleEmailSubmit">
-          <div class="space-y-1.5">
-            <Label for="email">Email address</Label>
-            <Input
-              id="email"
-              v-model="email"
-              type="email"
-              placeholder="you@example.com"
-              autocomplete="email"
-              required
-              :disabled="isPending"
-            />
+    <div class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
+      <Card class="w-full max-w-sm shadow-2xl">
+        <CardHeader class="pb-3 mr-3">
+          <CardTitle class="text-xl">Sign in</CardTitle>
+          <CardDescription>Enter your email to receive a sign-in code</CardDescription>
+        </CardHeader>
+
+        <CardContent class="space-y-4">
+          <!-- Email form -->
+          <form class="space-y-3" @submit.prevent="handleEmailSubmit">
+            <div class="space-y-1.5">
+              <Label for="email">Email address</Label>
+              <Input
+                id="email"
+                v-model="email"
+                type="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+                :disabled="isPending"
+              />
+            </div>
+
+            <p v-if="error" role="alert" class="text-sm text-destructive">
+              {{ error }}
+            </p>
+
+            <Button type="submit" class="w-full" :disabled="isPending">
+              <Icon
+                v-if="isPending"
+                icon="ph:spinner"
+                class="mr-2 text-base animate-spin"
+                aria-hidden="true"
+              />
+              {{ isPending ? "Sending code…" : "Continue with email" }}
+            </Button>
+          </form>
+
+          <!-- Divider -->
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div class="relative flex justify-center text-xs uppercase">
+              <span class="bg-card px-2 text-muted-foreground">or</span>
+            </div>
           </div>
 
-          <p v-if="error" role="alert" class="text-sm text-destructive">
-            {{ error }}
-          </p>
+          <!-- OAuth buttons -->
+          <div class="space-y-2">
+            <Button type="button" variant="outline" class="w-full" @click="auth.signInWithGoogle()">
+              <Icon icon="logos:google-icon" class="mr-2 text-base" aria-hidden="true" />
+              Continue with Google
+            </Button>
 
-          <Button type="submit" class="w-full" :disabled="isPending">
-            <Icon
-              v-if="isPending"
-              icon="ph:spinner"
-              class="mr-2 text-base animate-spin"
-              aria-hidden="true"
-            />
-            {{ isPending ? "Sending code…" : "Continue with email" }}
-          </Button>
-        </form>
-
-        <!-- Divider -->
-        <div class="relative">
-          <div class="absolute inset-0 flex items-center">
-            <Separator />
+            <Button
+              type="button"
+              variant="outline"
+              class="w-full"
+              @click="auth.signInWithDiscord()"
+            >
+              <Icon icon="logos:discord-icon" class="mr-2 text-base" aria-hidden="true" />
+              Continue with Discord
+            </Button>
           </div>
-          <div class="relative flex justify-center text-xs uppercase">
-            <span class="bg-card px-2 text-muted-foreground">or</span>
-          </div>
-        </div>
-
-        <!-- OAuth buttons -->
-        <div class="space-y-2">
-          <Button type="button" variant="outline" class="w-full" @click="auth.signInWithGoogle()">
-            <Icon icon="logos:google-icon" class="mr-2 text-base" aria-hidden="true" />
-            Continue with Google
-          </Button>
-
-          <Button type="button" variant="outline" class="w-full" @click="auth.signInWithDiscord()">
-            <Icon icon="logos:discord-icon" class="mr-2 text-base" aria-hidden="true" />
-            Continue with Discord
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   </div>
 </template>

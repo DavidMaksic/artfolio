@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
+import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
-import { computed } from "vue";
+import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/vue";
 
-const props = defineProps<{ post: FeedItem }>();
+const props = defineProps<{
+  post: FeedItem;
+  suggested: boolean;
+}>();
+
 defineEmits<{
   open: [id: string];
   openWithComment: [id: string];
@@ -25,11 +31,17 @@ const {
   isLikePending,
   isBookmarkPending,
 } = useEngagement(computed(() => props.post));
+
+const { following, toggleFollow, isFollowPending } = useFollow(
+  computed(() => ({
+    profileId: props.post.profileId,
+    userIsFollowing: props.post.profile.userIsFollowing,
+  })),
+);
 </script>
 
 <template>
   <div class="flex flex-col" :data-post-id="post.id">
-    <!-- Card body -->
     <div class="space-y-2.5 py-2.5">
       <!-- Author -->
       <div class="flex items-center justify-between gap-2">
@@ -43,18 +55,36 @@ const {
               :src="post.profile.profileImageUrl"
               class="size-9 rounded-full object-cover"
             />
-            <div v-else class="size-9 rounded-full bg-muted flex items-center justify-center">
+            <div
+              v-else
+              class="size-9 rounded-full bg-white flex items-center justify-center border"
+            >
               <Icon icon="ph:user" class="text-muted-foreground" />
             </div>
             <p class="truncate text-sm font-medium leading-tight min-w-0 ml-1">
               {{ post.profile.displayName ?? post.profile.username }}
             </p>
           </div>
-          <span class="text-xs text-muted-foreground">• 1 day</span>
+          <span class="text-xs text-muted-foreground">
+            • {{ formatDistanceToNow(post.createdAt, { addSuffix: false }) }}
+          </span>
         </div>
 
-        <Button class="bg-black/80 hover:bg-black/60 text-white h-8 px-5 rounded-lg">
-          Follow
+        <!-- Only show follow button on suggested posts -->
+        <Button
+          v-if="suggested"
+          class="h-8 px-5 rounded-lg transition-colors"
+          :class="
+            following
+              ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
+              : 'bg-black/80 hover:bg-black/60 text-white'
+          "
+          :disabled="isFollowPending"
+          data-testid="follow-button"
+          :data-following="following"
+          @click="toggleFollow"
+        >
+          {{ following ? "Following" : "Follow" }}
         </Button>
       </div>
     </div>
@@ -63,7 +93,6 @@ const {
       class="border border-neutral-200 rounded-2xl overflow-hidden transition-shadow duration-300 bg-white"
     >
       <div class="relative group" @click="$emit('open', post.id)">
-        <!-- Cover image -->
         <img
           :src="post.coverImage.imageUrl"
           :alt="post.category.name"
@@ -89,7 +118,6 @@ const {
 
       <div class="flex items-center justify-start gap-1.5 p-1.5 text-neutral-700">
         <div class="flex-1 flex items-center">
-          <!-- Like -->
           <Button
             variant="ghost"
             data-testid="like-button"
@@ -108,7 +136,6 @@ const {
             </span>
           </Button>
 
-          <!-- Comment — opens modal -->
           <Button
             variant="ghost"
             data-testid="comment-button"
@@ -116,12 +143,11 @@ const {
             @click="$emit('openWithComment', post.id)"
           >
             <Icon class="size-6" icon="ph:chat-circle" />
-            <span v-if="post.commentCount" class="inline-block text-left text-sm tabular-nums">{{
-              post.commentCount || ""
-            }}</span>
+            <span v-if="post.commentCount" class="inline-block text-left text-sm tabular-nums">
+              {{ post.commentCount || "" }}
+            </span>
           </Button>
 
-          <!-- Bookmark -->
           <Button
             variant="ghost"
             data-testid="bookmark-button"
@@ -135,9 +161,9 @@ const {
               :icon="bookmarked ? 'ph:bookmark-simple-fill' : 'ph:bookmark-simple'"
               :class="bookmarked && 'text-blue-400'"
             />
-            <span v-if="bookmarkCount" class="inline-block text-left text-sm tabular-nums">{{
-              bookmarkCount || ""
-            }}</span>
+            <span v-if="bookmarkCount" class="inline-block text-left text-sm tabular-nums">
+              {{ bookmarkCount || "" }}
+            </span>
           </Button>
         </div>
 

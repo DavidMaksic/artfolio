@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
+import type { FeedItem } from "@artfolio/shared";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
@@ -10,6 +11,10 @@ import { trpc } from "@/lib/trpc";
 
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 import FeedCard from "@/components/post/FeedCard.vue";
+
+type FeedItemWithMeta = FeedItem & { suggested: boolean };
+
+const SUGGEST_EVERY = 3; // inject a suggested post every N following posts
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -28,19 +33,105 @@ watch(me, (profile) => {
   }
 });
 
-const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery({
-  queryKey: ["feed"],
-  queryFn: ({ pageParam }) =>
-    trpc.feed.getFeed.query({
-      limit: 5,
-      cursor: pageParam,
-    }),
+// ── Following feed (authenticated) ─────────────────────────────
+
+const {
+  data: followingData,
+  fetchNextPage: fetchNextFollowing,
+  hasNextPage: hasNextFollowing,
+  isFetchingNextPage: isFetchingNextFollowing,
+  isPending: isFollowingPending,
+} = useInfiniteQuery({
+  queryKey: ["feed", "following"],
+  queryFn: ({ pageParam }) => trpc.feed.getFollowingFeed.query({ limit: 5, cursor: pageParam }),
   initialPageParam: undefined as string | undefined,
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  enabled: computed(() => auth.isAuthenticated),
+  placeholderData: keepPreviousData,
 });
 
-const posts = computed(() => data.value?.pages.flatMap((p) => p.items) ?? []);
+// ── Explore / guest feed ────────────────────────────────────────
+
+const {
+  data: exploreData,
+  fetchNextPage: fetchNextExplore,
+  hasNextPage: hasNextExplore,
+  isFetchingNextPage: isFetchingNextExplore,
+  isPending: isExplorePending,
+} = useInfiniteQuery({
+  queryKey: ["feed", "explore"],
+  queryFn: ({ pageParam }) => trpc.feed.getExplorePosts.query({ limit: 5, cursor: pageParam }),
+  initialPageParam: undefined as string | undefined,
+  getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  // Guests use explore as the primary feed; authenticated users use it for suggestions
+  enabled: computed(() => !auth.isAuthenticated || !!followingData.value),
+});
+
+// ── Interleaved feed ────────────────────────────────────────────
+
+const followingProfileIds = computed(() => {
+  const ids = new Set<string>();
+  followingData.value?.pages.flatMap((p) => p.items).forEach((item) => ids.add(item.profileId));
+  return ids;
+});
+
+const posts = computed<FeedItemWithMeta[]>(() => {
+  if (!auth.isAuthenticated) {
+    return (
+      exploreData.value?.pages.flatMap((p) =>
+        p.items.map((item) => ({ ...item, suggested: false })),
+      ) ?? []
+    );
+  }
+
+  const following = followingData.value?.pages.flatMap((p) => p.items) ?? [];
+
+  // New user with no follows yet — show explore posts with follow buttons
+  if (following.length === 0) {
+    return (
+      exploreData.value?.pages.flatMap((p) =>
+        p.items.map((item) => ({ ...item, suggested: true })),
+      ) ?? []
+    );
+  }
+
+  const explore = (exploreData.value?.pages.flatMap((p) => p.items) ?? []).filter(
+    (item) => !followingProfileIds.value.has(item.profileId),
+  );
+
+  const result: FeedItemWithMeta[] = [];
+  let exploreIndex = 0;
+
+  following.forEach((item, i) => {
+    result.push({ ...item, suggested: false });
+    if ((i + 1) % SUGGEST_EVERY === 0 && exploreIndex < explore.length) {
+      result.push({ ...explore[exploreIndex++]!, suggested: true } as FeedItemWithMeta);
+    }
+  });
+
+  return result;
+});
+
 const postIds = computed(() => posts.value.map((p) => p.id));
+
+// ── Load more ───────────────────────────────────────────────────
+
+// Prefer loading more following posts; fall back to explore if exhausted
+function loadMore() {
+  if (hasNextFollowing.value) {
+    fetchNextFollowing();
+  } else if (hasNextExplore.value) {
+    fetchNextExplore();
+  }
+}
+
+const hasNextPage = computed(() => hasNextFollowing.value || hasNextExplore.value);
+const isFetchingNextPage = computed(
+  () => isFetchingNextFollowing.value || isFetchingNextExplore.value,
+);
+const isPending = computed(() =>
+  auth.isAuthenticated ? isFollowingPending.value : isExplorePending.value,
+);
 
 function openPost(id: string, focus = false) {
   activePostId.value = id;
@@ -76,12 +167,25 @@ function openPost(id: string, focus = false) {
             v-for="post in posts"
             :key="post.id"
             :post="post"
+            :suggested="post.suggested"
             @open="openPost($event)"
             @open-with-comment="openPost($event, true)"
           />
         </div>
 
-        <!-- Empty state -->
+        <!-- Empty state — authenticated user follows nobody yet -->
+        <div
+          v-else-if="auth.isAuthenticated"
+          class="flex flex-col items-center gap-3 py-24 text-center"
+        >
+          <Icon icon="ph:users-duotone" class="text-6xl text-muted-foreground" />
+          <p class="text-muted-foreground">Follow some artists to see their work here.</p>
+          <Button variant="outline" @click="router.push({ name: 'explore' })">
+            Explore artists
+          </Button>
+        </div>
+
+        <!-- Empty state — guest -->
         <div v-else class="flex flex-col items-center gap-3 py-24 text-center">
           <Icon icon="ph:image-square-duotone" class="text-6xl text-muted-foreground" />
           <p class="text-muted-foreground">No posts yet — be the first to share your work.</p>
@@ -89,7 +193,7 @@ function openPost(id: string, focus = false) {
 
         <!-- Load more -->
         <div v-if="hasNextPage" class="mt-10 flex justify-center">
-          <Button variant="outline" :disabled="isFetchingNextPage" @click="fetchNextPage()">
+          <Button variant="outline" :disabled="isFetchingNextPage" @click="loadMore">
             <Icon v-if="isFetchingNextPage" icon="ph:spinner" class="mr-2 animate-spin" />
             {{ isFetchingNextPage ? "Loading…" : "Load more" }}
           </Button>
@@ -97,7 +201,6 @@ function openPost(id: string, focus = false) {
       </template>
     </main>
 
-    <!-- Reuse existing modal -->
     <PostDetailModal
       v-if="activePostId"
       :post-id="activePostId"
@@ -106,7 +209,7 @@ function openPost(id: string, focus = false) {
       :comment-body="commentBodies[activePostId] ?? ''"
       @close="activePostId = null"
       @navigate="activePostId = $event"
-      @update:comment-body="commentBodies[activePostId] = $event"
+      @update:comment-body="commentBodies[activePostId!] = $event"
     />
   </div>
 </template>

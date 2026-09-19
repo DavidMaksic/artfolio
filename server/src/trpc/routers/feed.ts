@@ -26,6 +26,7 @@ function mapPost(
 ) {
    return {
       id: p.id,
+      profileId: p.profile.id,
       categoryId: p.categoryId,
       createdAt: p.createdAt,
       coverImage: p.images[0]!,
@@ -125,25 +126,11 @@ export const feedRouter = t.router({
          const { limit, cursor } = input;
          const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
 
-         let excludeIds: string[] = [];
-
-         if (viewerProfileId) {
-            const followingRows = await db.query.follow.findMany({
-               where: eq(follow.followerId, viewerProfileId),
-               columns: { followingId: true },
-            });
-            // Exclude followed profiles and own profile
-            excludeIds = [
-               ...followingRows.map((r) => r.followingId),
-               viewerProfileId,
-            ];
-         }
-
          const posts = await db.query.post.findMany({
             where: and(
                cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
-               excludeIds.length > 0
-                  ? notInArray(post.profileId, excludeIds)
+               viewerProfileId
+                  ? notInArray(post.profileId, [viewerProfileId])
                   : undefined,
             ),
             orderBy: [desc(post.createdAt)],
@@ -157,7 +144,6 @@ export const feedRouter = t.router({
             nextCursor = nextItem.createdAt.toISOString();
          }
 
-         // None of these are followed profiles
          return {
             items: posts.map((p) => mapPost(p, viewerProfileId, false)),
             nextCursor,

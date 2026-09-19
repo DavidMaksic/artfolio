@@ -34,6 +34,16 @@ const profileReady = computed(
 
       <!-- Right side -->
       <div class="flex items-center gap-2">
+        <Button
+          class="hover:bg-neutral-200/60"
+          variant="ghost"
+          size="sm"
+          @click="router.push({ name: 'explore' })"
+        >
+          <Icon icon="ph:compass" class="mr-1.5" />
+          Explore
+        </Button>
+
         <template v-if="auth.isAuthenticated">
           <Button
             v-if="profileReady"

@@ -282,6 +282,8 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 **Known issues carried forward:**
 
+- When validation error happens for username when settin up profile, its only shown when submitting during the second step, which is unintuitive
+
 ---
 
 ## Sprint 8 — Notifications

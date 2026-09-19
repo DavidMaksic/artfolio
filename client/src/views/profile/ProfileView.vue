@@ -73,10 +73,10 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
         ></div>
 
         <!-- Left — profile sidebar -->
-        <ProfileSidebar :profile :isOwner :paBase />
+        <ProfileSidebar :profile :isOwner :paBase :postCount="posts?.items.length" />
 
         <!-- Right — posts -->
-        <ProfileGrid :posts="posts?.items" :isOwner :isLoadingPosts />
+        <ProfileGrid :posts="posts?.items" :isOwner :isLoadingPosts :accentOverlay="true" />
       </div>
     </template>
 

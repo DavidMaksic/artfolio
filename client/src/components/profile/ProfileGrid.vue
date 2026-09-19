@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProfilePost } from "@artfolio/shared";
+import type { FeedItem, ProfilePost } from "@artfolio/shared";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 
 import { ref, computed, watch, onUnmounted } from "vue";
@@ -8,9 +8,10 @@ import { Icon } from "@iconify/vue";
 type Row = { post: ProfilePost; width: number }[];
 
 const props = defineProps<{
-  posts: ProfilePost[] | undefined;
+  posts: ProfilePost[] | FeedItem[] | undefined;
   isOwner: boolean;
   isLoadingPosts: boolean;
+  accentOverlay?: boolean;
 }>();
 
 const activePostId = ref<string | null>(null);
@@ -109,12 +110,10 @@ const rows = computed<Row[]>(() => {
           <!-- Hover overlay -->
           <div
             class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3"
-            style="
-              background: radial-gradient(
-                ellipse at top right,
-                hsl(var(--pa-h) var(--pa-s) var(--pa-l) / 0.4) 0%,
-                hsl(0 0% 0% / 0.55) 100%
-              );
+            :style="
+              accentOverlay
+                ? 'background: radial-gradient(ellipse at top right, hsl(var(--pa-h) var(--pa-s) var(--pa-l) / 0.4) 0%, hsl(0 0% 0% / 0.55) 100%);'
+                : 'background: radial-gradient(ellipse at top right, hsl(0 0% 40% / 0.4) 0%, hsl(0 0% 0% / 0.55) 100%);'
             "
           >
             <div class="flex gap-2">

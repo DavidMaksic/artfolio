@@ -23,6 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useFollow } from "@/composables/useFollow";
 
 const props = defineProps<{
   post: PostDetail | undefined;
@@ -83,6 +84,13 @@ const {
   isLikePending,
   isBookmarkPending,
 } = useEngagement(engagementSource);
+
+const followSource = computed(() => ({
+  profileId: props.post?.profileId ?? "",
+  userIsFollowing: props.post?.profile.userIsFollowing ?? false,
+}));
+
+const { following, toggleFollow, isFollowPending } = useFollow(followSource);
 
 // ── Comments ───────────────────────────────────────────
 
@@ -173,7 +181,7 @@ const deleteMutation = useMutation({
             class="size-20 rounded-full object-cover ring-1 ring-border"
           />
           <div v-else class="size-20 rounded-full bg-muted flex items-center justify-center">
-            <Icon icon="ph:user" class="text-muted-foreground" />
+            <Icon icon="ph:user" class="text-muted-foreground text-3xl" />
           </div>
           <div>
             <p class="text-xl font-semibold group-hover:text-neutral-500 transition-colors">
@@ -185,8 +193,19 @@ const deleteMutation = useMutation({
 
         <!-- Actions -->
         <div class="flex items-center justify-between gap-1.5">
-          <Button class="bg-black/80 hover:bg-black/60 text-white flex-1">
-            <Icon class="size-5" icon="ph:user-plus" />Follow
+          <Button
+            v-if="!isPostOwner"
+            class="flex-1 transition-colors"
+            :class="
+              following
+                ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
+                : 'bg-black/80 hover:bg-black/60 text-white'
+            "
+            :disabled="isFollowPending"
+            @click="toggleFollow"
+          >
+            <Icon class="size-5" :icon="following ? 'ph:user-check' : 'ph:user-plus'" />
+            {{ following ? "Following" : "Follow" }}
           </Button>
           <Button class="flex-1" variant="secondary" :disabled="isLikePending" @click="toggleLike">
             <Icon

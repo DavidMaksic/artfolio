@@ -77,6 +77,7 @@ export const feedInputSchema = z.object({
 
 const postSummarySchema = z.object({
    id: z.string(),
+   profileId: z.string(),
    categoryId: z.string(),
    createdAt: z.date(),
    coverImage: postImageSchema,

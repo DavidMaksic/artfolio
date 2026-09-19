@@ -1,18 +1,16 @@
 import {
    extractPublicId,
+   getViewerProfileId,
    getProfileByUserId,
-   getProfileByUsername,
 } from '@/trpc/helpers.js';
 import { cloudinary, deleteImage, getImageColors } from '@/lib/cloudinary.js';
 import { usernameSchema, updateProfileSchema } from '@artfolio/shared';
 import { protectedProcedure } from '@/trpc/middleware.js';
-import { fromNodeHeaders } from 'better-auth/node';
 import { TRPCError } from '@trpc/server';
-import { profile } from '@/db/schema/profile.js';
+import { follow, profile } from '@/db/schema/profile.js';
+import { and, eq } from 'drizzle-orm';
 import { post } from '@/db/schema/post.js';
-import { auth } from '@/lib/auth.js';
 import { db } from '@/db/index.js';
-import { eq } from 'drizzle-orm';
 import { t } from '@/trpc/init.js';
 import { z } from 'zod';
 
@@ -23,7 +21,43 @@ export const profileRouter = t.router({
 
    getByUsername: t.procedure
       .input(z.object({ username: usernameSchema }))
-      .query(async ({ input }) => getProfileByUsername(input.username)),
+      .query(async ({ ctx, input }) => {
+         const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
+
+         const userProfile = await db.query.profile.findFirst({
+            where: eq(profile.username, input.username),
+         });
+
+         if (!userProfile) {
+            throw new TRPCError({
+               code: 'NOT_FOUND',
+               message: 'Profile not found',
+            });
+         }
+
+         const [followerCount, followingCount] = await Promise.all([
+            db.$count(follow, eq(follow.followingId, userProfile.id)),
+            db.$count(follow, eq(follow.followerId, userProfile.id)),
+         ]);
+
+         let userIsFollowing = false;
+         if (viewerProfileId && viewerProfileId !== userProfile.id) {
+            const existing = await db.query.follow.findFirst({
+               where: and(
+                  eq(follow.followerId, viewerProfileId),
+                  eq(follow.followingId, userProfile.id),
+               ),
+            });
+            userIsFollowing = !!existing;
+         }
+
+         return {
+            ...userProfile,
+            followerCount,
+            followingCount,
+            userIsFollowing,
+         };
+      }),
 
    update: protectedProcedure
       .input(updateProfileSchema)
