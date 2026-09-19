@@ -4,6 +4,7 @@ import {
 } from '@/__tests__/helpers/trpc-helper.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockUser, mockProfile } from '@/__tests__/helpers/factories.js';
+import { getViewerProfileId } from '@/trpc/helpers.js';
 import { deleteImage } from '@/lib/cloudinary.js';
 import { db } from '@/db/index.js';
 
@@ -16,6 +17,9 @@ vi.mock('@/db/index.js', () => ({
          post: {
             findMany: vi.fn(),
          },
+         follow: {
+            findFirst: vi.fn(),
+         },
       },
       update: vi.fn(() => ({
          set: vi.fn(() => ({
@@ -24,6 +28,7 @@ vi.mock('@/db/index.js', () => ({
             })),
          })),
       })),
+      $count: vi.fn(),
    },
 }));
 
@@ -47,6 +52,7 @@ const mockFindFirst = db.query.profile.findFirst as ReturnType<typeof vi.fn>;
 const mockPostFindMany = db.query.post.findMany as ReturnType<typeof vi.fn>;
 const mockUpdate = db.update as ReturnType<typeof vi.fn>;
 const mockDeleteImage = deleteImage as ReturnType<typeof vi.fn>;
+const mockCount = db.$count as ReturnType<typeof vi.fn>;
 
 const user = mockUser();
 const profile = mockProfile({ userId: user.id });
@@ -83,15 +89,22 @@ describe('profile.getMe', () => {
 // ── getByUsername ───────────────────────
 
 describe('profile.getByUsername', () => {
-   it('returns the profile for a valid username', async () => {
+   it('returns profile with follow counts for a guest', async () => {
       mockFindFirst.mockResolvedValueOnce(profile);
+      mockCount.mockResolvedValueOnce(10); // followerCount
+      mockCount.mockResolvedValueOnce(5); // followingCount
 
       const caller = createCaller();
       const result = await caller.profile.getByUsername({
          username: 'testuser',
       });
 
-      expect(result).toMatchObject({ username: 'testuser' });
+      expect(result).toMatchObject({
+         username: 'testuser',
+         followerCount: 10,
+         followingCount: 5,
+         userIsFollowing: false,
+      });
    });
 
    it('throws NOT_FOUND for a username that does not exist', async () => {
