@@ -138,6 +138,18 @@ export const getCommentsSchema = z.object({
    cursor: z.string().optional(),
 });
 
+export const discussionItemSchema = z.object({
+   id: z.string(),
+   body: z.string(),
+   postId: z.string(),
+   coverImage: postImageSchema,
+   profile: z.object({
+      username: z.string(),
+      displayName: z.string().nullable(),
+      profileImageUrl: z.string().nullable(),
+   }),
+});
+
 // ── Types ────────────────────────────────────────
 
 export type Post = z.infer<typeof postSchema>;
@@ -153,3 +165,4 @@ export type Comment = z.infer<typeof commentSchema>;
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export type DeleteCommentInput = z.infer<typeof deleteCommentSchema>;
 export type GetCommentsInput = z.infer<typeof getCommentsSchema>;
+export type DiscussionItem = z.infer<typeof discussionItemSchema>;

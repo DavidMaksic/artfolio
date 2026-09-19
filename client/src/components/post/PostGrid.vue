@@ -144,15 +144,15 @@ const rows = computed<Row[]>(() => {
       @close="activePostId = null"
       @navigate="activePostId = $event"
     />
-  </section>
 
-  <div
-    v-if="posts?.length === 0"
-    class="flex flex-col items-center justify-center -translate-y-20 h-full text-center gap-3"
-  >
-    <Icon icon="ph:image-square-duotone" class="text-6xl text-muted-foreground" />
-    <p class="text-lg text-muted-foreground">
-      {{ isOwner ? "No posts yet — share your first work" : "No posts yet" }}
-    </p>
-  </div>
+    <div
+      v-if="posts?.length === 0"
+      class="flex flex-col items-center justify-center -translate-y-20 h-full text-center gap-3"
+    >
+      <Icon icon="ph:image-square-duotone" class="text-6xl text-muted-foreground" />
+      <p class="text-lg text-muted-foreground">
+        {{ isOwner ? "No posts yet — share your first work" : "No posts yet" }}
+      </p>
+    </div>
+  </section>
 </template>

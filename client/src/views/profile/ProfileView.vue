@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 import ProfileSidebar from "@/components/profile/ProfileSidebar.vue";
-import ProfileGrid from "@/components/profile/ProfileGrid.vue";
+import PostGrid from "@/components/post/PostGrid.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -76,7 +76,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
         <ProfileSidebar :profile :isOwner :paBase :postCount="posts?.items.length" />
 
         <!-- Right — posts -->
-        <ProfileGrid :posts="posts?.items" :isOwner :isLoadingPosts :accentOverlay="true" />
+        <PostGrid :posts="posts?.items" :isOwner :isLoadingPosts :accentOverlay="true" />
       </div>
     </template>
 

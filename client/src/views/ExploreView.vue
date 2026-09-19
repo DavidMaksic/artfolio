@@ -4,7 +4,7 @@ import { computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
-import ProfileGrid from "@/components/profile/ProfileGrid.vue";
+import PostGrid from "@/components/post/PostGrid.vue";
 
 const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } = useInfiniteQuery({
   queryKey: ["feed", "explore"],
@@ -19,7 +19,7 @@ const posts = computed(() => data.value?.pages.flatMap((p) => p.items) ?? []);
 <template>
   <div class="min-h-screen bg-neutral-100">
     <main class="mx-auto px-5 pt-6 pb-8">
-      <ProfileGrid :posts="posts" :is-owner="false" :is-loading-posts="isPending" />
+      <PostGrid :posts="posts" :is-owner="false" :is-loading-posts="isPending" />
 
       <!-- Empty state -->
       <div

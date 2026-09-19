@@ -183,7 +183,7 @@ async function handleSubmit() {
                 'border-2 border-dashed rounded-lg text-center transition',
                 isUploading || isSubmitting
                   ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-pointer hover:border-muted-foreground',
+                  : 'cursor-default hover:border-muted-foreground',
                 images.length > 0 ? 'py-3' : 'py-24',
               ]"
               @drop="!isUploading && !isSubmitting && handleDrop($event)"

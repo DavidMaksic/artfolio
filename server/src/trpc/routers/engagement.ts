@@ -3,14 +3,19 @@ import {
    deleteCommentSchema,
    createCommentSchema,
 } from '@artfolio/shared';
-import { like, bookmark, comment } from '@/db/schema/post.js';
+import { getProfileByUserId, getViewerProfileId } from '@/trpc/helpers.js';
+import { like, bookmark, comment, postImage } from '@/db/schema/post.js';
+import { and, eq, lt, desc, asc, ne } from 'drizzle-orm';
 import { protectedProcedure } from '@/trpc/middleware.js';
-import { getProfileByUserId } from '@/trpc/helpers.js';
-import { and, eq, lt, desc } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 import { z } from 'zod';
+
+const getLatestDiscussionsSchema = z.object({
+   limit: z.number().min(1).max(10).default(5),
+   cursor: z.string().optional(),
+});
 
 export const engagementRouter = t.router({
    toggleLike: protectedProcedure
@@ -171,5 +176,86 @@ export const engagementRouter = t.router({
          }
 
          await db.delete(comment).where(eq(comment.id, input.commentId));
+      }),
+
+   getLatestDiscussions: t.procedure
+      .input(getLatestDiscussionsSchema)
+      .query(async ({ ctx, input }) => {
+         const { limit, cursor } = input;
+         const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
+
+         const comments = await db.query.comment.findMany({
+            where: and(
+               viewerProfileId
+                  ? ne(comment.profileId, viewerProfileId)
+                  : undefined,
+               cursor ? lt(comment.createdAt, new Date(cursor)) : undefined,
+            ),
+            orderBy: [desc(comment.createdAt)],
+            limit: limit + 1,
+            with: {
+               profile: {
+                  columns: {
+                     username: true,
+                     displayName: true,
+                     profileImageUrl: true,
+                  },
+               },
+               post: {
+                  with: {
+                     images: {
+                        orderBy: [asc(postImage.order)],
+                        limit: 1,
+                     },
+                  },
+               },
+            },
+         });
+
+         let nextCursor: string | null = null;
+         if (comments.length > limit) {
+            const nextItem = comments.pop()!;
+            nextCursor = nextItem.createdAt.toISOString();
+         }
+
+         return {
+            items: comments.map((c) => ({
+               id: c.id,
+               body: c.body,
+               postId: c.postId,
+               coverImage: c.post.images[0]!,
+               profile: {
+                  username: c.profile.username,
+                  displayName: c.profile.displayName,
+                  profileImageUrl: c.profile.profileImageUrl,
+               },
+            })),
+            nextCursor,
+         };
+      }),
+
+   getCommentById: t.procedure
+      .input(z.object({ commentId: z.string() }))
+      .query(async ({ input }) => {
+         const result = await db.query.comment.findFirst({
+            where: eq(comment.id, input.commentId),
+            with: {
+               profile: {
+                  columns: {
+                     username: true,
+                     displayName: true,
+                     profileImageUrl: true,
+                  },
+               },
+            },
+         });
+
+         if (!result)
+            throw new TRPCError({
+               code: 'NOT_FOUND',
+               message: 'Comment not found',
+            });
+
+         return result;
       }),
 });

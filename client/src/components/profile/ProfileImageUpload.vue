@@ -43,7 +43,7 @@ function onFileChange(e: Event) {
       />
       <div
         v-else
-        class="size-28 rounded-full bg-muted flex items-center justify-center ring-2 ring-border"
+        class="size-28 rounded-full bg-white flex items-center justify-center ring-2 ring-border"
       >
         <Icon icon="ph:user" class="text-4xl text-muted-foreground" />
       </div>

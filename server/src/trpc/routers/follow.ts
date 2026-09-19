@@ -112,4 +112,23 @@ export const followRouter = t.router({
 
          return { items: rows.map((r) => r.followed), nextCursor };
       }),
+
+   getFollowState: t.procedure
+      .input(z.object({ profileId: z.string() }))
+      .query(async ({ ctx, input }) => {
+         const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
+
+         if (!viewerProfileId || viewerProfileId === input.profileId) {
+            return { following: false };
+         }
+
+         const existing = await db.query.follow.findFirst({
+            where: and(
+               eq(follow.followerId, viewerProfileId),
+               eq(follow.followingId, input.profileId),
+            ),
+         });
+
+         return { following: !!existing };
+      }),
 });

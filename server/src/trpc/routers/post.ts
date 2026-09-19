@@ -11,10 +11,10 @@ import { category, post, postImage } from '@/db/schema/post.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
 import { and, asc, desc, eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
+import { follow } from '@/db/schema/profile.js';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 import z from 'zod';
-import { follow } from '@/db/schema/profile.js';
 
 export const postRouter = t.router({
    create: protectedProcedure

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
 import { formatDistanceToNow } from "date-fns";
+import { computed, watch } from "vue";
+import { useQueryClient } from "@tanstack/vue-query";
 import { useEngagement } from "@/composables/useEngagement";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
-import { computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/vue";
@@ -20,6 +21,21 @@ defineEmits<{
 }>();
 
 const router = useRouter();
+const queryClient = useQueryClient();
+
+// Seed the follow state cache from the feed item on mount
+watch(
+  () => props.post.profile.userIsFollowing,
+  () => {
+    const existing = queryClient.getQueryData(["follow", props.post.profileId]);
+    if (!existing) {
+      queryClient.setQueryData(["follow", props.post.profileId], {
+        following: props.post.profile.userIsFollowing,
+      });
+    }
+  },
+  { immediate: true },
+);
 
 const {
   liked,
@@ -45,15 +61,15 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     <div class="space-y-2.5 py-2.5">
       <!-- Author -->
       <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
           <div
-            class="flex items-center gap-2 cursor-pointer"
+            class="flex items-center gap-1.5 cursor-default group"
             @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
           >
             <img
               v-if="post.profile.profileImageUrl"
               :src="post.profile.profileImageUrl"
-              class="size-9 rounded-full object-cover"
+              class="size-9 rounded-full object-cover border group-hover:opacity-80 transition-opacity"
             />
             <div
               v-else
@@ -65,9 +81,10 @@ const { following, toggleFollow, isFollowPending } = useFollow(
               {{ post.profile.displayName ?? post.profile.username }}
             </p>
           </div>
-          <span class="text-xs text-muted-foreground">
-            • {{ formatDistanceToNow(post.createdAt, { addSuffix: false }) }}
-          </span>
+          <p class="text-xs text-muted-foreground">
+            <span class="mr-0.5">•</span>
+            {{ formatDistanceToNow(post.createdAt, { addSuffix: false }) }}
+          </p>
         </div>
 
         <!-- Only show follow button on suggested posts -->

@@ -20,15 +20,17 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
+import { useFollow } from "@/composables/useFollow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useFollow } from "@/composables/useFollow";
+import { formatDistanceToNow } from "date-fns";
 
 const props = defineProps<{
   post: PostDetail | undefined;
   postId: string;
   focusComment?: boolean;
+  focusCommentId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -85,6 +87,21 @@ const {
   isBookmarkPending,
 } = useEngagement(engagementSource);
 
+// Seed follow state from post detail on mount
+watch(
+  () => props.post,
+  (post) => {
+    if (!post?.profileId) return;
+    const existing = queryClient.getQueryData(["follow", post.profileId]);
+    if (!existing) {
+      queryClient.setQueryData(["follow", post.profileId], {
+        following: post.profile.userIsFollowing,
+      });
+    }
+  },
+  { immediate: true },
+);
+
 const followSource = computed(() => ({
   profileId: props.post?.profileId ?? "",
   userIsFollowing: props.post?.profile.userIsFollowing ?? false,
@@ -112,8 +129,34 @@ const {
   initialPageParam: undefined as string | undefined,
 });
 
-const comments = computed(() => commentsData.value?.pages.flatMap((p) => p.items) ?? []);
+// Fetch the focused comment if provided
+const { data: focusedComment } = useQuery({
+  queryKey: computed(() => ["comment", props.focusCommentId]),
+  queryFn: () => trpc.engagement.getCommentById.query({ commentId: props.focusCommentId! }),
+  enabled: computed(() => !!props.focusCommentId),
+});
+
+// Merge focused comment at the top, deduplicate rest
+const comments = computed(() => {
+  const pages = commentsData.value?.pages.flatMap((p) => p.items) ?? [];
+  if (!focusedComment.value) return pages;
+  const rest = pages.filter((c) => c.id !== focusedComment.value!.id);
+  return [focusedComment.value, ...rest];
+});
+
 const nextCursor = computed(() => commentsData.value?.pages.at(-1)?.nextCursor ?? null);
+
+watch(
+  [() => props.focusCommentId, focusedComment],
+  ([commentId, focused]) => {
+    if (!commentId || !focused) return;
+    nextTick(() => {
+      const el = document.querySelector(`[data-comment-id="${commentId}"]`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  },
+  { immediate: true },
+);
 
 const createCommentMutation = useMutation({
   mutationFn: () =>
@@ -169,7 +212,7 @@ const deleteMutation = useMutation({
       >
         <!-- Author -->
         <div
-          class="flex items-center gap-3 cursor-pointer group w-fit"
+          class="flex items-center gap-3 cursor-default group w-fit"
           @click="
             router.push({ name: 'profile', params: { username: post.profile.username } });
             emit('close');
@@ -178,13 +221,13 @@ const deleteMutation = useMutation({
           <img
             v-if="post.profile.profileImageUrl"
             :src="post.profile.profileImageUrl"
-            class="size-20 rounded-full object-cover ring-1 ring-border"
+            class="size-20 rounded-full object-cover ring-1 ring-border group-hover:opacity-80 transition-opacity"
           />
           <div v-else class="size-20 rounded-full bg-muted flex items-center justify-center">
             <Icon icon="ph:user" class="text-muted-foreground text-3xl" />
           </div>
           <div>
-            <p class="text-xl font-semibold group-hover:text-neutral-500 transition-colors">
+            <p class="text-xl font-semibold">
               {{ post.profile.displayName ?? post.profile.username }}
             </p>
             <p class="text-sm text-muted-foreground">@{{ post.profile.username }}</p>
@@ -304,7 +347,7 @@ const deleteMutation = useMutation({
         class="flex flex-1 flex-col bg-background rounded-2xl border border-border shadow-2xl overflow-hidden"
         @click.stop
       >
-        <div class="flex flex-col flex-1 overflow-y-auto p-6 gap-4">
+        <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4">
           <span class="font-semibold">Comments</span>
 
           <!-- Loading -->
@@ -324,25 +367,47 @@ const deleteMutation = useMutation({
           </p>
 
           <!-- Comment list -->
-          <div v-else class="flex flex-col gap-4">
-            <div v-for="comment in comments" :key="comment.id" class="flex items-start gap-2 group">
-              <img
-                v-if="comment.profile.profileImageUrl"
-                :src="comment.profile.profileImageUrl"
-                class="size-8 rounded-full object-cover shrink-0"
-              />
+          <div v-else class="flex flex-col divide-y divide-neutral-100">
+            <div
+              v-for="comment in comments"
+              :key="comment.id"
+              :data-comment-id="comment.id"
+              class="space-y-2 py-4 first:pt-1.5"
+            >
               <div
-                v-else
-                class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
+                class="flex items-center gap-1.5 w-fit"
+                @click="
+                  router.push({ name: 'profile', params: { username: comment.profile.username } })
+                "
               >
-                <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+                <div class="flex items-center gap-2 group cursor-default">
+                  <img
+                    v-if="comment.profile.profileImageUrl"
+                    :src="comment.profile.profileImageUrl"
+                    class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity"
+                  />
+                  <div
+                    v-else
+                    class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
+                  >
+                    <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+                  </div>
+
+                  <span class="text-sm font-semibold">
+                    {{ comment.profile.displayName ?? comment.profile.username }}
+                  </span>
+                </div>
+
+                <p class="text-xs text-muted-foreground">
+                  <span class="mr-0.5">•</span>
+                  {{ formatDistanceToNow(comment.createdAt, { addSuffix: false }) }}
+                </p>
               </div>
+
               <div class="flex flex-col flex-1 min-w-0">
-                <span class="text-sm font-semibold">
-                  {{ comment.profile.displayName ?? comment.profile.username }}
-                </span>
-                <p class="text-sm text-neutral-700 wrap-break-words">{{ comment.body }}</p>
+                <p class="text-sm wrap-break-words">{{ comment.body }}</p>
               </div>
+
               <button
                 v-if="canDeleteComment(comment.profile.username)"
                 class="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
@@ -402,19 +467,18 @@ const deleteMutation = useMutation({
           </Button>
         </div>
 
-        <div v-else class="border-t border-border p-4 text-sm text-muted-foreground text-center">
-          <span
-            class="cursor-pointer hover:text-foreground transition-colors"
-            @click="router.push({ name: 'sign-in' })"
-          >
-            Sign in to comment
-          </span>
+        <div
+          v-else
+          class="border-t border-border p-4 text-sm text-muted-foreground text-center hover:text-foreground"
+          @click="router.push({ name: 'sign-in' })"
+        >
+          <span class="cursor-default transition-colors"> Sign in to comment </span>
         </div>
       </div>
 
       <!-- Category + tags -->
       <div
-        class="flex flex-col gap-1.5 bg-background rounded-2xl border border-border p-6 space-y-3 shadow-2xl"
+        class="flex flex-col gap-1.5 bg-background rounded-2xl border border-border px-6 py-5 space-y-3 shadow-2xl"
         @click.stop
       >
         <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>

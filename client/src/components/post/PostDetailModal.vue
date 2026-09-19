@@ -10,6 +10,7 @@ const props = defineProps<{
   postId: string;
   postIds: string[];
   focusComment?: boolean;
+  focusCommentId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -48,6 +49,7 @@ const { data: post, isPending } = useQuery({
         :post
         :postId
         :focus-comment
+        :focus-comment-id="focusCommentId"
         v-model:comment-body="commentBody"
         @close="emit('close')"
       />

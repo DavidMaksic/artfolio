@@ -1,5 +1,5 @@
-import { ref, watch, type Ref } from "vue";
-import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { computed, ref, watch, type Ref } from "vue";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
@@ -14,11 +14,23 @@ export function useFollow(source: Ref<FollowSource>, onToggle?: (following: bool
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  // Dedicated follow state query — seeded from feed item, kept fresh independently
+  const { data: followState } = useQuery({
+    queryKey: computed(() => ["follow", source.value.profileId]),
+    queryFn: () => trpc.follow.getFollowState.query({ profileId: source.value.profileId }),
+    initialData: { following: source.value.userIsFollowing },
+    enabled: false,
+  });
+
   const following = ref(source.value.userIsFollowing);
 
-  watch(source, (s) => {
-    following.value = s.userIsFollowing;
-  });
+  watch(
+    followState,
+    (state) => {
+      if (state) following.value = state.following;
+    },
+    { immediate: true },
+  );
 
   function requireAuth(): boolean {
     if (!auth.isAuthenticated) {
@@ -32,13 +44,19 @@ export function useFollow(source: Ref<FollowSource>, onToggle?: (following: bool
     mutationFn: () => trpc.follow.toggleFollow.mutate({ followingId: source.value.profileId }),
     onMutate: () => {
       const previous = following.value;
-      following.value = !following.value;
-      onToggle?.(following.value);
+      const next = !previous;
+
+      // Update the single source of truth
+      queryClient.setQueryData(["follow", source.value.profileId], { following: next });
+      onToggle?.(next);
+
       return { previous };
     },
     onError: (_, __, context) => {
       if (context) {
-        following.value = context.previous;
+        queryClient.setQueryData(["follow", source.value.profileId], {
+          following: context.previous,
+        });
         onToggle?.(context.previous);
       }
     },

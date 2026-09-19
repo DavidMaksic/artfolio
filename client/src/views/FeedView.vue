@@ -10,7 +10,8 @@ import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
-import FeedCard from "@/components/post/FeedCard.vue";
+import FeedSidebar from "@/components/feed/FeedSidebar.vue";
+import FeedCard from "@/components/feed/FeedCard.vue";
 
 type FeedItemWithMeta = FeedItem & { suggested: boolean };
 
@@ -136,6 +137,15 @@ const isPending = computed(() =>
 function openPost(id: string, focus = false) {
   activePostId.value = id;
   focusComment.value = focus;
+  focusCommentId.value = null;
+}
+
+const focusCommentId = ref<string | null>(null);
+
+function openPostFromDiscussion(postId: string, commentId: string) {
+  activePostId.value = postId;
+  focusComment.value = false;
+  focusCommentId.value = commentId;
 }
 </script>
 
@@ -152,53 +162,59 @@ function openPost(id: string, focus = false) {
       </p>
     </div>
 
-    <main class="mx-auto max-w-xl px-5 pt-4 pb-8">
-      <!-- Loading -->
-      <template v-if="isPending">
-        <div class="grid grid-cols-1 gap-8">
-          <Skeleton v-for="n in 5" :key="n" class="h-160 rounded-2xl" />
-        </div>
-      </template>
+    <main class="mx-auto max-w-5xl px-5 pt-4 pb-8">
+      <div class="flex gap-8 items-start">
+        <!-- Feed column -->
+        <div class="flex-1 min-w-0 max-w-xl mx-auto lg:mx-0">
+          <!-- Loading -->
+          <template v-if="isPending">
+            <div class="grid grid-cols-1 gap-8">
+              <Skeleton v-for="n in 5" :key="n" class="h-160 rounded-2xl" />
+            </div>
+          </template>
 
-      <template v-else>
-        <!-- Grid -->
-        <div v-if="posts.length > 0" class="grid grid-cols-1 gap-8">
-          <FeedCard
-            v-for="post in posts"
-            :key="post.id"
-            :post="post"
-            :suggested="post.suggested"
-            @open="openPost($event)"
-            @open-with-comment="openPost($event, true)"
-          />
+          <template v-else>
+            <div v-if="posts.length > 0" class="grid grid-cols-1 gap-8">
+              <FeedCard
+                v-for="post in posts"
+                :key="post.id"
+                :post="post"
+                :suggested="post.suggested"
+                @open="openPost($event)"
+                @open-with-comment="openPost($event, true)"
+              />
+            </div>
+
+            <div
+              v-else-if="auth.isAuthenticated"
+              class="flex flex-col items-center gap-3 py-24 text-center"
+            >
+              <Icon icon="ph:users-duotone" class="text-6xl text-muted-foreground" />
+              <p class="text-muted-foreground">Follow some artists to see their work here.</p>
+              <Button variant="outline" @click="router.push({ name: 'explore' })">
+                Explore artists
+              </Button>
+            </div>
+
+            <div v-else class="flex flex-col items-center gap-3 py-24 text-center">
+              <Icon icon="ph:image-square-duotone" class="text-6xl text-muted-foreground" />
+              <p class="text-muted-foreground">No posts yet — be the first to share your work.</p>
+            </div>
+
+            <div v-if="hasNextPage" class="mt-10 flex justify-center">
+              <Button variant="outline" :disabled="isFetchingNextPage" @click="loadMore">
+                <Icon v-if="isFetchingNextPage" icon="ph:spinner" class="mr-2 animate-spin" />
+                {{ isFetchingNextPage ? "Loading…" : "Load more" }}
+              </Button>
+            </div>
+          </template>
         </div>
 
-        <!-- Empty state — authenticated user follows nobody yet -->
-        <div
-          v-else-if="auth.isAuthenticated"
-          class="flex flex-col items-center gap-3 py-24 text-center"
-        >
-          <Icon icon="ph:users-duotone" class="text-6xl text-muted-foreground" />
-          <p class="text-muted-foreground">Follow some artists to see their work here.</p>
-          <Button variant="outline" @click="router.push({ name: 'explore' })">
-            Explore artists
-          </Button>
+        <!-- Sidebar column -->
+        <div class="hidden lg:block w-80 sticky mt-14 top-7 shrink-0">
+          <FeedSidebar @open-post="openPostFromDiscussion" />
         </div>
-
-        <!-- Empty state — guest -->
-        <div v-else class="flex flex-col items-center gap-3 py-24 text-center">
-          <Icon icon="ph:image-square-duotone" class="text-6xl text-muted-foreground" />
-          <p class="text-muted-foreground">No posts yet — be the first to share your work.</p>
-        </div>
-
-        <!-- Load more -->
-        <div v-if="hasNextPage" class="mt-10 flex justify-center">
-          <Button variant="outline" :disabled="isFetchingNextPage" @click="loadMore">
-            <Icon v-if="isFetchingNextPage" icon="ph:spinner" class="mr-2 animate-spin" />
-            {{ isFetchingNextPage ? "Loading…" : "Load more" }}
-          </Button>
-        </div>
-      </template>
+      </div>
     </main>
 
     <PostDetailModal
@@ -206,6 +222,7 @@ function openPost(id: string, focus = false) {
       :post-id="activePostId"
       :post-ids="postIds"
       :focus-comment="focusComment"
+      :focus-comment-id="focusCommentId ?? undefined"
       :comment-body="commentBodies[activePostId] ?? ''"
       @close="activePostId = null"
       @navigate="activePostId = $event"

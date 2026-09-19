@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ProfileWithFollow } from "@artfolio/shared";
 import { computed, ref, watch } from "vue";
+import { useQueryClient } from "@tanstack/vue-query";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
@@ -16,7 +17,15 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
+const queryClient = useQueryClient();
 const followerCount = ref(props.profile.followerCount);
+
+const existing = queryClient.getQueryData(["follow", props.profile.id]);
+if (!existing) {
+  queryClient.setQueryData(["follow", props.profile.id], {
+    following: props.profile.userIsFollowing,
+  });
+}
 
 watch(
   () => props.profile.followerCount,
@@ -50,7 +59,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     />
     <div
       v-else
-      class="size-32 rounded-full bg-muted flex items-center justify-center ring-2 ring-border"
+      class="size-32 rounded-full bg-white flex items-center justify-center ring-2 ring-border"
     >
       <Icon icon="ph:user" class="text-5xl text-muted-foreground" />
     </div>
