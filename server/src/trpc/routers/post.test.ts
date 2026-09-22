@@ -1,5 +1,6 @@
 import {
    mockUpdateTestPost,
+   mockSearchPost,
    mockTestPost,
    mockCategory,
    mockProfile,
@@ -28,6 +29,14 @@ vi.mock('@/db/index.js', () => ({
             findMany: vi.fn(),
          },
       },
+      select: vi.fn(() => ({
+         from: vi.fn(() => ({
+            innerJoin: vi.fn(() => ({
+               where: vi.fn(),
+            })),
+            where: vi.fn(),
+         })),
+      })),
       insert: vi.fn(() => ({
          values: vi.fn(),
       })),
@@ -59,6 +68,34 @@ vi.mock('@/lib/cloudinary.js', () => ({
    deleteImage: vi.fn().mockResolvedValue(undefined),
 }));
 
+function setupSelects(
+   tagMatches: any[],
+   categoryMatches: any[],
+   profileMatches: any[],
+) {
+   mockSelect
+      .mockReturnValueOnce({
+         // tag subquery
+         from: vi.fn(() => ({
+            innerJoin: vi.fn(() => ({
+               where: vi.fn().mockResolvedValue(tagMatches),
+            })),
+         })),
+      })
+      .mockReturnValueOnce({
+         // category subquery
+         from: vi.fn(() => ({
+            where: vi.fn().mockResolvedValue(categoryMatches),
+         })),
+      })
+      .mockReturnValueOnce({
+         // profile subquery
+         from: vi.fn(() => ({
+            where: vi.fn().mockResolvedValue(profileMatches),
+         })),
+      });
+}
+
 const mockProfileFindFirst = db.query.profile.findFirst as ReturnType<
    typeof vi.fn
 >;
@@ -67,6 +104,7 @@ const mockPostFindMany = db.query.post.findMany as ReturnType<typeof vi.fn>;
 const mockPostImageFindMany = db.query.postImage.findMany as ReturnType<
    typeof vi.fn
 >;
+const mockSelect = db.select as ReturnType<typeof vi.fn>;
 const mockInsert = db.insert as ReturnType<typeof vi.fn>;
 const mockDelete = db.delete as ReturnType<typeof vi.fn>;
 
@@ -290,6 +328,80 @@ describe('post.getPostImageUploadSignature', () => {
          apiKey: expect.any(String),
          cloudName: expect.any(String),
       });
+   });
+});
+
+// ── search ───────────────────────
+
+describe('post.search', () => {
+   it('returns posts matching by tag', async () => {
+      setupSelects([{ postId: 'post-1' }], [], []);
+      mockPostFindMany.mockResolvedValueOnce([
+         mockSearchPost({ id: 'post-1' }),
+      ]);
+
+      const caller = createCaller();
+      const result = await caller.post.search({
+         query: 'landscape',
+         limit: 20,
+      });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.nextCursor).toBeNull();
+   });
+
+   it('returns posts matching by category', async () => {
+      setupSelects([], [{ id: 'cat-1' }], []);
+      mockPostFindMany.mockResolvedValueOnce([
+         mockSearchPost({ categoryId: 'cat-1' }),
+      ]);
+
+      const caller = createCaller();
+      const result = await caller.post.search({
+         query: 'photography',
+         limit: 20,
+      });
+
+      expect(result.items).toHaveLength(1);
+   });
+
+   it('returns posts matching by profile username', async () => {
+      setupSelects([], [], [{ id: 'profile-1' }]);
+      mockPostFindMany.mockResolvedValueOnce([
+         mockSearchPost({ profileId: 'profile-1' }),
+      ]);
+
+      const caller = createCaller();
+      const result = await caller.post.search({ query: 'johndoe', limit: 20 });
+
+      expect(result.items).toHaveLength(1);
+   });
+
+   it('returns empty when no matches', async () => {
+      setupSelects([], [], []);
+      mockPostFindMany.mockResolvedValueOnce([]);
+
+      const caller = createCaller();
+      const result = await caller.post.search({
+         query: 'nomatch',
+         limit: 20,
+      });
+
+      expect(result.items).toHaveLength(0);
+      expect(result.nextCursor).toBeNull();
+   });
+
+   it('paginates correctly', async () => {
+      setupSelects([], [], []);
+      mockPostFindMany.mockResolvedValueOnce(
+         Array.from({ length: 6 }, () => mockSearchPost()),
+      );
+
+      const caller = createCaller();
+      const result = await caller.post.search({ query: 'art', limit: 5 });
+
+      expect(result.items).toHaveLength(5);
+      expect(result.nextCursor).not.toBeNull();
    });
 });
 

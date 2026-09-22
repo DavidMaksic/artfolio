@@ -5,13 +5,17 @@ import {
    upsertTagsForPost,
    assertPostOwner,
 } from '@/trpc/helpers.js';
+import {
+   searchInputSchema,
+   createPostSchema,
+   updatePostSchema,
+} from '@artfolio/shared';
+import { and, asc, desc, eq, ilike, inArray, lt, or } from 'drizzle-orm';
+import { category, post, postImage, postTag, tag } from '@/db/schema/post.js';
 import { deleteImage, generateUploadSignature } from '@/lib/cloudinary.js';
-import { createPostSchema, updatePostSchema } from '@artfolio/shared';
-import { category, post, postImage } from '@/db/schema/post.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { follow, profile } from '@/db/schema/profile.js';
 import { TRPCError } from '@trpc/server';
-import { follow } from '@/db/schema/profile.js';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 import z from 'zod';
@@ -229,6 +233,102 @@ export const postRouter = t.router({
          }));
 
          return { items };
+      }),
+
+   search: t.procedure
+      .input(searchInputSchema)
+      .query(async ({ input, ctx }) => {
+         const { query, limit, cursor } = input;
+         const term = `%${query}%`;
+
+         const [tagMatches, categoryMatches, profileMatches] =
+            await Promise.all([
+               db
+                  .select({ postId: postTag.postId })
+                  .from(postTag)
+                  .innerJoin(tag, eq(postTag.tagId, tag.id))
+                  .where(ilike(tag.name, term)),
+
+               db
+                  .select({ id: category.id })
+                  .from(category)
+                  .where(ilike(category.name, term)),
+
+               db
+                  .select({ id: profile.id })
+                  .from(profile)
+                  .where(
+                     or(
+                        ilike(profile.username, term),
+                        ilike(profile.displayName, term),
+                     ),
+                  ),
+            ]);
+
+         const tagPostIds = tagMatches.map((r) => r.postId);
+         const matchingCategoryIds = categoryMatches.map((r) => r.id);
+         const matchingProfileIds = profileMatches.map((r) => r.id);
+
+         // ── Main query ──────────────────────────────────────────────────────
+         const results = await db.query.post.findMany({
+            where: and(
+               cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
+               or(
+                  ilike(post.description, term),
+                  tagPostIds.length > 0
+                     ? inArray(post.id, tagPostIds)
+                     : undefined,
+                  matchingCategoryIds.length > 0
+                     ? inArray(post.categoryId, matchingCategoryIds)
+                     : undefined,
+                  matchingProfileIds.length > 0
+                     ? inArray(post.profileId, matchingProfileIds)
+                     : undefined,
+               ),
+            ),
+            orderBy: [desc(post.createdAt)],
+            limit: limit + 1,
+            with: {
+               images: true,
+               category: true,
+               postTags: { with: { tag: true } },
+               profile: {
+                  columns: {
+                     username: true,
+                     displayName: true,
+                     profileImageUrl: true,
+                  },
+               },
+            },
+         });
+
+         // ── 4. Pagination ──────────────────────────────────────────────────────
+         const hasMore = results.length > limit;
+         const page = hasMore ? results.slice(0, limit) : results;
+
+         const items = page.map((p) => ({
+            id: p.id,
+            profileId: p.profileId,
+            categoryId: p.categoryId,
+            createdAt: p.createdAt,
+            coverImage: p.images.sort((a, b) => a.order - b.order)[0]!,
+            description: p.description,
+            imageCount: p.images.length,
+            category: p.category,
+            tags: p.postTags.map((pt) => pt.tag),
+            profile: {
+               username: p.profile.username,
+               displayName: p.profile.displayName,
+               profileImageUrl: p.profile.profileImageUrl,
+               userIsFollowing: false,
+            },
+         }));
+
+         const lastItem = items[items.length - 1];
+         const nextCursor =
+            hasMore && lastItem ? lastItem.createdAt.toISOString() : null;
+
+         return { items, nextCursor };
       }),
 
    getCategories: t.procedure.query(async () => {

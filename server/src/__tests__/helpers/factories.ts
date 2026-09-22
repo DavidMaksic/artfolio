@@ -71,15 +71,7 @@ export function mockTestPost(overrides = {}) {
       description: 'Test post description',
       categoryId: 'cat_illustration',
       tags: [],
-      images: [
-         {
-            imageUrl: 'https://res.cloudinary.com/test/image.jpg',
-            publicId: 'artfolio/posts/image',
-            order: 0,
-            width: 1200,
-            height: 800,
-         },
-      ],
+      images: [mockImage()],
       ...overrides,
    };
 }
@@ -90,15 +82,7 @@ export function mockUpdateTestPost(overrides = {}) {
       description: 'Updated description',
       categoryId: 'cat_illustration',
       tags: [],
-      images: [
-         {
-            imageUrl: 'https://res.cloudinary.com/test/image.jpg',
-            publicId: 'artfolio/posts/image',
-            order: 0,
-            width: 1200,
-            height: 800,
-         },
-      ],
+      images: [mockImage()],
       removedImageIds: [],
       ...overrides,
    };
@@ -107,13 +91,11 @@ export function mockUpdateTestPost(overrides = {}) {
 export function mockFeedPost(overrides = {}) {
    return {
       id: crypto.randomUUID(),
+      profileId: 'other-profile-id',
       categoryId: 'cat-1',
       createdAt: new Date(),
-      profileId: 'other-profile-id',
       description: null,
-      images: [
-         { id: 'img-1', imageUrl: 'https://example.com/img.jpg', order: 0 },
-      ],
+      images: [mockImage()],
       category: { id: 'cat-1', name: 'Illustration' },
       postTags: [],
       profile: {
@@ -166,6 +148,26 @@ export function mockFollowRow(overrides = {}) {
       followerId: profile.id,
       followingId: 'other-profile-id',
       createdAt: new Date(),
+      ...overrides,
+   };
+}
+
+export function mockSearchPost(overrides = {}) {
+   return {
+      id: crypto.randomUUID(),
+      profileId: 'default-profile-id',
+      categoryId: 'cat-1',
+      createdAt: new Date(),
+      description: null,
+      images: [mockImage()],
+      imageCount: 1,
+      category: { id: 'cat-1', name: 'Photography', slug: 'photography' },
+      postTags: [],
+      profile: {
+         username: 'testuser',
+         displayName: 'Test User',
+         profileImageUrl: null,
+      },
       ...overrides,
    };
 }

@@ -8,8 +8,8 @@ import {
    createAuthenticatedCaller,
 } from '@/__tests__/helpers/trpc-helper.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { db } from '@/db/index.js';
 import { getViewerProfileId } from '@/trpc/helpers.js';
+import { db } from '@/db/index.js';
 
 vi.mock('@/db/index.js', () => ({
    db: {
@@ -138,21 +138,16 @@ describe('feed.getExplorePosts', () => {
       expect(result.items[0].profile.userIsFollowing).toBe(false);
    });
 
-   it('excludes followed profiles and own profile for authenticated viewer', async () => {
-      mockProfileFindFirst.mockResolvedValueOnce(profile);
-      mockFollowFindMany.mockResolvedValueOnce([
-         { followingId: 'followed-profile-id' },
-      ]);
-      // DB filtering is done by notInArray
+   it("includes the authenticated viewer's own posts", async () => {
+      mockProfileFindFirst.mockResolvedValueOnce({ id: 'viewer-1' });
       mockPostFindMany.mockResolvedValueOnce([
-         mockFeedPost({ profileId: 'stranger-profile-id' }),
+         mockFeedPost({ profileId: 'viewer-1' }),
       ]);
 
-      const caller = createAuthenticatedCaller(user);
+      const caller = createCaller();
       const result = await caller.feed.getExplorePosts({ limit: 5 });
 
       expect(result.items).toHaveLength(1);
-      expect(result.items[0].profile.userIsFollowing).toBe(false);
    });
 
    it('returns nextCursor when more results exist', async () => {

@@ -1,4 +1,4 @@
-import { asc, desc, lt, eq, inArray, notInArray, and } from 'drizzle-orm';
+import { asc, desc, lt, eq, inArray, and } from 'drizzle-orm';
 import { getViewerProfileId } from '@/trpc/helpers.js';
 import { post, postImage } from '@/db/schema/post.js';
 import { feedInputSchema } from '@artfolio/shared';
@@ -127,12 +127,7 @@ export const feedRouter = t.router({
          const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
 
          const posts = await db.query.post.findMany({
-            where: and(
-               cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
-               viewerProfileId
-                  ? notInArray(post.profileId, [viewerProfileId])
-                  : undefined,
-            ),
+            where: cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
             orderBy: [desc(post.createdAt)],
             limit: limit + 1,
             with: postWith,

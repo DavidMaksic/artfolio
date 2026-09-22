@@ -73,6 +73,10 @@ export const feedInputSchema = z.object({
    cursor: z.string().optional(),
 });
 
+export const searchInputSchema = feedInputSchema.extend({
+   query: z.string().min(1).max(100).trim(),
+});
+
 // ── Post response schemas ────────────────────────────────────────
 
 const postSummarySchema = z.object({
@@ -90,6 +94,9 @@ const postSummarySchema = z.object({
 export const profilePostSchema = postSummarySchema;
 export const postSchema = postSummarySchema.extend(engagementSchema.shape);
 export const feedItemSchema = postSchema.extend({
+   profile: profileSchema,
+});
+export const searchResultSchema = postSummarySchema.extend({
    profile: profileSchema,
 });
 
@@ -166,3 +173,6 @@ export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export type DeleteCommentInput = z.infer<typeof deleteCommentSchema>;
 export type GetCommentsInput = z.infer<typeof getCommentsSchema>;
 export type DiscussionItem = z.infer<typeof discussionItemSchema>;
+
+export type SearchResult = z.infer<typeof searchResultSchema>;
+export type SearchInput = z.infer<typeof searchInputSchema>;

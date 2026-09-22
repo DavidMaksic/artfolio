@@ -76,16 +76,8 @@ const engagementSource = computed(() => ({
   userHasBookmarked: props.post?.userHasBookmarked ?? false,
 }));
 
-const {
-  liked,
-  bookmarked,
-  likeCount,
-  bookmarkCount,
-  toggleLike,
-  toggleBookmark,
-  isLikePending,
-  isBookmarkPending,
-} = useEngagement(engagementSource);
+const { liked, bookmarked, toggleLike, toggleBookmark, isLikePending, isBookmarkPending } =
+  useEngagement(engagementSource);
 
 // Seed follow state from post detail on mount
 watch(
@@ -281,22 +273,9 @@ const deleteMutation = useMutation({
           {{ post.description }}
         </p>
 
-        <!-- Counts -->
-        <div class="space-x-5 text-md text-neutral-600 leading-relaxed">
-          <span v-if="likeCount > 0">
-            <span class="font-bold">{{ likeCount }}</span> likes
-          </span>
-          <span v-if="post.commentCount > 0">
-            <span class="font-bold">{{ post.commentCount }}</span> comments
-          </span>
-          <span v-if="bookmarkCount > 0">
-            <span class="font-bold">{{ bookmarkCount }}</span> saves
-          </span>
-        </div>
-
         <!-- Owner actions -->
-        <div class="flex items-center justify-end shrink-0">
-          <div v-if="isPostOwner" class="flex gap-2">
+        <div v-if="isPostOwner" class="flex items-center justify-end shrink-0">
+          <div class="flex gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -348,7 +327,12 @@ const deleteMutation = useMutation({
         @click.stop
       >
         <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4">
-          <span class="font-semibold">Comments</span>
+          <div class="font-semibold">
+            Comments
+            <span v-if="comments.length > 1" class="text-muted-foreground"
+              >({{ comments.length }})</span
+            >
+          </div>
 
           <!-- Loading -->
           <div v-if="isCommentsPending" class="flex flex-col gap-3">
@@ -375,48 +359,50 @@ const deleteMutation = useMutation({
               class="space-y-2 py-4 first:pt-1.5"
             >
               <div
-                class="flex items-center gap-1.5 w-fit"
+                class="flex items-center justify-between gap-1.5"
                 @click="
                   router.push({ name: 'profile', params: { username: comment.profile.username } })
                 "
               >
-                <div class="flex items-center gap-2 group cursor-default">
-                  <img
-                    v-if="comment.profile.profileImageUrl"
-                    :src="comment.profile.profileImageUrl"
-                    class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity"
-                  />
-                  <div
-                    v-else
-                    class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
-                  >
-                    <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+                <div class="flex items-center gap-1.5 cursor-default">
+                  <div class="flex items-center gap-2 group">
+                    <img
+                      v-if="comment.profile.profileImageUrl"
+                      :src="comment.profile.profileImageUrl"
+                      class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity"
+                    />
+                    <div
+                      v-else
+                      class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
+                    >
+                      <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+                    </div>
+
+                    <span class="text-sm font-semibold">
+                      {{ comment.profile.displayName ?? comment.profile.username }}
+                    </span>
                   </div>
 
-                  <span class="text-sm font-semibold">
-                    {{ comment.profile.displayName ?? comment.profile.username }}
-                  </span>
+                  <p class="text-xs text-muted-foreground">
+                    <span class="mr-0.5">•</span>
+                    {{ formatDistanceToNow(comment.createdAt, { addSuffix: false }) }}
+                  </p>
                 </div>
 
-                <p class="text-xs text-muted-foreground">
-                  <span class="mr-0.5">•</span>
-                  {{ formatDistanceToNow(comment.createdAt, { addSuffix: false }) }}
-                </p>
+                <button
+                  v-if="canDeleteComment(comment.profile.username)"
+                  class="transition-opacity text-muted-foreground hover:text-destructive"
+                  :disabled="deleteCommentMutation.isPending.value"
+                  aria-label="Delete comment"
+                  @click.stop="deleteCommentMutation.mutate(comment.id)"
+                >
+                  <Icon icon="ph:trash" class="text-sm" />
+                </button>
               </div>
 
               <div class="flex flex-col flex-1 min-w-0">
                 <p class="text-sm wrap-break-words">{{ comment.body }}</p>
               </div>
-
-              <button
-                v-if="canDeleteComment(comment.profile.username)"
-                class="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
-                :disabled="deleteCommentMutation.isPending.value"
-                aria-label="Delete comment"
-                @click="deleteCommentMutation.mutate(comment.id)"
-              >
-                <Icon icon="ph:trash" class="text-sm" />
-              </button>
             </div>
 
             <!-- Load more -->
