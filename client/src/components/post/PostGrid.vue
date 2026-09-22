@@ -13,6 +13,7 @@ const props = defineProps<{
   isLoadingPosts: boolean;
   accentOverlay?: boolean;
   showEmptyState?: boolean;
+  rowHeight?: number;
 }>();
 
 const activePostId = ref<string | null>(null);
@@ -20,7 +21,7 @@ const postIds = computed(() => props.posts?.map((p) => p.id) ?? []);
 
 const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
-const TARGET_ROW_HEIGHT = 380;
+const TARGET_ROW_HEIGHT = props.rowHeight ?? 380;
 
 let ro: ResizeObserver | null = null;
 

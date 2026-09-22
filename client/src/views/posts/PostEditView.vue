@@ -74,7 +74,7 @@ watch(
 );
 
 onMounted(async () => {
-  categories.value = await trpc.post.getCategories.query();
+  categories.value = await trpc.tag.getCategories.query();
 });
 
 function handleFileChange(e: Event) {

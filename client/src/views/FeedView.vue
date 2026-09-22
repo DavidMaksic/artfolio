@@ -15,7 +15,7 @@ import FeedCard from "@/components/feed/FeedCard.vue";
 
 type FeedItemWithMeta = FeedItem & { suggested: boolean };
 
-const SUGGEST_EVERY = 3; // inject a suggested post every N following posts
+const SUGGEST_EVERY = 2; // inject a suggested post every N following posts
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -61,7 +61,12 @@ const {
   isPending: isExplorePending,
 } = useInfiniteQuery({
   queryKey: ["feed", "explore"],
-  queryFn: ({ pageParam }) => trpc.feed.getExplorePosts.query({ limit: 5, cursor: pageParam }),
+  queryFn: ({ pageParam }) =>
+    trpc.feed.getExplorePosts.query({
+      limit: 20,
+      cursor: pageParam,
+      excludeOwn: true,
+    }),
   initialPageParam: undefined as string | undefined,
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   // Guests use explore as the primary feed; authenticated users use it for suggestions
@@ -126,7 +131,12 @@ function loadMore() {
   }
 }
 
-const hasNextPage = computed(() => hasNextFollowing.value || hasNextExplore.value);
+const hasNextPage = computed(() => {
+  if (auth.isAuthenticated) {
+    return hasNextFollowing.value;
+  }
+  return hasNextFollowing.value || hasNextExplore.value;
+});
 const isFetchingNextPage = computed(
   () => isFetchingNextFollowing.value || isFetchingNextExplore.value,
 );
@@ -162,7 +172,7 @@ function openPostFromDiscussion(postId: string, commentId: string) {
       </p>
     </div>
 
-    <main class="mx-auto max-w-5xl px-5 pt-4 pb-8">
+    <main class="mx-auto max-w-5xl px-5 pt-4 pb-14">
       <div class="flex gap-8 items-start">
         <!-- Feed column -->
         <div class="flex-1 min-w-0 max-w-xl mx-auto lg:mx-0">
@@ -204,6 +214,7 @@ function openPostFromDiscussion(postId: string, commentId: string) {
             <div v-if="hasNextPage" class="mt-10 flex justify-center">
               <Button variant="outline" :disabled="isFetchingNextPage" @click="loadMore">
                 <Icon v-if="isFetchingNextPage" icon="ph:spinner" class="mr-2 animate-spin" />
+                <Icon icon="ph:caret-down" class="mr-0.5" />
                 {{ isFetchingNextPage ? "Loading…" : "Load more" }}
               </Button>
             </div>

@@ -166,7 +166,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
         :disabled="isFollowPending"
         @click="toggleFollow"
       >
-        <Icon class="mr-2" :icon="following ? 'ph:user-check' : 'ph:user-plus'" />
+        <Icon class="mr-0.5 size-5" :icon="following ? 'ph:user-check' : 'ph:user-plus'" />
         {{ following ? "Following" : "Follow" }}
       </Button>
     </div>

@@ -28,6 +28,9 @@ vi.mock('@/db/index.js', () => ({
          postImage: {
             findMany: vi.fn(),
          },
+         category: {
+            findFirst: vi.fn(),
+         },
       },
       select: vi.fn(() => ({
          from: vi.fn(() => ({
@@ -73,6 +76,7 @@ function setupSelects(
    categoryMatches: any[],
    profileMatches: any[],
 ) {
+   mockCategoryFindFirst.mockResolvedValueOnce(undefined);
    mockSelect
       .mockReturnValueOnce({
          // tag subquery
@@ -102,6 +106,9 @@ const mockProfileFindFirst = db.query.profile.findFirst as ReturnType<
 const mockPostFindFirst = db.query.post.findFirst as ReturnType<typeof vi.fn>;
 const mockPostFindMany = db.query.post.findMany as ReturnType<typeof vi.fn>;
 const mockPostImageFindMany = db.query.postImage.findMany as ReturnType<
+   typeof vi.fn
+>;
+const mockCategoryFindFirst = db.query.category.findFirst as ReturnType<
    typeof vi.fn
 >;
 const mockSelect = db.select as ReturnType<typeof vi.fn>;

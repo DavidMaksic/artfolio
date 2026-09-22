@@ -184,7 +184,16 @@ const { following, toggleFollow, isFollowPending } = useFollow(
           </Button>
         </div>
 
-        <Badge variant="secondary" class="py-1 px-3 text-xs border-neutral-200">
+        <Badge
+          variant="secondary"
+          class="py-1 px-3 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
+          @click="
+            router.push({
+              name: 'explore',
+              query: { q: post.category.name },
+            })
+          "
+        >
           {{ post.category.name }}
         </Badge>
       </div>

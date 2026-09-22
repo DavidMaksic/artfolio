@@ -266,10 +266,7 @@ const deleteMutation = useMutation({
         </div>
 
         <!-- Description -->
-        <p
-          v-if="post.description"
-          class="text-md text-neutral-800 leading-relaxed py-4 border-t border-b border-border"
-        >
+        <p v-if="post.description" class="text-md text-neutral-800 leading-relaxed py-0.5">
           {{ post.description }}
         </p>
 
@@ -351,7 +348,10 @@ const deleteMutation = useMutation({
           </p>
 
           <!-- Comment list -->
-          <div v-else class="flex flex-col divide-y divide-neutral-100">
+          <div
+            v-else
+            class="flex flex-col divide-y divide-neutral-200/60 last:border-b last:border-b-neutral-200/60"
+          >
             <div
               v-for="comment in comments"
               :key="comment.id"
@@ -469,14 +469,29 @@ const deleteMutation = useMutation({
       >
         <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>
         <div class="flex flex-wrap gap-1.5">
-          <Badge class="py-1.5 px-3.5 text-xs border-neutral-200" variant="secondary">
+          <Badge
+            class="py-1.5 px-3.5 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
+            variant="secondary"
+            @click="
+              router.push({
+                name: 'explore',
+                query: { q: post.category.name },
+              })
+            "
+          >
             {{ post.category.name }}
           </Badge>
           <Badge
             v-for="tag in post.tags"
             :key="tag.id"
-            class="py-1.5 px-3.5 text-xs"
+            class="py-1.5 px-3.5 text-xs cursor-default hover:border-neutral-400/80 transition-[border-color]"
             variant="outline"
+            @click="
+              router.push({
+                name: 'explore',
+                query: { q: tag.name },
+              })
+            "
           >
             {{ tag.name }}
           </Badge>

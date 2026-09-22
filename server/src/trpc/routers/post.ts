@@ -10,8 +10,15 @@ import {
    createPostSchema,
    updatePostSchema,
 } from '@artfolio/shared';
-import { and, asc, desc, eq, ilike, inArray, lt, or } from 'drizzle-orm';
-import { category, post, postImage, postTag, tag } from '@/db/schema/post.js';
+import {
+   postImage,
+   category,
+   postTag,
+   like,
+   post,
+   tag,
+} from '@/db/schema/post.js';
+import { and, asc, count, desc, eq, ilike, inArray, lt, or } from 'drizzle-orm';
 import { deleteImage, generateUploadSignature } from '@/lib/cloudinary.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
 import { follow, profile } from '@/db/schema/profile.js';
@@ -19,6 +26,26 @@ import { TRPCError } from '@trpc/server';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
 import z from 'zod';
+
+function mapSearchPost(p: any) {
+   return {
+      id: p.id,
+      profileId: p.profileId,
+      categoryId: p.categoryId,
+      createdAt: p.createdAt,
+      coverImage: p.images.sort((a: any, b: any) => a.order - b.order)[0]!,
+      description: p.description,
+      imageCount: p.images.length,
+      category: p.category,
+      tags: p.postTags.map((pt: any) => pt.tag),
+      profile: {
+         username: p.profile.username,
+         displayName: p.profile.displayName,
+         profileImageUrl: p.profile.profileImageUrl,
+         userIsFollowing: false,
+      },
+   };
+}
 
 export const postRouter = t.router({
    create: protectedProcedure
@@ -235,104 +262,144 @@ export const postRouter = t.router({
          return { items };
       }),
 
-   search: t.procedure
-      .input(searchInputSchema)
-      .query(async ({ input, ctx }) => {
-         const { query, limit, cursor } = input;
-         const term = `%${query}%`;
+   search: t.procedure.input(searchInputSchema).query(async ({ input }) => {
+      const { query, limit, cursor, sort, category: categorySlug } = input;
 
-         const [tagMatches, categoryMatches, profileMatches] =
-            await Promise.all([
-               db
-                  .select({ postId: postTag.postId })
-                  .from(postTag)
-                  .innerJoin(tag, eq(postTag.tagId, tag.id))
-                  .where(ilike(tag.name, term)),
+      // resolve selected category filter
+      const selectedCategoryId = categorySlug
+         ? (
+              await db.query.category.findFirst({
+                 where: eq(category.slug, categorySlug),
+                 columns: { id: true },
+              })
+           )?.id
+         : undefined;
 
-               db
-                  .select({ id: category.id })
-                  .from(category)
-                  .where(ilike(category.name, term)),
+      const selectedCategoryFilter = selectedCategoryId
+         ? eq(post.categoryId, selectedCategoryId)
+         : undefined;
 
-               db
-                  .select({ id: profile.id })
-                  .from(profile)
-                  .where(
-                     or(
-                        ilike(profile.username, term),
-                        ilike(profile.displayName, term),
-                     ),
-                  ),
-            ]);
+      const term = `%${query}%`;
 
-         const tagPostIds = tagMatches.map((r) => r.postId);
-         const matchingCategoryIds = categoryMatches.map((r) => r.id);
-         const matchingProfileIds = profileMatches.map((r) => r.id);
+      const [tagMatches, categoryMatches, profileMatches] = await Promise.all([
+         db
+            .select({ postId: postTag.postId })
+            .from(postTag)
+            .innerJoin(tag, eq(postTag.tagId, tag.id))
+            .where(ilike(tag.name, term)),
 
-         // ── Main query ──────────────────────────────────────────────────────
-         const results = await db.query.post.findMany({
-            where: and(
-               cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
+         db
+            .select({ id: category.id })
+            .from(category)
+            .where(ilike(category.name, term)),
+
+         db
+            .select({ id: profile.id })
+            .from(profile)
+            .where(
                or(
-                  ilike(post.description, term),
-                  tagPostIds.length > 0
-                     ? inArray(post.id, tagPostIds)
-                     : undefined,
-                  matchingCategoryIds.length > 0
-                     ? inArray(post.categoryId, matchingCategoryIds)
-                     : undefined,
-                  matchingProfileIds.length > 0
-                     ? inArray(post.profileId, matchingProfileIds)
-                     : undefined,
+                  ilike(profile.username, term),
+                  ilike(profile.displayName, term),
                ),
             ),
-            orderBy: [desc(post.createdAt)],
-            limit: limit + 1,
-            with: {
-               images: true,
-               category: true,
-               postTags: { with: { tag: true } },
-               profile: {
-                  columns: {
-                     username: true,
-                     displayName: true,
-                     profileImageUrl: true,
-                  },
-               },
-            },
-         });
+      ]);
 
-         // ── 4. Pagination ──────────────────────────────────────────────────────
+      const tagPostIds = tagMatches.map((r) => r.postId);
+      const matchingCategoryIds = categoryMatches.map((r) => r.id);
+      const matchingProfileIds = profileMatches.map((r) => r.id);
+
+      const matchWhere = or(
+         ilike(post.description, term),
+         tagPostIds.length > 0 ? inArray(post.id, tagPostIds) : undefined,
+         matchingCategoryIds.length > 0
+            ? inArray(post.categoryId, matchingCategoryIds)
+            : undefined,
+         matchingProfileIds.length > 0
+            ? inArray(post.profileId, matchingProfileIds)
+            : undefined,
+      );
+
+      const fullWhere = and(matchWhere, selectedCategoryFilter);
+
+      if (sort === 'popular') {
+         const offset = cursor ? parseInt(cursor) : 0;
+
+         const results = await db
+            .select({
+               postId: post.id,
+               likeCount: count(like.profileId),
+            })
+            .from(post)
+            .leftJoin(like, eq(like.postId, post.id))
+            .where(fullWhere)
+            .groupBy(post.id)
+            .orderBy(desc(count(like.profileId)), desc(post.createdAt))
+            .limit(limit + 1)
+            .offset(offset);
+
          const hasMore = results.length > limit;
          const page = hasMore ? results.slice(0, limit) : results;
+         const postIds = page.map((r) => r.postId);
 
-         const items = page.map((p) => ({
-            id: p.id,
-            profileId: p.profileId,
-            categoryId: p.categoryId,
-            createdAt: p.createdAt,
-            coverImage: p.images.sort((a, b) => a.order - b.order)[0]!,
-            description: p.description,
-            imageCount: p.images.length,
-            category: p.category,
-            tags: p.postTags.map((pt) => pt.tag),
+         const posts =
+            postIds.length > 0
+               ? await db.query.post.findMany({
+                    where: inArray(post.id, postIds),
+                    with: {
+                       images: true,
+                       category: true,
+                       postTags: { with: { tag: true } },
+                       profile: {
+                          columns: {
+                             username: true,
+                             displayName: true,
+                             profileImageUrl: true,
+                          },
+                       },
+                    },
+                 })
+               : [];
+
+         const sorted = postIds.map((id) => posts.find((p) => p.id === id)!);
+
+         return {
+            items: sorted.map((p) => mapSearchPost(p)),
+            nextCursor: hasMore ? String(offset + limit) : null,
+         };
+      }
+
+      const results = await db.query.post.findMany({
+         where: and(
+            cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
+            fullWhere,
+         ),
+         orderBy: [desc(post.createdAt)],
+         limit: limit + 1,
+         with: {
+            images: true,
+            category: true,
+            postTags: { with: { tag: true } },
             profile: {
-               username: p.profile.username,
-               displayName: p.profile.displayName,
-               profileImageUrl: p.profile.profileImageUrl,
-               userIsFollowing: false,
+               columns: {
+                  username: true,
+                  displayName: true,
+                  profileImageUrl: true,
+               },
             },
-         }));
+         },
+      });
 
-         const lastItem = items[items.length - 1];
-         const nextCursor =
-            hasMore && lastItem ? lastItem.createdAt.toISOString() : null;
+      const hasMore = results.length > limit;
+      const page = hasMore ? results.slice(0, limit) : results;
 
-         return { items, nextCursor };
-      }),
+      const lastItem = page[page.length - 1];
+      const nextCursor =
+         hasMore && lastItem ? lastItem.createdAt.toISOString() : null;
 
-   getCategories: t.procedure.query(async () => {
-      return db.select().from(category).orderBy(category.name);
+      return {
+         items: page.map((p) => mapSearchPost(p)),
+         nextCursor,
+      };
    }),
 
    getPostImageUploadSignature: protectedProcedure.mutation(() => {

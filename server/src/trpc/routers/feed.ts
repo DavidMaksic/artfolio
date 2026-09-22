@@ -1,7 +1,16 @@
-import { asc, desc, lt, eq, inArray, and } from 'drizzle-orm';
+import {
+   lt,
+   eq,
+   and,
+   asc,
+   desc,
+   count,
+   inArray,
+   notInArray,
+} from 'drizzle-orm';
+import { exploreInputSchema, feedInputSchema } from '@artfolio/shared';
+import { category, like, post, postImage } from '@/db/schema/post.js';
 import { getViewerProfileId } from '@/trpc/helpers.js';
-import { post, postImage } from '@/db/schema/post.js';
-import { feedInputSchema } from '@artfolio/shared';
 import { TRPCError } from '@trpc/server';
 import { follow } from '@/db/schema/profile.js';
 import { db } from '@/db/index.js';
@@ -121,13 +130,81 @@ export const feedRouter = t.router({
 
    // Explore — recency, excludes followed profiles and own posts
    getExplorePosts: t.procedure
-      .input(feedInputSchema)
+      .input(exploreInputSchema)
       .query(async ({ ctx, input }) => {
-         const { limit, cursor } = input;
+         const {
+            limit,
+            cursor,
+            sort,
+            category: categorySlug,
+            excludeOwn,
+         } = input;
+
+         const categoryId = categorySlug
+            ? (
+                 await db.query.category.findFirst({
+                    where: eq(category.slug, categorySlug),
+                    columns: { id: true },
+                 })
+              )?.id
+            : undefined;
+
+         const categoryFilter = categoryId
+            ? eq(post.categoryId, categoryId)
+            : undefined;
+
          const viewerProfileId = await getViewerProfileId(ctx.user?.id ?? null);
 
+         const excludeOwnFilter =
+            excludeOwn && viewerProfileId
+               ? notInArray(post.profileId, [viewerProfileId])
+               : undefined;
+
+         // popular sort — separate query path
+         if (sort === 'popular') {
+            const offset = cursor ? parseInt(cursor) : 0;
+
+            const results = await db
+               .select({
+                  postId: post.id,
+                  likeCount: count(like.profileId),
+               })
+               .from(post)
+               .leftJoin(like, eq(like.postId, post.id))
+               .where(and(categoryFilter, excludeOwnFilter))
+               .groupBy(post.id)
+               .orderBy(desc(count(like.profileId)), desc(post.createdAt))
+               .limit(limit + 1)
+               .offset(offset);
+
+            const hasMore = results.length > limit;
+            const page = hasMore ? results.slice(0, limit) : results;
+            const postIds = page.map((r) => r.postId);
+
+            const posts =
+               postIds.length > 0
+                  ? await db.query.post.findMany({
+                       where: inArray(post.id, postIds),
+                       with: postWith,
+                    })
+                  : [];
+
+            // restore sort order from join query
+            const sorted = postIds.map((id) => posts.find((p) => p.id === id)!);
+
+            return {
+               items: sorted.map((p) => mapPost(p, viewerProfileId, false)),
+               nextCursor: hasMore ? String(offset + limit) : null,
+            };
+         }
+
+         // new sort — existing cursor path
          const posts = await db.query.post.findMany({
-            where: cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
+            where: and(
+               cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
+               categoryFilter,
+               excludeOwnFilter,
+            ),
             orderBy: [desc(post.createdAt)],
             limit: limit + 1,
             with: postWith,

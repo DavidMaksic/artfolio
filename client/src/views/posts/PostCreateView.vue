@@ -49,7 +49,7 @@ const categories = ref<{ id: string; name: string; slug: string }[]>([]);
 const dragFromIndex = ref<number | null>(null);
 
 onMounted(async () => {
-  categories.value = await trpc.post.getCategories.query();
+  categories.value = await trpc.tag.getCategories.query();
 });
 
 function handleFileChange(e: Event) {

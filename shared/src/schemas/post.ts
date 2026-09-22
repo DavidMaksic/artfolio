@@ -73,8 +73,20 @@ export const feedInputSchema = z.object({
    cursor: z.string().optional(),
 });
 
+export const sortSchema = z.enum(['new', 'popular']);
+
+export const exploreInputSchema = z.object({
+   limit: z.number().int().min(1).max(50).default(20),
+   cursor: z.string().optional(),
+   sort: sortSchema.default('new'),
+   category: z.string().optional(),
+   excludeOwn: z.boolean().default(false),
+});
+
 export const searchInputSchema = feedInputSchema.extend({
    query: z.string().min(1).max(100).trim(),
+   sort: sortSchema.default('new'),
+   category: z.string().optional(),
 });
 
 // ── Post response schemas ────────────────────────────────────────
@@ -176,3 +188,5 @@ export type DiscussionItem = z.infer<typeof discussionItemSchema>;
 
 export type SearchResult = z.infer<typeof searchResultSchema>;
 export type SearchInput = z.infer<typeof searchInputSchema>;
+export type Sort = z.infer<typeof sortSchema>;
+export type ExploreInput = z.infer<typeof exploreInputSchema>;
