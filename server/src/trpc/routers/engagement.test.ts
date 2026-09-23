@@ -1,6 +1,8 @@
 import {
+   mockDiscussionComment,
    mockComment,
    mockProfile,
+   mockImage,
    mockUser,
 } from '@/__tests__/helpers/factories.js';
 import {
@@ -347,6 +349,83 @@ describe('engagement.deleteComment', () => {
             postId: 'test-post-id',
          }),
       ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+   });
+});
+
+// ── getLatestDiscussions ───────────────────────────────────────────────
+
+describe('engagement.getLatestDiscussions', () => {
+   it('returns latest discussions for a guest', async () => {
+      mockCommentFindMany.mockResolvedValueOnce([mockDiscussionComment()]);
+
+      const caller = createCaller();
+      const result = await caller.engagement.getLatestDiscussions({ limit: 5 });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.nextCursor).toBeNull();
+   });
+
+   it('returns comments for an authenticated user', async () => {
+      mockProfileFindFirst.mockResolvedValueOnce(profile);
+      mockCommentFindMany.mockResolvedValueOnce([mockDiscussionComment()]);
+
+      const caller = createAuthenticatedCaller(user);
+      const result = await caller.engagement.getLatestDiscussions({ limit: 5 });
+
+      expect(result.items).toHaveLength(1);
+   });
+
+   it('paginates correctly', async () => {
+      mockCommentFindMany.mockResolvedValueOnce(
+         Array.from({ length: 6 }, () => mockDiscussionComment()),
+      );
+
+      const caller = createCaller();
+      const result = await caller.engagement.getLatestDiscussions({ limit: 5 });
+
+      expect(result.items).toHaveLength(5);
+      expect(result.nextCursor).not.toBeNull();
+   });
+
+   it('maps coverImage from first post image', async () => {
+      const image = mockImage({
+         imageUrl: 'https://example.com/cover.jpg',
+      });
+      mockCommentFindMany.mockResolvedValueOnce([
+         mockDiscussionComment({ post: { images: [image] } }),
+      ]);
+
+      const caller = createCaller();
+      const result = await caller.engagement.getLatestDiscussions({ limit: 5 });
+
+      expect(result.items[0].coverImage.imageUrl).toBe(
+         'https://example.com/cover.jpg',
+      );
+   });
+});
+
+// ── getCommentById ───────────────────────────────────────────────
+
+describe('engagement.getCommentById', () => {
+   it('returns a comment by id', async () => {
+      mockCommentFindFirst.mockResolvedValueOnce(mockComment());
+
+      const caller = createCaller();
+      const result = await caller.engagement.getCommentById({
+         commentId: 'test-comment-id',
+      });
+
+      expect(result.id).toBe('test-comment-id');
+      expect(result.body).toBe('Great post!');
+   });
+
+   it('throws NOT_FOUND when comment does not exist', async () => {
+      mockCommentFindFirst.mockResolvedValueOnce(undefined);
+
+      const caller = createCaller();
+      await expect(
+         caller.engagement.getCommentById({ commentId: 'nonexistent' }),
+      ).rejects.toMatchObject({ code: 'NOT_FOUND' });
    });
 });
 

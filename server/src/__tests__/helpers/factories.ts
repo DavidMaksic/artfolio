@@ -143,6 +143,15 @@ export function mockComment(overrides = {}) {
    };
 }
 
+export function mockDiscussionComment(overrides = {}) {
+   return mockComment({
+      post: {
+         images: [mockImage()],
+      },
+      ...overrides,
+   });
+}
+
 export function mockFollowRow(overrides = {}) {
    return {
       followerId: profile.id,

@@ -157,6 +157,58 @@ describe('follow.getFollowing', () => {
    });
 });
 
+// ── getFollowState ───────────────────────────────────────────────
+
+describe('follow.getFollowState', () => {
+   it('returns { following: true } when viewer follows the profile', async () => {
+      mockProfileFindFirst.mockResolvedValueOnce(profile);
+      mockFollowFindFirst.mockResolvedValueOnce({
+         followerId: profile.id,
+         followingId: 'other-profile-id',
+      });
+
+      const caller = createAuthenticatedCaller(user);
+      const result = await caller.follow.getFollowState({
+         profileId: 'other-profile-id',
+      });
+
+      expect(result).toEqual({ following: true });
+   });
+
+   it('returns { following: false } when viewer checks their own profile', async () => {
+      mockProfileFindFirst.mockResolvedValueOnce(profile);
+
+      const caller = createAuthenticatedCaller(user);
+      const result = await caller.follow.getFollowState({
+         profileId: profile.id,
+      });
+
+      expect(result).toEqual({ following: false });
+      expect(mockFollowFindFirst).not.toHaveBeenCalled();
+   });
+
+   it('returns { following: false } when viewer does not follow the profile', async () => {
+      mockProfileFindFirst.mockResolvedValueOnce(profile);
+      mockFollowFindFirst.mockResolvedValueOnce(undefined);
+
+      const caller = createAuthenticatedCaller(user);
+      const result = await caller.follow.getFollowState({
+         profileId: 'other-profile-id',
+      });
+
+      expect(result).toEqual({ following: false });
+   });
+
+   it('returns { following: false } for a guest', async () => {
+      const caller = createCaller();
+      const result = await caller.follow.getFollowState({
+         profileId: 'other-profile-id',
+      });
+
+      expect(result).toEqual({ following: false });
+   });
+});
+
 // ── Protected procedures ───────────────────────────────────────
 
 describe('protected procedures', () => {

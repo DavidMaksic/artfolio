@@ -17,7 +17,7 @@ export const tagRouter = t.router({
          .innerJoin(postTag, eq(tag.id, postTag.tagId))
          .groupBy(tag.id, tag.name, tag.slug)
          .orderBy(desc(count(postTag.postId)))
-         .limit(8);
+         .limit(4);
 
       return { tags: results };
    }),

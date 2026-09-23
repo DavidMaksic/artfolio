@@ -2,9 +2,10 @@
 import type { PostDetail } from "@artfolio/shared";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
 import { useAuthStore } from "@/stores/auth.store";
-import { useRouter } from "vue-router";
 import { nextTick } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
@@ -24,7 +25,6 @@ import { useFollow } from "@/composables/useFollow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
 
 const props = defineProps<{
   post: PostDetail | undefined;
@@ -37,6 +37,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const queryClient = useQueryClient();
@@ -473,10 +474,10 @@ const deleteMutation = useMutation({
             class="py-1.5 px-3.5 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
             variant="secondary"
             @click="
-              router.push({
-                name: 'explore',
-                query: { q: post.category.name },
-              })
+              () => {
+                if (route.name === 'explore') emit('close');
+                router.push({ name: 'explore', query: { q: post?.category.name } });
+              }
             "
           >
             {{ post.category.name }}
@@ -487,10 +488,10 @@ const deleteMutation = useMutation({
             class="py-1.5 px-3.5 text-xs cursor-default hover:border-neutral-400/80 transition-[border-color]"
             variant="outline"
             @click="
-              router.push({
-                name: 'explore',
-                query: { q: tag.name },
-              })
+              () => {
+                if (route.name === 'explore') emit('close');
+                router.push({ name: 'explore', query: { q: tag.name } });
+              }
             "
           >
             {{ tag.name }}
