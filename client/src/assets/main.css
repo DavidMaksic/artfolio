@@ -122,3 +122,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .scrollbar {
+    &::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-neutral-300);
+      border-radius: 15px;
+    }
+
+    &::-webkit-scrollbar-track {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .textarea-scrollbar {
+    &::-webkit-scrollbar {
+      width: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-neutral-200);
+      border-radius: 15px;
+    }
+  }
+}

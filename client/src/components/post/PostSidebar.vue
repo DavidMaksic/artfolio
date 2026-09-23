@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { PostDetail } from "@artfolio/shared";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/vue-query";
-import { computed, ref, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
+import { useTextareaAutosize } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
@@ -105,6 +106,13 @@ const { following, toggleFollow, isFollowPending } = useFollow(followSource);
 // ── Comments ───────────────────────────────────────────
 
 const commentBody = defineModel<string>("commentBody", { default: "" });
+const textarea = useTemplateRef<HTMLTextAreaElement>("textarea");
+
+useTextareaAutosize({
+  element: textarea,
+  input: commentBody,
+  maxHeight: 345,
+});
 
 const {
   data: commentsData,
@@ -179,6 +187,7 @@ function canDeleteComment(commentUsername: string) {
 
 function submitComment() {
   if (!commentBody.value.trim()) return;
+  commentBody.value = commentBody.value.trim();
   createCommentMutation.mutate();
 }
 
@@ -324,7 +333,7 @@ const deleteMutation = useMutation({
         class="flex flex-1 flex-col bg-background rounded-2xl border border-border shadow-2xl overflow-hidden"
         @click.stop
       >
-        <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4">
+        <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4 scrollbar">
           <div class="font-semibold">
             Comments
             <span v-if="comments.length > 1" class="text-muted-foreground"
@@ -402,7 +411,7 @@ const deleteMutation = useMutation({
               </div>
 
               <div class="flex flex-col flex-1 min-w-0">
-                <p class="text-sm wrap-break-words">{{ comment.body }}</p>
+                <p class="text-sm wrap-break-word whitespace-pre-wrap">{{ comment.body }}</p>
               </div>
             </div>
 
@@ -422,7 +431,7 @@ const deleteMutation = useMutation({
           <img
             v-if="me?.profileImageUrl"
             :src="me.profileImageUrl"
-            class="size-8 rounded-full object-cover shrink-0"
+            class="self-start size-8 rounded-full object-cover shrink-0"
           />
           <div
             v-else
@@ -430,18 +439,19 @@ const deleteMutation = useMutation({
           >
             <Icon icon="ph:user" class="text-muted-foreground text-sm" />
           </div>
-          <input
+          <textarea
+            ref="textarea"
             v-model="commentBody"
-            ref="commentInput"
-            type="text"
             placeholder="Add a comment…"
             maxlength="1000"
-            class="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
-            @keydown.enter="submitComment"
+            rows="1"
+            class="flex-1 resize-none text-sm bg-transparent outline-none placeholder:text-muted-foreground textarea-scrollbar pr-1"
+            @keydown.enter.exact.prevent="submitComment"
+            @keydown.shift.enter.exact="() => {}"
           />
           <Button
             variant="ghost"
-            class="text-sm font-semibold text-neutral-800 transition-colors disabled:opacity-40"
+            class="self-start text-sm font-semibold text-neutral-800 transition-colors disabled:opacity-40 px-3"
             :disabled="!commentBody.trim() || createCommentMutation.isPending.value"
             @click="submitComment"
           >
