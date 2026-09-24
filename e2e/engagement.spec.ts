@@ -106,8 +106,10 @@ test.describe('comments', () => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(auth);
       await createPost(auth);
+
       await auth.page.getByRole('button', { name: 'Sign out' }).click();
       await expect(auth.page).toHaveURL('/');
+      await auth.page.goto(`${auth.username}`);
 
       await auth.page.locator('[data-post-id]').first().click();
       const modal = auth.page.locator('[data-testid="post-modal"]');
