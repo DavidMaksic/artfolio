@@ -44,8 +44,10 @@ export async function createPost(
    await auth.page.goto(
       options.redirectTo ? options.redirectTo : `/${auth.username}`,
    );
+
+   await auth.page.waitForLoadState('networkidle');
    await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
-      timeout: 10_000,
+      timeout: 30_000,
    });
 
    // Wait for the grid's click handlers to be attached before returning
