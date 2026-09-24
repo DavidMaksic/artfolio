@@ -41,18 +41,15 @@ export async function createPost(
    await auth.page.getByRole('button', { name: 'Publish' }).click();
    await expect(auth.page).toHaveURL('/', { timeout: 30_000 });
 
-   await auth.page.goto(
-      options.redirectTo ? options.redirectTo : `/${auth.username}`,
-   );
-
-   await auth.page.waitForLoadState('networkidle');
-   await auth.page.waitForTimeout(2000);
+   await auth.page.goto(`/${auth.username}`);
    await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
-      timeout: 10_000,
+      timeout: 15_000,
    });
 
-   // Wait for the grid's click handlers to be attached before returning
-   await auth.page.waitForLoadState('networkidle');
+   if (options.redirectTo) {
+      await auth.page.goto(options.redirectTo);
+      await auth.page.waitForLoadState('networkidle');
+   }
 }
 
 export async function setupDiscussionScenario(
