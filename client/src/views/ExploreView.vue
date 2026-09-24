@@ -226,6 +226,7 @@ function fetchNextPage() {
           <button
             v-if="rawQuery"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Clear search"
             @click="clearSearch"
           >
             <Icon icon="ph:x" class="text-base" />

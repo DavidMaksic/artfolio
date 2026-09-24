@@ -64,11 +64,14 @@ test.describe('profile edit', () => {
       ).toBeVisible();
    });
 
-   test('edit button hidden from visitors', async ({ auth }) => {
-      // TODO: Sprint 9 — visit a real profile as a guest, once shared seed DB with stable test users is in place
-      await auth.page.goto('/thisuserdoesnotexist');
+   test('edit button hidden from visitors', async ({ auth, secondAuth }) => {
+      await auth.signInViaMagicLink();
+      await completeProfileSetup(auth);
+
+      // Visit someone's profile as a guest
+      await secondAuth.page.goto(`/${auth.username}`);
       await expect(
-         auth.page.getByRole('button', { name: 'Edit profile' }),
+         secondAuth.page.getByRole('button', { name: 'Edit profile' }),
       ).not.toBeVisible();
    });
 

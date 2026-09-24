@@ -51,3 +51,29 @@ export async function createPost(
    // Wait for the grid's click handlers to be attached before returning
    await auth.page.waitForLoadState('networkidle');
 }
+
+export async function setupDiscussionScenario(
+   auth: AuthFixture,
+   secondAuth: AuthFixture,
+   comment: string,
+) {
+   // User A creates a post
+   await auth.signInViaMagicLink();
+   await completeProfileSetup(auth);
+   await createPost(auth);
+
+   // User B comments on user A's post
+   await secondAuth.signInViaMagicLink();
+   await completeProfileSetup(secondAuth);
+
+   await secondAuth.page.goto(`/${auth.username}`);
+   await secondAuth.page.locator('[data-post-id]').first().click();
+   const modal = secondAuth.page.locator('[data-testid="post-modal"]');
+
+   await expect(modal).toBeVisible();
+   await modal.locator('textarea[placeholder="Add a comment…"]').fill(comment);
+   await modal.getByRole('button', { name: 'Post', exact: true }).click();
+
+   await expect(modal.getByText(comment)).toBeVisible({ timeout: 10_000 });
+   await secondAuth.page.keyboard.press('Escape');
+}
