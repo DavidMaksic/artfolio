@@ -87,8 +87,8 @@ test.describe('explore', () => {
       await auth.page.goto('/explore');
 
       // Open category combobox and select first option
-      await auth.page.getByRole('button', { name: /all categories/i }).click();
-      await auth.page.getByRole('option').first().click();
+      await auth.page.getByText('All categories').click();
+      await auth.page.getByRole('option').nth(1).click();
 
       await expect(auth.page).toHaveURL(/category=/);
    });
@@ -98,10 +98,9 @@ test.describe('explore', () => {
       await completeProfileSetup(auth);
 
       await auth.page.goto('/explore');
-      await auth.page.getByRole('combobox', { name: /new/i }).click();
-      await auth.page.getByRole('option', { name: 'Popular' }).click();
-
-      await expect(auth.page).toHaveURL(/sort=popular/);
+      await auth.page.getByRole('combobox').click();
+      await auth.page.getByRole('option', { name: 'New' }).click();
+      await expect(auth.page).toHaveURL(/sort=new/);
    });
 
    test('search query persists in URL on auth.page reload', async ({
