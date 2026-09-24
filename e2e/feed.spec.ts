@@ -8,50 +8,51 @@ test.afterAll(async () => {
 
 test.describe('feed', () => {
    test('guest sees discovery banner and posts on the feed', async ({
-      page,
       auth,
    }) => {
       // Create a post as a signed-in user first so the feed has content
       await auth.signInViaMagicLink();
-      await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page);
+      await completeProfileSetup(auth);
+      await createPost(auth);
 
       // Sign out
-      await page.getByRole('button', { name: 'Sign out' }).click();
-      await expect(page).toHaveURL('/');
+      await auth.page.getByRole('button', { name: 'Sign out' }).click();
+      await expect(auth.page).toHaveURL('/');
 
       // Guest lands on feed and sees discovery banner
-      await expect(page.getByText(/discover work from artists/i)).toBeVisible();
+      await expect(
+         auth.page.getByText(/discover work from artists/i),
+      ).toBeVisible();
 
       // At least one post card is visible
-      await expect(page.locator('[data-post-id]').first()).toBeVisible();
+      await expect(auth.page.locator('[data-post-id]').first()).toBeVisible();
    });
 
    test('signed-in user does not see the discovery banner', async ({
-      page,
       auth,
    }) => {
       await auth.signInViaMagicLink();
-      await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page);
+      await completeProfileSetup(auth);
+      await createPost(auth);
 
       await expect(
-         page.getByText(/discover work from artists/i),
+         auth.page.getByText(/discover work from artists/i),
       ).not.toBeVisible();
 
-      await expect(page.locator('[data-post-id]').first()).toBeVisible();
+      await expect(auth.page.locator('[data-post-id]').first()).toBeVisible();
    });
 
    test('clicking a feed card opens the post detail modal', async ({
-      page,
       auth,
    }) => {
       await auth.signInViaMagicLink();
-      await completeProfileSetup(page, auth.username, auth.displayName);
-      await createPost(page, { description: 'Modal test post' });
+      await completeProfileSetup(auth);
+      await createPost(auth, {
+         description: 'Modal test post',
+      });
 
-      await page.locator('[data-post-id]').first().click();
-      const modal = page.locator('[data-testid="post-modal"]');
+      await auth.page.locator('[data-post-id]').first().click();
+      const modal = auth.page.locator('[data-testid="post-modal"]');
 
       await expect(modal).toBeVisible();
       await expect(modal.getByText('Modal test post')).toBeVisible();

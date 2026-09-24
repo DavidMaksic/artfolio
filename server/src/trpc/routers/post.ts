@@ -91,6 +91,7 @@ export const postRouter = t.router({
       .mutation(async ({ ctx, input }) => {
          const userProfile = await getProfileByUserId(ctx.user.id);
          await assertPostOwner(input.id, userProfile.id);
+         console.log(input.tags);
 
          const now = new Date();
 

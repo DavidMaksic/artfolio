@@ -26,6 +26,7 @@ import { useFollow } from "@/composables/useFollow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useFeedStore } from "@/stores/feed.store";
 
 const props = defineProps<{
   post: PostDetail | undefined;
@@ -192,13 +193,15 @@ function submitComment() {
 }
 
 // ── Delete post ───────────────────────────────────────────
+const feedStore = useFeedStore();
 
-const deleteMutation = useMutation({
+const deletePostMutation = useMutation({
   mutationFn: () => trpc.post.delete.mutate({ id: props.postId }),
   onSuccess: () => {
     if (me.value) queryClient.invalidateQueries({ queryKey: ["posts", me.value.username] });
     queryClient.invalidateQueries({ queryKey: ["post", props.postId] });
     queryClient.invalidateQueries({ queryKey: ["feed"] });
+    feedStore.clearJustCreatedPost();
     emit("close");
   },
 });
@@ -295,9 +298,13 @@ const deleteMutation = useMutation({
 
             <AlertDialog>
               <AlertDialogTrigger as-child>
-                <Button variant="destructive" size="sm" :disabled="deleteMutation.isPending.value">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  :disabled="deletePostMutation.isPending.value"
+                >
                   <Icon
-                    v-if="deleteMutation.isPending.value"
+                    v-if="deletePostMutation.isPending.value"
                     icon="ph:spinner"
                     class="animate-spin mr-1"
                   />
@@ -317,7 +324,7 @@ const deleteMutation = useMutation({
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     class="bg-destructive hover:bg-destructive/90"
-                    @click="deleteMutation.mutate()"
+                    @click="deletePostMutation.mutate()"
                   >
                     Delete
                   </AlertDialogAction>

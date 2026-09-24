@@ -3,6 +3,7 @@ import type { FeedItem } from "@artfolio/shared";
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
+import { useFeedStore } from "@/stores/feed.store";
 import { useRouter } from "vue-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import FeedSidebar from "@/components/feed/FeedSidebar.vue";
 import FeedCard from "@/components/feed/FeedCard.vue";
 
 type FeedItemWithMeta = FeedItem & { suggested: boolean };
+const feedStore = useFeedStore();
 
 const SUGGEST_EVERY = 2; // inject a suggested post every N following posts
 
@@ -115,7 +117,7 @@ const posts = computed<FeedItemWithMeta[]>(() => {
     }
   });
 
-  return result;
+  return feedStore.justCreatedPost ? [feedStore.justCreatedPost, ...result] : result;
 });
 
 const postIds = computed(() => posts.value.map((p) => p.id));

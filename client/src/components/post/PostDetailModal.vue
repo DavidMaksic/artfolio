@@ -3,8 +3,8 @@ import { useQuery, keepPreviousData } from "@tanstack/vue-query";
 import { computed } from "vue";
 import { trpc } from "@/lib/trpc";
 
-import PostImages from "@/components/post/PostImages.vue";
 import PostSidebar from "@/components/post/PostSidebar.vue";
+import PostImages from "@/components/post/PostImages.vue";
 
 const props = defineProps<{
   postId: string;

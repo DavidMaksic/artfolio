@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { FeedItem } from "@artfolio/shared";
 import { ref, computed, onMounted } from "vue";
 import { usePostImageUpload } from "@/composables/usePostImageUpload";
 import { extractTrpcError } from "@/lib/trpc-error";
 import { useQueryClient } from "@tanstack/vue-query";
+import { useFeedStore } from "@/stores/feed.store";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
@@ -28,6 +30,7 @@ import { Label } from "@/components/ui/label";
 
 const router = useRouter();
 const queryClient = useQueryClient();
+const feedStore = useFeedStore();
 
 const {
   images,
@@ -102,14 +105,57 @@ async function handleSubmit() {
   try {
     const uploaded = await uploadAll();
 
-    await trpc.post.create.mutate({
+    const { id } = await trpc.post.create.mutate({
       description: description.value.trim() || undefined,
       categoryId: categoryId.value,
       tags: tags.value,
       images: uploaded,
     });
 
+    type FeedItemWithMeta = FeedItem & { suggested: boolean };
     const me = await trpc.profile.getMe.query();
+
+    const selectedCategory = categories.value.find((c) => c.id === categoryId.value)!;
+    const selectedTags = tags.value.map((name) => ({
+      id: name,
+      name,
+      slug: name.toLowerCase().replace(/\s+/g, "-"),
+    }));
+
+    const feedPost: FeedItemWithMeta = {
+      id,
+      profileId: me.id,
+      categoryId: categoryId.value,
+      createdAt: new Date(),
+      coverImage: {
+        id: crypto.randomUUID(),
+        imageUrl: uploaded[0]!.imageUrl,
+        publicId: uploaded[0]!.publicId,
+        order: 0,
+        width: uploaded[0]!.width,
+        height: uploaded[0]!.height,
+        createdAt: new Date(),
+      },
+      imageCount: uploaded.length,
+      description: description.value.trim() || null,
+      category: selectedCategory,
+      tags: selectedTags,
+      profile: {
+        username: me.username,
+        displayName: me.displayName,
+        profileImageUrl: me.profileImageUrl ?? null,
+        userIsFollowing: false,
+      },
+      likeCount: 0,
+      bookmarkCount: 0,
+      commentCount: 0,
+      userHasLiked: false,
+      userHasBookmarked: false,
+      suggested: false,
+    };
+
+    feedStore.setJustCreatedPost(feedPost);
+
     queryClient.invalidateQueries({ queryKey: ["posts", me.username] });
     queryClient.invalidateQueries({ queryKey: ["feed"] });
     router.push({ name: "home" });

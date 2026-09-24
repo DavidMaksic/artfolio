@@ -1,11 +1,20 @@
-import { test as base, expect, Page, TestInfo } from '@playwright/test';
+import {
+   test as base,
+   Page,
+   expect,
+   Browser,
+   TestInfo,
+   BrowserContext,
+} from '@playwright/test';
 import { cleanupTestUser } from '@/global-setup.js';
 import { getSignInOtp } from '@/test-helpers.js';
 
-interface AuthFixture {
+export interface AuthFixture {
    email: string;
    username: string;
    displayName: string;
+   page: Page;
+   context: BrowserContext;
    emailSubmit: () => Promise<string>;
    signInViaMagicLink: () => Promise<void>;
 }
@@ -15,8 +24,8 @@ interface Fixtures {
    secondAuth: AuthFixture;
 }
 
-function createAuthFixture(
-   page: Page,
+async function createAuthFixture(
+   browser: Browser,
    testInfo: TestInfo,
    suffix: string = '',
 ) {
@@ -25,6 +34,9 @@ function createAuthFixture(
    const email = `e2e+${slug}+${tag}@test.com`;
    const username = `user${tag}`;
    const displayName = `Test User ${tag}`;
+
+   const context: BrowserContext = await browser.newContext();
+   const page: Page = await context.newPage();
 
    const emailSubmit = async () => {
       await page.goto('/auth/sign-in');
@@ -41,18 +53,28 @@ function createAuthFixture(
       );
    };
 
-   return { email, username, displayName, emailSubmit, signInViaMagicLink };
+   return {
+      email,
+      username,
+      displayName,
+      page,
+      emailSubmit,
+      signInViaMagicLink,
+      context,
+   };
 }
 
 export const test = base.extend<Fixtures>({
-   auth: async ({ page }, use, testInfo) => {
-      const fixture = createAuthFixture(page, testInfo);
+   auth: async ({ browser }, use, testInfo) => {
+      const fixture = await createAuthFixture(browser, testInfo);
       await use(fixture);
+      await fixture.context.close();
       await cleanupTestUser(fixture.email);
    },
-   secondAuth: async ({ page }, use, testInfo) => {
-      const fixture = createAuthFixture(page, testInfo, 'b');
+   secondAuth: async ({ browser }, use, testInfo) => {
+      const fixture = await createAuthFixture(browser, testInfo, 'b');
       await use(fixture);
+      await fixture.context.close();
       await cleanupTestUser(fixture.email);
    },
 });

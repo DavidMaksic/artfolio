@@ -1,4 +1,5 @@
-import { expect, Page } from '@playwright/test';
+import { AuthFixture } from '@/fixtures';
+import { expect } from '@playwright/test';
 import { redis } from '@artfolio/server/lib/redis.js';
 import path from 'path';
 
@@ -10,43 +11,43 @@ export async function getSignInOtp(email: string): Promise<string> {
    return JSON.parse(raw).value.split(':')[0];
 }
 
-export async function completeProfileSetup(
-   page: Page,
-   username: string,
-   displayName: string,
-) {
-   await page.getByLabel('Username').fill(username);
-   await page.getByLabel('Display name').fill(displayName);
-   await page.getByRole('button', { name: 'Continue' }).click();
-   await page.getByRole('button', { name: 'Finish setup' }).click();
-   await expect(page).toHaveURL('/');
+export async function completeProfileSetup(auth: AuthFixture) {
+   await auth.page.getByLabel('Username').fill(auth.username);
+   await auth.page.getByLabel('Display name').fill(auth.displayName);
+   await auth.page.getByRole('button', { name: 'Continue' }).click();
+   await auth.page.getByRole('button', { name: 'Finish setup' }).click();
+   await expect(auth.page).toHaveURL('/', { timeout: 15_000 });
 }
 
 export async function createPost(
-   page: Page,
-   options: { description?: string } = {},
+   auth: AuthFixture,
+   options: { description?: string; redirectTo?: string } = {},
 ) {
-   await page.getByLabel('New post').click();
-   await expect(page).toHaveURL('/posts/create');
+   await auth.page.getByLabel('New post').click();
+   await expect(auth.page).toHaveURL('/posts/create');
 
    // Upload an image
-   await page.locator('input[type="file"]').setInputFiles(TEST_IMAGE);
-   await expect(page.locator("img[src^='blob:']").first()).toBeVisible();
+   await auth.page.locator('input[type="file"]').setInputFiles(TEST_IMAGE);
+   await expect(auth.page.locator("img[src^='blob:']").first()).toBeVisible();
 
    // Fill describe input (if it exists) and select a category
    if (options.description) {
-      await page.getByLabel('description').fill(options.description);
+      await auth.page.getByLabel('description').fill(options.description);
    }
-   await page.locator('#category').click();
-   await page.getByRole('option').first().click();
+   await auth.page.locator('#category').click();
+   await auth.page.getByRole('option').first().click();
 
    // Submit — this triggers the Cloudinary upload, then the tRPC mutation. Allow generous timeout for the network round-trips.
-   await page.getByRole('button', { name: 'Publish' }).click();
-   await expect(page).toHaveURL('/', { timeout: 30_000 });
-   await expect(page.locator('[data-post-id]').first()).toBeVisible({
+   await auth.page.getByRole('button', { name: 'Publish' }).click();
+   await expect(auth.page).toHaveURL('/', { timeout: 30_000 });
+
+   await auth.page.goto(
+      options.redirectTo ? options.redirectTo : `/${auth.username}`,
+   );
+   await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
       timeout: 10_000,
    });
 
    // Wait for the grid's click handlers to be attached before returning
-   await page.waitForLoadState('networkidle');
+   await auth.page.waitForLoadState('networkidle');
 }
