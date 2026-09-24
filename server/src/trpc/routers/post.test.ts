@@ -296,6 +296,9 @@ describe('post.getByUsername', () => {
             images: [mockImage()],
             category: mockCategory(),
             postTags: [],
+            likes: [],
+            bookmarks: [],
+            comments: [],
          },
       ]);
 
