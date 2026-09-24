@@ -255,7 +255,15 @@ const deletePostMutation = useMutation({
             <Icon class="size-5" :icon="following ? 'ph:user-check' : 'ph:user-plus'" />
             {{ following ? "Following" : "Follow" }}
           </Button>
-          <Button class="flex-1" variant="secondary" :disabled="isLikePending" @click="toggleLike">
+
+          <Button
+            class="flex-1"
+            variant="secondary"
+            data-testid="like-button"
+            :data-liked="liked"
+            :disabled="isLikePending"
+            @click="toggleLike"
+          >
             <Icon
               class="size-5 transition-colors"
               :icon="liked ? 'ph:heart-fill' : 'ph:heart'"
@@ -266,6 +274,8 @@ const deletePostMutation = useMutation({
           <Button
             class="flex-1"
             variant="outline"
+            data-testid="bookmark-button"
+            :data-bookmarked="bookmarked"
             :disabled="isBookmarkPending"
             @click="toggleBookmark"
           >
@@ -375,14 +385,17 @@ const deletePostMutation = useMutation({
               :data-comment-id="comment.id"
               class="space-y-2 py-4 first:pt-1.5"
             >
-              <div
-                class="flex items-center justify-between gap-1.5"
-                @click="
-                  router.push({ name: 'profile', params: { username: comment.profile.username } })
-                "
-              >
+              <div class="flex items-center justify-between gap-1.5">
                 <div class="flex items-center gap-1.5 cursor-default">
-                  <div class="flex items-center gap-2 group">
+                  <div
+                    class="flex items-center gap-2 group"
+                    @click="
+                      router.push({
+                        name: 'profile',
+                        params: { username: comment.profile.username },
+                      })
+                    "
+                  >
                     <img
                       v-if="comment.profile.profileImageUrl"
                       :src="comment.profile.profileImageUrl"

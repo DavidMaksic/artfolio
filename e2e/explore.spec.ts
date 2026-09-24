@@ -71,6 +71,7 @@ test.describe('explore', () => {
       await auth.page.goto('/explore');
 
       const firstPill = auth.page.locator('button.rounded-full').first();
+      await expect(firstPill).toBeVisible({ timeout: 10_000 });
       const tagName = await firstPill.textContent();
       await firstPill.click();
 

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { FeedItem, ProfilePost } from "@artfolio/shared";
+import type { FeedItem, Post } from "@artfolio/shared";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 
 import { ref, computed, watch, onUnmounted } from "vue";
 import { Icon } from "@iconify/vue";
 
-type Row = { post: ProfilePost; width: number }[];
+type Row = { post: Post; width: number }[];
 
 const props = defineProps<{
-  posts: ProfilePost[] | FeedItem[] | undefined;
+  posts: Post[] | FeedItem[] | undefined;
   isOwner: boolean;
   isLoadingPosts: boolean;
   accentOverlay?: boolean;
@@ -44,7 +44,7 @@ const rows = computed<Row[]>(() => {
 
   const gap = 4;
   const rows: Row[] = [];
-  let currentRow: { post: ProfilePost; aspectRatio: number }[] = [];
+  let currentRow: { post: Post; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
 
   for (const post of props.posts ?? []) {
@@ -119,9 +119,15 @@ const rows = computed<Row[]>(() => {
                   : 'background: radial-gradient(ellipse at top right, hsl(0 0% 40% / 0.4) 0%, hsl(0 0% 0% / 0.55) 100%);'
               "
             >
-              <div class="flex gap-2">
-                <span class="text-white text-sm font-medium">{{ post.category.name }}</span>
-                <span v-if="post.imageCount > 1" class="text-white text-sm font-light">|</span>
+              <div class="flex items-center gap-4">
+                <div v-if="post.likeCount" class="flex items-center gap-1.5 text-white">
+                  <Icon class="size-4.5" icon="ph:heart" />
+                  <span class="text-sm">{{ post.likeCount }}</span>
+                </div>
+                <div v-if="post.commentCount" class="flex items-center gap-1.5 text-white">
+                  <Icon class="size-4.5" icon="ph:chat-circle" />
+                  <span class="text-sm">{{ post.commentCount }}</span>
+                </div>
                 <Icon
                   v-if="post.imageCount > 1"
                   icon="famicons:copy-outline"

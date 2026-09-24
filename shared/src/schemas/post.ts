@@ -103,7 +103,6 @@ const postSummarySchema = z.object({
    tags: z.array(tagSchema),
 });
 
-export const profilePostSchema = postSummarySchema;
 export const postSchema = postSummarySchema.extend(engagementSchema.shape);
 export const feedItemSchema = postSchema.extend({
    profile: profileSchema,
@@ -172,7 +171,6 @@ export const discussionItemSchema = z.object({
 // ── Types ────────────────────────────────────────
 
 export type Post = z.infer<typeof postSchema>;
-export type ProfilePost = z.infer<typeof profilePostSchema>;
 export type PostDetail = z.infer<typeof postDetailSchema>;
 export type FeedItem = z.infer<typeof feedItemSchema>;
 export type FeedInput = z.infer<typeof feedInputSchema>;

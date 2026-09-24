@@ -197,11 +197,11 @@ function fetchNextPage() {
       <div class="grid grid-cols-3 mb-1 px-5 flex-wrap gap-2">
         <!-- Trending tags -->
         <div v-if="trendingTags.length" class="flex items-center gap-2 flex-wrap">
-          <span class="text-[1rem] font-medium text-foreground shrink-0">Trending:</span>
+          <span class="text-[0.92rem] font-medium text-foreground shrink-0">Trending:</span>
           <button
             v-for="tag in trendingTags"
             :key="tag.id"
-            class="text-[1rem] px-4 py-1.5 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
+            class="text-[0.92rem] px-4 py-1.5 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
             :class="{
               'border-neutral-300 text-foreground bg-neutral-100!': debouncedQuery === tag.name,
             }"

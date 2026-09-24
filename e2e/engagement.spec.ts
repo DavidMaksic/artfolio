@@ -22,7 +22,11 @@ test.describe('likes', () => {
    test('signed in user can like and unlike a post', async ({ auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(auth);
-      await createPost(auth, { redirectTo: '/' });
+      await createPost(auth);
+
+      const modal = auth.page.locator('[data-testid="post-modal"]');
+      await auth.page.locator('[data-post-id]').first().click();
+      await expect(modal).toBeVisible();
 
       const likeButton = auth.page
          .locator('[data-testid="like-button"]')
@@ -67,7 +71,11 @@ test.describe('bookmarks', () => {
    }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(auth);
-      await createPost(auth, { redirectTo: '/' });
+      await createPost(auth);
+
+      const modal = auth.page.locator('[data-testid="post-modal"]');
+      await auth.page.locator('[data-post-id]').first().click();
+      await expect(modal).toBeVisible();
 
       const bookmarkButton = auth.page
          .locator('[data-testid="bookmark-button"]')
