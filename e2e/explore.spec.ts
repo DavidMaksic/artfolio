@@ -66,7 +66,7 @@ test.describe('explore', () => {
    test('clicking a trending tag pill fills the search', async ({ auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(auth);
-      await createPost(auth);
+      await createPost(auth, { tags: ['e2e'] });
 
       await auth.page.goto('/explore');
 

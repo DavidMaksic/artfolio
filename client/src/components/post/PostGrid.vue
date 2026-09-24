@@ -119,19 +119,19 @@ const rows = computed<Row[]>(() => {
                   : 'background: radial-gradient(ellipse at top right, hsl(0 0% 40% / 0.4) 0%, hsl(0 0% 0% / 0.55) 100%);'
               "
             >
-              <div class="flex items-center gap-4">
-                <div v-if="post.likeCount" class="flex items-center gap-1.5 text-white">
+              <div class="flex items-center gap-4 text-neutral-200">
+                <div v-if="post.likeCount" class="flex items-center gap-1.5">
                   <Icon class="size-4.5" icon="ph:heart" />
                   <span class="text-sm">{{ post.likeCount }}</span>
                 </div>
-                <div v-if="post.commentCount" class="flex items-center gap-1.5 text-white">
+                <div v-if="post.commentCount" class="flex items-center gap-1.5">
                   <Icon class="size-4.5" icon="ph:chat-circle" />
                   <span class="text-sm">{{ post.commentCount }}</span>
                 </div>
                 <Icon
                   v-if="post.imageCount > 1"
                   icon="famicons:copy-outline"
-                  class="text-white drop-shadow text-lg"
+                  class="drop-shadow text-lg"
                 />
               </div>
             </div>

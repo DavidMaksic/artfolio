@@ -21,7 +21,7 @@ export async function completeProfileSetup(auth: AuthFixture) {
 
 export async function createPost(
    auth: AuthFixture,
-   options: { description?: string; redirectTo?: string } = {},
+   options: { description?: string; redirectTo?: string; tags?: string[] } = {},
 ) {
    await auth.page.getByLabel('New post').click();
    await expect(auth.page).toHaveURL('/posts/create');
@@ -36,6 +36,16 @@ export async function createPost(
    }
    await auth.page.locator('#category').click();
    await auth.page.getByRole('option').first().click();
+
+   // Add tags
+   if (options.tags?.length) {
+      const tagInput = auth.page.getByPlaceholder(/tag/i);
+      for (const tag of options.tags) {
+         await tagInput.fill(tag);
+         await tagInput.press('Enter');
+         await expect(auth.page.getByText(tag)).toBeVisible();
+      }
+   }
 
    // Submit — this triggers the Cloudinary upload, then the tRPC mutation. Allow generous timeout for the network round-trips.
    await auth.page.getByRole('button', { name: 'Publish' }).click();
