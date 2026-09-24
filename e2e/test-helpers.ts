@@ -46,8 +46,9 @@ export async function createPost(
    );
 
    await auth.page.waitForLoadState('networkidle');
+   await auth.page.waitForTimeout(2000);
    await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
-      timeout: 30_000,
+      timeout: 10_000,
    });
 
    // Wait for the grid's click handlers to be attached before returning
