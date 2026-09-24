@@ -221,7 +221,7 @@ function fetchNextPage() {
             v-model="rawQuery"
             type="text"
             placeholder="Search by tag, category or description…"
-            class="w-full h-11 rounded-xl border border-neutral-200 bg-white px-11 text-[0.92rem] shadow-xs placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full h-12 rounded-2xl border border-neutral-200 bg-white px-11 text-[0.92rem] shadow-xs placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
             v-if="rawQuery"
@@ -246,14 +246,14 @@ function fetchNextPage() {
               <ComboboxTrigger as-child>
                 <Button
                   variant="outline"
-                  class="w-50 h-11 pl-4! rounded-xl justify-between font-normal hover:bg-white text-[0.92rem]"
+                  class="w-50 h-10 pl-4! rounded-lg justify-between font-normal hover:bg-white text-[0.92rem]"
                 >
                   {{ selectedCategory?.label ?? "All categories" }}
                   <Icon icon="ph:caret-up-down" class="opacity-50" />
                 </Button>
               </ComboboxTrigger>
             </ComboboxAnchor>
-            <ComboboxList class="rounded-xl">
+            <ComboboxList class="rounded-lg">
               <ComboboxInput class="text-[0.92rem]" placeholder="Search category..." />
               <ComboboxEmpty class="text-[0.92rem]">No category found</ComboboxEmpty>
               <ComboboxGroup>
@@ -271,7 +271,7 @@ function fetchNextPage() {
                   v-for="cat in categories"
                   :key="cat.value"
                   :value="cat"
-                  class="px-2.5 text-[0.92rem] rounded-lg"
+                  class="px-2.5 text-[0.92rem] rounded-md"
                 >
                   {{ cat.label }}
                   <ComboboxItemIndicator>
@@ -284,11 +284,11 @@ function fetchNextPage() {
 
           <!-- Sort toggle -->
           <Select :model-value="sort" @update:model-value="setSort">
-            <SelectTrigger class="w-32 pl-4! bg-white h-11! rounded-xl text-[0.92rem]">
+            <SelectTrigger class="w-32 pl-4! bg-white h-10! rounded-lg text-[0.92rem]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent class="rounded-xl">
-              <SelectItem value="popular" class="text-[0.92rem] rounded-lg">Popular</SelectItem>
+            <SelectContent class="rounded-lg">
+              <SelectItem value="popular" class="text-[0.92rem] rounded-md">Popular</SelectItem>
               <SelectItem value="new" class="text-[0.92rem] rounded-lg">New</SelectItem>
             </SelectContent>
           </Select>
