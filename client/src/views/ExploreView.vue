@@ -197,11 +197,11 @@ function fetchNextPage() {
       <div class="grid grid-cols-3 mb-1 px-5 flex-wrap gap-2">
         <!-- Trending tags -->
         <div v-if="trendingTags.length" class="flex items-center gap-2 flex-wrap">
-          <span class="text-sm font-medium text-foreground shrink-0">Trending:</span>
+          <span class="text-[1rem] font-medium text-foreground shrink-0">Trending:</span>
           <button
             v-for="tag in trendingTags"
             :key="tag.id"
-            class="text-sm px-3 py-1 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
+            class="text-[1rem] px-4 py-1.5 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
             :class="{
               'border-neutral-300 text-foreground bg-neutral-100!': debouncedQuery === tag.name,
             }"
@@ -212,16 +212,16 @@ function fetchNextPage() {
         </div>
 
         <!-- Search bar -->
-        <div class="relative min-w-md justify-self-center">
+        <div class="relative min-w-lg justify-self-center">
           <Icon
             icon="ph:magnifying-glass"
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none"
+            class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none"
           />
           <input
             v-model="rawQuery"
             type="text"
             placeholder="Search by tag, category or description…"
-            class="w-full h-9 rounded-md border border-neutral-200 bg-white pl-9 pr-9 text-sm shadow-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full h-11 rounded-xl border border-neutral-200 bg-white px-11 text-[0.92rem] shadow-xs placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
             v-if="rawQuery"
@@ -244,23 +244,35 @@ function fetchNextPage() {
           >
             <ComboboxAnchor as-child>
               <ComboboxTrigger as-child>
-                <Button variant="outline" class="w-50 justify-between font-normal">
+                <Button
+                  variant="outline"
+                  class="w-50 h-11 pl-4! rounded-xl justify-between font-normal hover:bg-white text-[0.92rem]"
+                >
                   {{ selectedCategory?.label ?? "All categories" }}
                   <Icon icon="ph:caret-up-down" class="opacity-50" />
                 </Button>
               </ComboboxTrigger>
             </ComboboxAnchor>
-            <ComboboxList>
-              <ComboboxInput placeholder="Search category..." />
-              <ComboboxEmpty>No category found.</ComboboxEmpty>
+            <ComboboxList class="rounded-xl">
+              <ComboboxInput class="text-[0.92rem]" placeholder="Search category..." />
+              <ComboboxEmpty class="text-[0.92rem]">No category found</ComboboxEmpty>
               <ComboboxGroup>
-                <ComboboxItem :value="null" @select="selectCategory(null)">
+                <ComboboxItem
+                  :value="null"
+                  @select="selectCategory(null)"
+                  class="px-2.5 text-[0.92rem]"
+                >
                   All categories
                   <ComboboxItemIndicator>
                     <Icon icon="ph:check" />
                   </ComboboxItemIndicator>
                 </ComboboxItem>
-                <ComboboxItem v-for="cat in categories" :key="cat.value" :value="cat">
+                <ComboboxItem
+                  v-for="cat in categories"
+                  :key="cat.value"
+                  :value="cat"
+                  class="px-2.5 text-[0.92rem] rounded-lg"
+                >
                   {{ cat.label }}
                   <ComboboxItemIndicator>
                     <Icon icon="ph:check" />
@@ -272,12 +284,12 @@ function fetchNextPage() {
 
           <!-- Sort toggle -->
           <Select :model-value="sort" @update:model-value="setSort">
-            <SelectTrigger class="w-32 bg-white">
+            <SelectTrigger class="w-32 pl-4! bg-white h-11! rounded-xl text-[0.92rem]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Popular</SelectItem>
-              <SelectItem value="new">New</SelectItem>
+            <SelectContent class="rounded-xl">
+              <SelectItem value="popular" class="text-[0.92rem] rounded-lg">Popular</SelectItem>
+              <SelectItem value="new" class="text-[0.92rem] rounded-lg">New</SelectItem>
             </SelectContent>
           </Select>
         </div>
