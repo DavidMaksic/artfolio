@@ -5,7 +5,11 @@ import FeedView from "@/views/FeedView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior: () => ({ top: 0 }),
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition;
+    if (to.query.post || from.query.post) return false;
+    return { top: 0 };
+  },
   routes: [
     {
       path: "/",

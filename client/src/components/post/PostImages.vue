@@ -96,7 +96,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
     <!-- Close button -->
     <button
-      class="fixed left-4 top-8 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 transition-colors z-10"
+      class="fixed left-4 top-8 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2 transition-colors z-10 backdrop-blur-xl"
       aria-label="Close button"
       @click="emit('close')"
     >
@@ -106,7 +106,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     <!-- Prev button -->
     <button
       v-if="hasPrev"
-      class="fixed left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors z-10"
+      class="fixed left-4 top-1/2 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2.5 transition-colors z-10 backdrop-blur-xl"
       aria-label="Previous post"
       @click="navigatePrev"
     >
@@ -116,7 +116,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     <!-- Next button — sits just inside the left panel -->
     <button
       v-if="hasNext"
-      class="fixed right-104.5 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2.5 transition-colors z-10"
+      class="fixed right-104.5 top-1/2 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2.5 transition-colors z-10 backdrop-blur-xl"
       aria-label="Next post"
       @click="navigateNext"
     >

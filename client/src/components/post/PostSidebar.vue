@@ -50,18 +50,6 @@ const router = useRouter();
 const auth = useAuthStore();
 const queryClient = useQueryClient();
 
-// ── Focus on comment ───────────────────────────────────────────
-
-const commentInput = ref<HTMLInputElement | null>(null);
-
-watch(
-  () => props.focusComment,
-  (val) => {
-    if (val) nextTick(() => commentInput.value?.focus());
-  },
-  { immediate: true },
-);
-
 // ── Auth ───────────────────────────────────────────
 
 const { data: me } = useQuery({
@@ -114,6 +102,18 @@ const { following, toggleFollow, isFollowPending } = useFollow(followSource);
 
 const commentBody = defineModel<string>("commentBody", { default: "" });
 const textarea = useTemplateRef<HTMLTextAreaElement>("textarea");
+
+const editingBody = defineModel<string>("editingBody", { default: "" });
+const editTextarea = useTemplateRef<HTMLTextAreaElement>("editTextarea");
+const editingCommentId = ref<string | null>(null);
+
+watch(
+  () => props.focusComment,
+  (val) => {
+    if (val) nextTick(() => textarea.value?.focus());
+  },
+  { immediate: true },
+);
 
 useTextareaAutosize({
   element: textarea,
@@ -186,6 +186,27 @@ function submitComment() {
   createCommentMutation.mutate();
 }
 
+// ── Edit comment ───────────────────────────────────────────
+
+function startEdit(comment: { id: string; body: string }) {
+  editingCommentId.value = comment.id;
+  editingBody.value = comment.body;
+}
+
+function cancelEdit() {
+  editingCommentId.value = null;
+  editingBody.value = "";
+}
+
+const updateCommentMutation = useMutation({
+  mutationFn: ({ commentId, body }: { commentId: string; body: string }) =>
+    trpc.engagement.updateComment.mutate({ commentId, body }),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["comments", props.postId] });
+    cancelEdit();
+  },
+});
+
 // ── Delete post ───────────────────────────────────────────
 
 const feedStore = useFeedStore();
@@ -217,7 +238,7 @@ function copyCommentLink(commentId: string) {
     <template v-if="post">
       <!-- Post content -->
       <div
-        class="relative p-6 flex flex-col gap-5 bg-background rounded-2xl border border-border shadow-2xl"
+        class="p-6 flex flex-col gap-5 bg-background rounded-2xl border border-border shadow-2xl"
         @click.stop
       >
         <!-- Author -->
@@ -247,7 +268,7 @@ function copyCommentLink(commentId: string) {
             <DropdownMenuTrigger class="self-start">
               <Icon
                 icon="ph:dots-three"
-                class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
+                class="text-4xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1.5 rounded-md"
               />
             </DropdownMenuTrigger>
             <AlertDialog>
@@ -430,7 +451,7 @@ function copyCommentLink(commentId: string) {
                   <DropdownMenuTrigger>
                     <Icon
                       icon="ph:dots-three"
-                      class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
+                      class="text-4xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1.5 rounded-md"
                     />
                   </DropdownMenuTrigger>
                   <AlertDialog>
@@ -438,6 +459,14 @@ function copyCommentLink(commentId: string) {
                       <DropdownMenuItem class="text-[0.92rem]" @click="copyCommentLink(comment.id)">
                         <Icon icon="ph:link" class="mr-2 text-sm" />
                         Copy link
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        v-if="me?.username === comment.profile.username"
+                        class="text-[0.92rem]"
+                        @click="startEdit(comment)"
+                      >
+                        <Icon icon="ph:pencil-simple-line" class="mr-2 text-sm text-neutral-600" />
+                        Edit
                       </DropdownMenuItem>
                       <AlertDialogTrigger
                         as-child
@@ -473,7 +502,38 @@ function copyCommentLink(commentId: string) {
               </div>
 
               <div class="flex flex-col flex-1 min-w-0">
-                <p class="text-sm wrap-break-word whitespace-pre-wrap">{{ comment.body }}</p>
+                <!-- Editing state -->
+                <div v-if="editingCommentId === comment.id" class="flex flex-col gap-1.5">
+                  <textarea
+                    ref="editTextarea"
+                    v-model="editingBody"
+                    maxlength="1000"
+                    class="flex-1 min-h-33 resize-none text-sm bg-muted rounded-md px-3 py-2 outline-none w-full scrollbar"
+                    @keydown.enter.exact.prevent="
+                      updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
+                    "
+                    @keydown.shift.enter.exact="() => {}"
+                    @keydown.escape="cancelEdit"
+                  />
+                  <div class="flex gap-2 justify-end">
+                    <Button variant="ghost" size="sm" class="text-xs" @click="cancelEdit"
+                      >Cancel</Button
+                    >
+                    <Button
+                      size="sm"
+                      class="text-xs"
+                      :disabled="!editingBody.trim() || updateCommentMutation.isPending.value"
+                      @click="
+                        updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
+                      "
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+
+                <!-- Normal state -->
+                <p v-else class="text-sm wrap-break-word whitespace-pre-wrap">{{ comment.body }}</p>
               </div>
             </div>
 

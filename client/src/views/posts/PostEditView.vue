@@ -118,6 +118,14 @@ function previewUrl(img: (typeof images.value)[number]) {
   return img.kind === "existing" ? img.imageUrl : img.preview;
 }
 
+// Do not allow lowercase nor space for tags
+watch(tags, (val) => {
+  const normalized = val.map((t) => t.toLowerCase().replace(/\s+/g, "-"));
+  if (normalized.some((t, i) => t !== val[i])) {
+    tags.value = normalized;
+  }
+});
+
 const canSubmit = computed(
   () =>
     images.value.length > 0 && categoryId.value !== "" && !isUploading.value && !isSubmitting.value,

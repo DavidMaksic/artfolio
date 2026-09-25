@@ -2,6 +2,7 @@ import {
    getCommentsSchema,
    deleteCommentSchema,
    createCommentSchema,
+   updateCommentSchema,
 } from '@artfolio/shared';
 import { getProfileByUserId, getViewerProfileId } from '@/trpc/helpers.js';
 import { like, bookmark, comment, postImage } from '@/db/schema/post.js';
@@ -152,6 +153,27 @@ export const engagementRouter = t.router({
                profileImageUrl: profile.profileImageUrl,
             },
          };
+      }),
+
+   updateComment: protectedProcedure
+      .input(updateCommentSchema)
+      .mutation(async ({ ctx, input }) => {
+         const profile = await getProfileByUserId(ctx.user.id);
+
+         const existing = await db.query.comment.findFirst({
+            where: eq(comment.id, input.commentId),
+         });
+
+         if (!existing) throw new TRPCError({ code: 'NOT_FOUND' });
+         if (existing.profileId !== profile.id)
+            throw new TRPCError({ code: 'FORBIDDEN' });
+
+         await db
+            .update(comment)
+            .set({ body: input.body, updatedAt: new Date() })
+            .where(eq(comment.id, input.commentId));
+
+         return { id: input.commentId, body: input.body };
       }),
 
    deleteComment: protectedProcedure

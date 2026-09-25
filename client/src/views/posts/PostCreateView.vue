@@ -18,10 +18,10 @@ import {
 } from "@/components/ui/select";
 import {
   TagsInput,
-  TagsInputInput,
   TagsInputItem,
-  TagsInputItemDelete,
+  TagsInputInput,
   TagsInputItemText,
+  TagsInputItemDelete,
 } from "@/components/ui/tags-input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
