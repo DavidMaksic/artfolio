@@ -197,7 +197,7 @@ function fetchNextPage() {
       <div class="grid grid-cols-3 mb-1 px-5 flex-wrap gap-2">
         <!-- Trending tags -->
         <div v-if="trendingTags.length" class="flex items-center gap-2 flex-wrap">
-          <span class="text-[0.92rem] font-medium text-foreground shrink-0">Trending:</span>
+          <span class="text-[0.92rem] font-medium text-foreground shrink-0 mr-0.5">Trending:</span>
           <button
             v-for="tag in trendingTags"
             :key="tag.id"

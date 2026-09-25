@@ -227,7 +227,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Known issues carried forward:**
 
 - `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
-- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint.
+- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint
 
 ---
 
@@ -262,7 +262,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Known issues carried forward:**
 
 - `edit button hidden from visitors` Playwright test visits a non-existent profile rather than a real one — acceptable for now, revisit in Sprint 9 with seed DB
-- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint.
+- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint
 - Like/bookmark/comment counts on feed not updated in real time across tabs — delegated to Sprint 8, as it requires websockets
 - Load more comments resets to page 1 after create/delete mutation — acceptable for now
 - Follow button is UI-only, not wired — Sprint 7
@@ -272,21 +272,51 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Sprint 7 — Following + Discovery & Search
 
-**Goal:** Users can follow and unfollow artists. Discovery Explore page and search are functional.
+**Goal:** Users can follow and unfollow artists. Discovery Explore page with search, tag, category and sorting options is functional.
 
 **Completed:**
 
+- Follow/unfollow system — DB schema, server procedures, `useFollow.ts` composable
+- Personalised feed — `getFollowingFeed` (posts from followed profiles) + `getExplorePosts` (recency), client-side interleaving every 2nd post
+- New users with empty following see explore posts with follow buttons instead of empty state
+- Newly created post injected into main feed via Pinia store for current session only, disappears on reload
+- Follow button on `FeedCard.vue` (suggested posts only), `PostSidebar.vue` (hidden for post owner), `ProfileSidebar.vue` (with palette accent styling and optimistic follower count)
+- `ExploreView.vue` page reusing `PostGrid.vue` with load more
+- `ExploreView.vue` page with grid layout, search, trending tag pills, category combobox filter and popular/new sort
+- `FeedSidebar.vue` with profile card and latest discussions panel (opens post modal with focused comment positioned first in the comment list)
+- `relations.ts` refactor — all Drizzle relations moved out of `post.ts` into dedicated file
+- Unit tests for all new procedures: follow, feed, post search, engagement, tag
+- E2E tests for follow, explore/search, and discussions flows
+- E2E `fixtures.ts` refactored to multi-browser context pattern for independent user sessions
+
 **Decisions:**
 
-**Issues resolved:**
+- `ProfileGrid.vue` renamed to `PostGrid.vue`, for better reusability
+- Follow does not invalidate `['feed', 'following']` on action — feed updates on reload only, avoids posts disappearing mid-session
+- Normalised follow state cache (`['follow', profileId]`, `enabled: false`) instead of patching feed cache — single source of truth, shared across multiple components
+- No fuzzy search — ILIKE partial match is sufficient; fuzzy deferred until user feedback
+- Tag rows in DB are never deleted when removed from a post — orphaned tags are acceptable
+
+- **Issues resolved:**
+
+- `formatRelative` utility using `date-fns` replacing hardcoded "1 day"
+- Follow button disappearing after toggle — root cause was feed cache invalidation triggering refetch; fixed by normalised cache pattern
+- `getLatestDiscussions` load more showing button incorrectly when remaining comments belong to viewer — `hasMore` verification query added
+- Explore hover gradient broken (palette CSS vars not set) — `accentOverlay` prop on `ProfileGrid.vue`, static hsl(0 0% 40% / 0.4) fallback for explore
+- Multi-user E2E tests failed on third sign-in due to single shared browser context — fixed by refactoring fixtures to create independent `BrowserContext` per auth fixture
+- `edit button hidden from visitors` Playwright test set up and working
 
 **Known issues carried forward:**
 
-- When validation error happens for username when settin up profile, its only shown when submitting during the second step, which is unintuitive
+- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint
+- Like/bookmark/comment counts on feed not updated in real time across tabs — delegated to Sprint 8, as it requires websockets
+- Load more comments resets to page 1 after create/delete mutation — acceptable for now
+- When validation error happens for username when setting up profile, its only shown when submitting during the second step, which is unintuitive
+- `getExplorePosts` should suggest based on popularity and tag similarity
 
 ---
 
-## Sprint 8 — Notifications
+## Sprint 8 — Chat & Notifications
 
 **Goal:** Users receive real-time notifications for follows, likes, and comments. Unread badge is visible. Notifications can be marked as read.
 

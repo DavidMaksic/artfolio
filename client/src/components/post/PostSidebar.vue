@@ -148,18 +148,6 @@ const comments = computed(() => {
 
 const nextCursor = computed(() => commentsData.value?.pages.at(-1)?.nextCursor ?? null);
 
-watch(
-  [() => props.focusCommentId, focusedComment],
-  ([commentId, focused]) => {
-    if (!commentId || !focused) return;
-    nextTick(() => {
-      const el = document.querySelector(`[data-comment-id="${commentId}"]`);
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-  },
-  { immediate: true },
-);
-
 const createCommentMutation = useMutation({
   mutationFn: () =>
     trpc.engagement.createComment.mutate({ postId: props.postId, body: commentBody.value }),
@@ -424,7 +412,7 @@ const deletePostMutation = useMutation({
                   class="transition-opacity text-muted-foreground hover:text-destructive"
                   :disabled="deleteCommentMutation.isPending.value"
                   aria-label="Delete comment"
-                  @click.stop="deleteCommentMutation.mutate(comment.id)"
+                  @click="deleteCommentMutation.mutate(comment.id)"
                 >
                   <Icon icon="ph:trash" class="text-sm" />
                 </button>
