@@ -32,6 +32,11 @@ vi.mock('@/db/index.js', () => ({
       insert: vi.fn(() => ({
          values: vi.fn(),
       })),
+      update: vi.fn(() => ({
+         set: vi.fn(() => ({
+            where: vi.fn(),
+         })),
+      })),
       delete: vi.fn(() => ({
          where: vi.fn(),
       })),
@@ -52,6 +57,7 @@ const mockCommentFindMany = db.query.comment.findMany as ReturnType<
    typeof vi.fn
 >;
 const mockInsert = db.insert as ReturnType<typeof vi.fn>;
+const mockUpdate = db.update as ReturnType<typeof vi.fn>;
 const mockDelete = db.delete as ReturnType<typeof vi.fn>;
 
 const user = mockUser();
@@ -273,29 +279,95 @@ describe('engagement.createComment', () => {
    });
 });
 
-// ── deleteComment ──────────────────────────────────────
+// ── updateComment ──────────────────────────────────────
 
-describe('engagement.deleteComment', () => {
-   it('should allow the comment author to delete their own comment', async () => {
+describe('engagement.updateComment', () => {
+   it('should update comment body and return updated shape', async () => {
       mockProfileFindFirst.mockResolvedValueOnce(profile);
-      mockCommentFindFirst.mockResolvedValueOnce(
-         mockComment({
-            profileId: profile.id,
-            post: { profileId: 'someone-elses-profile-id' },
-         }),
-      );
-      mockDelete.mockReturnValue({
-         where: vi.fn().mockResolvedValue(undefined),
+      mockCommentFindFirst.mockResolvedValueOnce({
+         id: 'test-comment-id',
+         profileId: profile.id,
+         body: 'Old body',
+      });
+      mockUpdate.mockReturnValue({
+         set: vi.fn(() => ({
+            where: vi.fn().mockResolvedValue(undefined),
+         })),
+      });
+
+      const caller = createAuthenticatedCaller(user);
+      const result = await caller.engagement.updateComment({
+         commentId: 'test-comment-id',
+         body: 'Updated body',
+      });
+
+      expect(result).toMatchObject({
+         id: 'test-comment-id',
+         body: 'Updated body',
+      });
+   });
+
+   it('should throw if user is not the comment author', async () => {
+      mockProfileFindFirst.mockResolvedValueOnce(profile);
+      mockCommentFindFirst.mockResolvedValueOnce({
+         id: 'test-comment-id',
+         profileId: 'different-profile-id',
+         body: 'Someone elses comment',
       });
 
       const caller = createAuthenticatedCaller(user);
       await expect(
-         caller.engagement.deleteComment({
+         caller.engagement.updateComment({
             commentId: 'test-comment-id',
-            postId: 'test-post-id',
+            body: 'Updated',
          }),
-      ).resolves.not.toThrow();
-      expect(mockDelete).toHaveBeenCalled();
+      ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+   });
+
+   it('should throw if body is empty', async () => {
+      const caller = createAuthenticatedCaller(user);
+      await expect(
+         caller.engagement.updateComment({
+            commentId: 'test-comment-id',
+            body: '',
+         }),
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+   });
+
+   it('should throw if body exceeds 1000 characters', async () => {
+      const caller = createAuthenticatedCaller(user);
+      await expect(
+         caller.engagement.updateComment({
+            commentId: 'test-comment-id',
+            body: 'a'.repeat(1001),
+         }),
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+   });
+});
+
+// ── deleteComment ──────────────────────────────────────
+
+describe('engagement.deleteComment', () => {
+   it('should update comment body and return updated shape', async () => {
+      const comment = mockComment({ profileId: profile.id });
+      mockProfileFindFirst.mockResolvedValueOnce(profile);
+      mockCommentFindFirst.mockResolvedValueOnce(comment);
+      mockUpdate.mockReturnValue({
+         set: vi.fn(() => ({
+            where: vi.fn().mockResolvedValue(undefined),
+         })),
+      });
+
+      const caller = createAuthenticatedCaller(user);
+      const result = await caller.engagement.updateComment({
+         commentId: comment.id,
+         body: 'Updated body',
+      });
+
+      expect(result).toMatchObject({
+         id: comment.id,
+         body: 'Updated body',
+      });
    });
 
    it('should allow the post owner to delete a comment left by another user', async () => {
@@ -322,31 +394,27 @@ describe('engagement.deleteComment', () => {
 
    it('should throw NOT_FOUND if comment does not exist', async () => {
       mockProfileFindFirst.mockResolvedValueOnce(profile);
-      mockCommentFindFirst.mockResolvedValueOnce(undefined);
+      mockCommentFindFirst.mockResolvedValueOnce(null);
 
       const caller = createAuthenticatedCaller(user);
       await expect(
-         caller.engagement.deleteComment({
-            commentId: 'test-comment-id',
-            postId: 'test-post-id',
+         caller.engagement.updateComment({
+            commentId: 'nonexistent',
+            body: 'Updated',
          }),
       ).rejects.toMatchObject({ code: 'NOT_FOUND' });
    });
 
-   it('should throw FORBIDDEN if user is neither comment author nor post owner', async () => {
+   it('should throw FORBIDDEN if user is not the comment author', async () => {
+      const comment = mockComment({ profileId: 'different-profile-id' });
       mockProfileFindFirst.mockResolvedValueOnce(profile);
-      mockCommentFindFirst.mockResolvedValueOnce(
-         mockComment({
-            profileId: 'someone-elses-profile-id',
-            post: { profileId: 'another-profile-id' },
-         }),
-      );
+      mockCommentFindFirst.mockResolvedValueOnce(comment);
 
       const caller = createAuthenticatedCaller(user);
       await expect(
-         caller.engagement.deleteComment({
-            commentId: 'test-comment-id',
-            postId: 'test-post-id',
+         caller.engagement.updateComment({
+            commentId: comment.id,
+            body: 'Updated',
          }),
       ).rejects.toMatchObject({ code: 'FORBIDDEN' });
    });
@@ -445,6 +513,12 @@ describe('protected procedures', () => {
             caller.engagement.createComment({
                postId: 'test-post-id',
                body: 'hi',
+            }),
+         ).rejects.toMatchObject({ code: 'UNAUTHORIZED' }),
+         expect(
+            caller.engagement.updateComment({
+               commentId: 'test-comment-id',
+               body: 'Updated',
             }),
          ).rejects.toMatchObject({ code: 'UNAUTHORIZED' }),
          expect(
