@@ -153,7 +153,6 @@ const comments = computed(() => {
 });
 
 const nextCursor = computed(() => commentsData.value?.pages.at(-1)?.nextCursor ?? null);
-const showDeleteDialog = ref(false);
 
 const createCommentMutation = useMutation({
   mutationFn: () =>
@@ -202,8 +201,13 @@ const deletePostMutation = useMutation({
   },
 });
 
+function copyPostLink() {
+  const url = `${window.location.origin}${window.location.pathname}?post=${props.postId}`;
+  navigator.clipboard.writeText(url);
+}
+
 function copyCommentLink(commentId: string) {
-  const url = `${window.location.origin}/?post=${props.postId}&comment=${commentId}`;
+  const url = `${window.location.origin}${window.location.pathname}?post=${props.postId}&comment=${commentId}`;
   navigator.clipboard.writeText(url);
 }
 </script>
@@ -213,28 +217,83 @@ function copyCommentLink(commentId: string) {
     <template v-if="post">
       <!-- Post content -->
       <div
-        class="p-6 flex flex-col gap-5 bg-background rounded-2xl border border-border shadow-2xl"
+        class="relative p-6 flex flex-col gap-5 bg-background rounded-2xl border border-border shadow-2xl"
         @click.stop
       >
         <!-- Author -->
-        <div
-          class="flex items-center gap-3 cursor-default group w-fit"
-          @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
-        >
-          <img
-            v-if="post.profile.profileImageUrl"
-            :src="post.profile.profileImageUrl"
-            class="size-20 rounded-full object-cover ring-1 ring-border group-hover:opacity-80 transition-opacity"
-          />
-          <div v-else class="size-20 rounded-full bg-muted flex items-center justify-center">
-            <Icon icon="ph:user" class="text-muted-foreground text-3xl" />
+        <div class="flex justify-between">
+          <div
+            class="flex items-center gap-3 cursor-default group w-fit"
+            @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
+          >
+            <img
+              v-if="post.profile.profileImageUrl"
+              :src="post.profile.profileImageUrl"
+              class="size-20 rounded-full object-cover ring-1 ring-border group-hover:opacity-80 transition-opacity"
+            />
+            <div v-else class="size-20 rounded-full bg-muted flex items-center justify-center">
+              <Icon icon="ph:user" class="text-muted-foreground text-3xl" />
+            </div>
+            <div>
+              <p class="text-xl font-semibold">
+                {{ post.profile.displayName ?? post.profile.username }}
+              </p>
+              <p class="text-sm text-muted-foreground">@{{ post.profile.username }}</p>
+            </div>
           </div>
-          <div>
-            <p class="text-xl font-semibold">
-              {{ post.profile.displayName ?? post.profile.username }}
-            </p>
-            <p class="text-sm text-muted-foreground">@{{ post.profile.username }}</p>
-          </div>
+
+          <!-- Post options -->
+          <DropdownMenu>
+            <DropdownMenuTrigger class="self-start">
+              <Icon
+                icon="ph:dots-three"
+                class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
+              />
+            </DropdownMenuTrigger>
+            <AlertDialog>
+              <DropdownMenuContent align="end" class="rounded-lg w-36">
+                <DropdownMenuItem class="text-[0.92rem]" @click="copyPostLink">
+                  <Icon icon="ph:link" class="mr-2 text-sm" />
+                  Copy link
+                </DropdownMenuItem>
+                <template v-if="isPostOwner">
+                  <DropdownMenuItem
+                    class="text-[0.92rem]"
+                    @click="router.push({ name: 'post-edit', params: { id: postId } })"
+                  >
+                    <Icon icon="ph:pencil-simple-line" class="mr-2 text-sm text-neutral-600" />
+                    Edit
+                  </DropdownMenuItem>
+                  <AlertDialogTrigger as-child>
+                    <DropdownMenuItem
+                      class="text-destructive hover:text-destructive! hover:bg-red-50! text-[0.92rem]"
+                    >
+                      <Icon icon="ph:x" class="mr-2 text-sm" />
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </template>
+              </DropdownMenuContent>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. The post and all its images will be permanently
+                    removed.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    class="bg-destructive hover:bg-destructive/90"
+                    @click="deletePostMutation.mutate()"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DropdownMenu>
         </div>
 
         <!-- Actions -->
@@ -290,62 +349,11 @@ function copyCommentLink(commentId: string) {
         <p v-if="post.description" class="text-md text-neutral-800 leading-relaxed py-0.5">
           {{ post.description }}
         </p>
-
-        <!-- Owner actions -->
-        <div v-if="isPostOwner" class="flex items-center justify-end shrink-0">
-          <div class="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              aria-label="Edit button"
-              @click="router.push({ name: 'post-edit', params: { id: postId } })"
-            >
-              <Icon icon="ph:pencil-simple" class="mr-1" />
-              Edit
-            </Button>
-
-            <AlertDialog>
-              <AlertDialogTrigger as-child>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  :disabled="deletePostMutation.isPending.value"
-                >
-                  <Icon
-                    v-if="deletePostMutation.isPending.value"
-                    icon="ph:spinner"
-                    class="animate-spin mr-1"
-                  />
-                  <Icon v-else icon="ph:trash" class="mr-1" />
-                  Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete this post?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. The post and all its images will be permanently
-                    removed.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    class="bg-destructive hover:bg-destructive/90"
-                    @click="deletePostMutation.mutate()"
-                  >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </div>
       </div>
 
       <!-- Comments -->
       <div
-        class="flex flex-1 flex-col bg-background rounded-2xl border border-border shadow-2xl overflow-hidden"
+        class="flex flex-1 flex-col bg-background rounded-2xl border border-border shadow-2xl overflow-hidden z-10"
         @click.stop
       >
         <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4 scrollbar">
@@ -425,7 +433,7 @@ function copyCommentLink(commentId: string) {
                       class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
                     />
                   </DropdownMenuTrigger>
-                  <AlertDialog :open="showDeleteDialog" @update:open="showDeleteDialog = $event">
+                  <AlertDialog>
                     <DropdownMenuContent align="end" class="rounded-lg w-36">
                       <DropdownMenuItem class="text-[0.92rem]" @click="copyCommentLink(comment.id)">
                         <Icon icon="ph:link" class="mr-2 text-sm" />
@@ -529,7 +537,7 @@ function copyCommentLink(commentId: string) {
 
       <!-- Category + tags -->
       <div
-        class="flex flex-col gap-1.5 bg-background rounded-2xl border border-border px-6 py-5 space-y-3 shadow-2xl"
+        class="flex flex-col gap-1.5 bg-background rounded-2xl border border-border px-6 py-5 space-y-3 shadow-2xl z-10"
         @click.stop
       >
         <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>

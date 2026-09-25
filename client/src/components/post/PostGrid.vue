@@ -28,7 +28,11 @@ function openPost(id: string) {
 }
 
 function closePost() {
-  router.back();
+  if (window.history.state?.back) {
+    router.back();
+  } else {
+    router.replace({ query: { ...route.query, post: undefined, comment: undefined } });
+  }
 }
 
 const containerRef = ref<HTMLElement | null>(null);

@@ -168,7 +168,11 @@ function openPostFromDiscussion(postId: string, commentId: string) {
 }
 
 function closePost() {
-  router.back();
+  if (window.history.state?.back) {
+    router.back();
+  } else {
+    router.replace({ query: { ...route.query, post: undefined, comment: undefined } });
+  }
 }
 </script>
 
