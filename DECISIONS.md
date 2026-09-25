@@ -316,9 +316,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ---
 
-## Sprint 8 — Chat & Notifications
+## Sprint 8 — Polish, Testing & Launch Prep
 
-**Goal:** Users receive real-time notifications for follows, likes, and comments. Unread badge is visible. Notifications can be marked as read.
+**Goal:** App is stable, performant, accessible, and ready for production deployment.
 
 **Completed:**
 
@@ -330,9 +330,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ---
 
-## Sprint 9 — Polish, Testing & Launch Prep
+## Sprint 9 — Chat & Notifications
 
-**Goal:** The app is stable, performant, accessible, and ready for production launch.
+**Goal:** Users can chat and receive real-time notifications for follows, likes, comments and messages.
 
 **Completed:**
 

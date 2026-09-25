@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/vue-query";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
@@ -19,11 +19,20 @@ const feedStore = useFeedStore();
 
 const SUGGEST_EVERY = 2; // inject a suggested post every N following posts
 
+const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
-const activePostId = ref<string | null>(null);
-const focusComment = ref(false);
 const commentBodies = ref<Record<string, string>>({});
+
+onMounted(() => {
+  const postId = route.query.post as string | undefined;
+  const commentId = route.query.comment as string | undefined;
+  if (postId && commentId) {
+    openPostFromDiscussion(postId, commentId);
+  } else if (postId) {
+    openPost(postId);
+  }
+});
 
 const { data: me } = useQuery({
   queryKey: ["me"],
@@ -146,18 +155,20 @@ const isPending = computed(() =>
   auth.isAuthenticated ? isFollowingPending.value : isExplorePending.value,
 );
 
+const activePostId = computed(() => (route.query.post as string | null) ?? null);
+const focusComment = computed(() => route.query.focus === "true");
+const focusCommentId = computed(() => (route.query.comment as string | null) ?? null);
+
 function openPost(id: string, focus = false) {
-  activePostId.value = id;
-  focusComment.value = focus;
-  focusCommentId.value = null;
+  router.push({ query: { post: id, ...(focus ? { focus: "true" } : {}) } });
 }
 
-const focusCommentId = ref<string | null>(null);
-
 function openPostFromDiscussion(postId: string, commentId: string) {
-  activePostId.value = postId;
-  focusComment.value = false;
-  focusCommentId.value = commentId;
+  router.push({ query: { post: postId, comment: commentId } });
+}
+
+function closePost() {
+  router.back();
 }
 </script>
 
@@ -237,8 +248,8 @@ function openPostFromDiscussion(postId: string, commentId: string) {
       :focus-comment="focusComment"
       :focus-comment-id="focusCommentId ?? undefined"
       :comment-body="commentBodies[activePostId] ?? ''"
-      @close="activePostId = null"
-      @navigate="activePostId = $event"
+      @close="closePost"
+      @navigate="router.replace({ query: { post: $event } })"
       @update:comment-body="commentBodies[activePostId!] = $event"
     />
   </div>

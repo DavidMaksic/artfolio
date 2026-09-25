@@ -3,6 +3,7 @@ import type { FeedItem, Post } from "@artfolio/shared";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 
 import { ref, computed, watch, onUnmounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 
 type Row = { post: Post; width: number }[];
@@ -16,8 +17,19 @@ const props = defineProps<{
   rowHeight?: number;
 }>();
 
-const activePostId = ref<string | null>(null);
+const route = useRoute();
+const router = useRouter();
+
+const activePostId = computed(() => (route.query.post as string | null) ?? null);
 const postIds = computed(() => props.posts?.map((p) => p.id) ?? []);
+
+function openPost(id: string) {
+  router.push({ query: { ...route.query, post: id } });
+}
+
+function closePost() {
+  router.back();
+}
 
 const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
@@ -102,7 +114,7 @@ const rows = computed<Row[]>(() => {
             :data-post-id="post.id"
             class="relative overflow-hidden rounded-xl border border-neutral-200 group select-none shrink-0"
             :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
-            @click="activePostId = post.id"
+            @click="openPost(post.id)"
           >
             <img
               :src="post.coverImage?.imageUrl"
@@ -151,10 +163,9 @@ const rows = computed<Row[]>(() => {
       v-if="activePostId"
       :post-id="activePostId"
       :post-ids="postIds"
-      @close="activePostId = null"
-      @navigate="activePostId = $event"
+      @close="closePost"
+      @navigate="router.replace({ query: { ...route.query, post: $event } })"
     />
-
     <div
       v-if="(props.showEmptyState ?? true) && posts?.length === 0"
       class="flex flex-col items-center justify-center -translate-y-20 h-full text-center gap-3"

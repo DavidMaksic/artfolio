@@ -7,10 +7,17 @@ import { useRoute, useRouter } from "vue-router";
 import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
 import { useAuthStore } from "@/stores/auth.store";
+import { useFeedStore } from "@/stores/feed.store";
 import { nextTick } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogTitle,
@@ -26,7 +33,6 @@ import { useFollow } from "@/composables/useFollow";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useFeedStore } from "@/stores/feed.store";
 
 const props = defineProps<{
   post: PostDetail | undefined;
@@ -147,6 +153,7 @@ const comments = computed(() => {
 });
 
 const nextCursor = computed(() => commentsData.value?.pages.at(-1)?.nextCursor ?? null);
+const showDeleteDialog = ref(false);
 
 const createCommentMutation = useMutation({
   mutationFn: () =>
@@ -181,6 +188,7 @@ function submitComment() {
 }
 
 // ── Delete post ───────────────────────────────────────────
+
 const feedStore = useFeedStore();
 
 const deletePostMutation = useMutation({
@@ -193,6 +201,11 @@ const deletePostMutation = useMutation({
     emit("close");
   },
 });
+
+function copyCommentLink(commentId: string) {
+  const url = `${window.location.origin}/?post=${props.postId}&comment=${commentId}`;
+  navigator.clipboard.writeText(url);
+}
 </script>
 
 <template>
@@ -206,10 +219,7 @@ const deletePostMutation = useMutation({
         <!-- Author -->
         <div
           class="flex items-center gap-3 cursor-default group w-fit"
-          @click="
-            router.push({ name: 'profile', params: { username: post.profile.username } });
-            emit('close');
-          "
+          @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
         >
           <img
             v-if="post.profile.profileImageUrl"
@@ -407,15 +417,51 @@ const deletePostMutation = useMutation({
                   </p>
                 </div>
 
-                <button
-                  v-if="canDeleteComment(comment.profile.username)"
-                  class="transition-opacity text-muted-foreground hover:text-destructive"
-                  :disabled="deleteCommentMutation.isPending.value"
-                  aria-label="Delete comment"
-                  @click="deleteCommentMutation.mutate(comment.id)"
-                >
-                  <Icon icon="ph:trash" class="text-sm" />
-                </button>
+                <!-- Comment options -->
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Icon
+                      icon="ph:dots-three"
+                      class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
+                    />
+                  </DropdownMenuTrigger>
+                  <AlertDialog :open="showDeleteDialog" @update:open="showDeleteDialog = $event">
+                    <DropdownMenuContent align="end" class="rounded-lg w-36">
+                      <DropdownMenuItem class="text-[0.92rem]" @click="copyCommentLink(comment.id)">
+                        <Icon icon="ph:link" class="mr-2 text-sm" />
+                        Copy link
+                      </DropdownMenuItem>
+                      <AlertDialogTrigger
+                        as-child
+                        v-if="canDeleteComment(comment.profile.username)"
+                      >
+                        <DropdownMenuItem
+                          class="text-destructive hover:text-destructive! hover:bg-red-50! text-[0.92rem]"
+                        >
+                          <Icon icon="ph:x" class="mr-2 text-sm" />
+                          Delete
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                    </DropdownMenuContent>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this comment?</AlertDialogTitle>
+                        <AlertDialogDescription
+                          >This action cannot be undone.</AlertDialogDescription
+                        >
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          class="bg-destructive hover:bg-destructive/90"
+                          @click="deleteCommentMutation.mutate(comment.id)"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </DropdownMenu>
               </div>
 
               <div class="flex flex-col flex-1 min-w-0">
