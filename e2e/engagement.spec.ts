@@ -140,7 +140,7 @@ test.describe('comments', () => {
       });
    });
 
-   test('comment author can delete their own comment', async ({ auth }) => {
+   test('comment author can edit their own comment', async ({ auth }) => {
       await auth.signInViaMagicLink();
       await completeProfileSetup(auth);
       await createPost(auth);
@@ -149,19 +149,32 @@ test.describe('comments', () => {
       const modal = auth.page.locator('[data-testid="post-modal"]');
       await expect(modal).toBeVisible();
 
+      // Submit a comment
       await modal
          .locator('textarea[placeholder="Add a comment…"]')
-         .fill('Delete me');
+         .fill('Original comment');
       await modal.getByRole('button', { name: 'Post', exact: true }).click();
-      await expect(modal.getByText('Delete me')).toBeVisible({
+      await expect(modal.getByText('Original comment')).toBeVisible({
          timeout: 10_000,
       });
 
-      await modal.getByText('Delete me').hover();
-      await modal.getByLabel('Delete comment').click();
-      await expect(modal.getByText('Delete me')).not.toBeVisible({
+      // Open dropdown and click Edit
+      const comment = modal.locator('[data-comment-id]').first();
+      await comment.hover();
+      await comment.locator('[data-slot="dropdown-menu-trigger"]').click();
+      await auth.page
+         .locator('[role="menuitem"]')
+         .filter({ hasText: 'Edit' })
+         .click();
+
+      // Edit the comment
+      await modal.getByTestId('comment-edit-input').fill('Edited comment');
+      await modal.getByTestId('save-comment-button').click();
+
+      await expect(modal.getByText('Edited comment')).toBeVisible({
          timeout: 10_000,
       });
+      await expect(modal.getByText('Original comment')).not.toBeVisible();
    });
 
    test('post owner can delete a comment left by another user', async ({
@@ -198,8 +211,19 @@ test.describe('comments', () => {
       await expect(modal1.getByText('User 2 comment')).toBeVisible({
          timeout: 10_000,
       });
-      await modal1.getByText('User 2 comment').hover();
-      await modal1.getByLabel('Delete comment').click();
+
+      const comment = modal1.locator('[data-comment-id]').first();
+      await comment.hover();
+      await comment.locator('[data-slot="dropdown-menu-trigger"]').click();
+
+      // Dropdown menu option opens confirm dialog
+      await auth.page
+         .locator('[role="menuitem"]')
+         .filter({ hasText: 'Delete' })
+         .click();
+      await expect(auth.page.getByRole('alertdialog')).toBeVisible();
+      await auth.page.getByRole('button', { name: 'Delete' }).click();
+
       await expect(modal1.getByText('User 2 comment')).not.toBeVisible({
          timeout: 10_000,
       });

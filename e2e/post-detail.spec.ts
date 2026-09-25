@@ -72,18 +72,20 @@ test.describe('post edit', () => {
       await auth.page.locator('[data-post-id]').first().click();
       await expect(modal).toBeVisible();
 
-      await auth.page.getByLabel('Edit button').click();
+      await auth.page.locator('[data-slot="dropdown-menu-trigger"]').click();
+      await auth.page
+         .locator('[role="menuitem"]')
+         .filter({ hasText: 'Edit' })
+         .click();
       await expect(auth.page).toHaveURL(/\/posts\/.+\/edit/);
 
       await auth.page.getByLabel('Description').clear();
       await auth.page.getByLabel('Description').fill('Updated description');
+
+      // User is redirected back to the post on save
       await auth.page.getByRole('button', { name: 'Save changes' }).click();
 
-      // Reopen modal and assert updated description
-      await expect(auth.page).toHaveURL(`/${auth.username}`, {
-         timeout: 10_000,
-      });
-      await auth.page.locator('[data-post-id]').first().click();
+      // Assert updated description
       await expect(modal.getByText('Updated description')).toBeVisible({
          timeout: 10_000,
       });
@@ -123,7 +125,12 @@ test.describe('post delete', () => {
 
       await auth.page.locator('[data-post-id]').first().click();
       await expect(modal).toBeVisible();
-      await auth.page.getByRole('button', { name: 'Delete' }).click();
+
+      await auth.page.locator('[data-slot="dropdown-menu-trigger"]').click();
+      await auth.page
+         .locator('[role="menuitem"]')
+         .filter({ hasText: 'Delete' })
+         .click();
 
       // Confirm dialog
       await expect(auth.page.getByRole('alertdialog')).toBeVisible();

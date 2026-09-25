@@ -508,6 +508,7 @@ function copyCommentLink(commentId: string) {
                     ref="editTextarea"
                     v-model="editingBody"
                     maxlength="1000"
+                    data-testid="comment-edit-input"
                     class="flex-1 min-h-33 resize-none text-sm bg-muted rounded-md px-3 py-2 outline-none w-full scrollbar"
                     @keydown.enter.exact.prevent="
                       updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
@@ -522,6 +523,7 @@ function copyCommentLink(commentId: string) {
                     <Button
                       size="sm"
                       class="text-xs"
+                      data-testid="save-comment-button"
                       :disabled="!editingBody.trim() || updateCommentMutation.isPending.value"
                       @click="
                         updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
