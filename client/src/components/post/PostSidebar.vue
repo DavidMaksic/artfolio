@@ -231,6 +231,14 @@ function copyCommentLink(commentId: string) {
   const url = `${window.location.origin}${window.location.pathname}?post=${props.postId}&comment=${commentId}`;
   navigator.clipboard.writeText(url);
 }
+
+function filterByTag(q: string) {
+  router.push({ name: "explore", query: { q } });
+}
+
+function filterByCategory(slug: string) {
+  router.push({ name: "explore", query: { category: slug } });
+}
 </script>
 
 <template>
@@ -607,12 +615,7 @@ function copyCommentLink(commentId: string) {
           <Badge
             class="py-1.5 px-3.5 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
             variant="secondary"
-            @click="
-              () => {
-                if (route.name === 'explore') emit('close');
-                router.push({ name: 'explore', query: { q: post?.category.name } });
-              }
-            "
+            @click="filterByCategory(post.category.slug)"
           >
             {{ post.category.name }}
           </Badge>
@@ -621,12 +624,7 @@ function copyCommentLink(commentId: string) {
             :key="tag.id"
             class="py-1.5 px-3.5 text-xs cursor-default hover:border-neutral-400/80 transition-[border-color]"
             variant="outline"
-            @click="
-              () => {
-                if (route.name === 'explore') emit('close');
-                router.push({ name: 'explore', query: { q: tag.name } });
-              }
-            "
+            @click="filterByTag(tag.name)"
           >
             {{ tag.name }}
           </Badge>

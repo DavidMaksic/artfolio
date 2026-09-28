@@ -214,12 +214,7 @@ function copyPostLink() {
         <Badge
           variant="secondary"
           class="py-1 px-3 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
-          @click="
-            router.push({
-              name: 'explore',
-              query: { q: post.category.name },
-            })
-          "
+          @click="router.push({ name: 'explore', query: { category: post.category.slug } })"
         >
           {{ post.category.name }}
         </Badge>
