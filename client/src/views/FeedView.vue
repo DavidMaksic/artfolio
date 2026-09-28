@@ -189,10 +189,10 @@ function closePost() {
       </p>
     </div>
 
-    <main class="mx-auto max-w-5xl px-5 pt-4 pb-14">
+    <main class="mx-auto max-w-5xl px-5 lg:px-10 md:px-20 sm:px-0 pt-4 pb-14">
       <div class="flex gap-8 items-start">
         <!-- Feed column -->
-        <div class="flex-1 min-w-0 max-w-xl mx-auto lg:mx-0">
+        <div class="flex-1 min-w-0 max-w-xl lg:min-w-full mx-auto lg:mx-0">
           <!-- Loading -->
           <template v-if="isPending">
             <div class="grid grid-cols-1 gap-8">
@@ -239,7 +239,7 @@ function closePost() {
         </div>
 
         <!-- Sidebar column -->
-        <div class="hidden lg:block w-80 sticky mt-14 top-7 shrink-0">
+        <div class="md:hidden w-80 lg:w-full sticky mt-14 top-7 shrink-0">
           <FeedSidebar @open-post="openPostFromDiscussion" />
         </div>
       </div>

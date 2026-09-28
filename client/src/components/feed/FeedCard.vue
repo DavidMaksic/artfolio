@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { computed, watch } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
@@ -54,13 +60,17 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     userIsFollowing: props.post.profile.userIsFollowing,
   })),
 );
+
+function copyPostLink() {
+  navigator.clipboard.writeText(`${window.location.origin}/?post=${props.post.id}`);
+}
 </script>
 
 <template>
   <div class="flex flex-col" :data-post-id="post.id">
     <div class="space-y-2.5 py-2.5">
       <!-- Author -->
-      <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center justify-between gap-2 sm:px-2">
         <div class="flex items-center gap-1.5">
           <div
             class="flex items-center gap-1.5 cursor-default group"
@@ -87,33 +97,50 @@ const { following, toggleFollow, isFollowPending } = useFollow(
           </p>
         </div>
 
-        <!-- Only show follow button on suggested posts -->
-        <Button
-          v-if="suggested"
-          class="h-8 px-5 rounded-lg transition-colors"
-          :class="
-            following
-              ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
-              : 'bg-black/80 hover:bg-black/60 text-white'
-          "
-          :disabled="isFollowPending"
-          data-testid="follow-button"
-          :data-following="following"
-          @click="toggleFollow"
-        >
-          {{ following ? "Following" : "Follow" }}
-        </Button>
+        <div class="flex items-center gap-2">
+          <!-- Only show follow button on suggested posts -->
+          <Button
+            v-if="suggested"
+            class="h-7 px-4 rounded-lg transition-colors"
+            :class="
+              following
+                ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
+                : 'bg-black/80 hover:bg-black/60 text-white'
+            "
+            :disabled="isFollowPending"
+            data-testid="follow-button"
+            :data-following="following"
+            @click="toggleFollow"
+          >
+            {{ following ? "Following" : "Follow" }}
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Icon
+                icon="ph:dots-three"
+                class="text-3xl text-neutral-700 hover:bg-white transition-colors p-1 rounded-md"
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" class="rounded-lg w-36">
+              <DropdownMenuItem class="text-[0.92rem] cursor-pointer" @click="copyPostLink">
+                <Icon icon="ph:link" class="mr-2 text-sm" />
+                Copy link
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
 
     <div
-      class="border border-neutral-200 rounded-2xl overflow-hidden transition-shadow duration-300 bg-white"
+      class="border border-neutral-200 sm:border-none rounded-2xl sm:rounded-none sm:shadow-card overflow-hidden transition-shadow duration-300 bg-white"
     >
       <div class="relative group" @click="$emit('open', post.id)">
         <img
           :src="post.coverImage.imageUrl"
           :alt="post.category.name"
-          class="w-full max-h-180 object-cover transition-transform duration-500 rounded-2xl shadow-xs"
+          class="w-full max-h-180 xs:max-h-140 2xs:max-h-120 object-cover transition-transform duration-500 rounded-2xl sm:rounded-none shadow-xs"
         />
         <div
           v-if="post.imageCount > 1"
@@ -133,13 +160,13 @@ const { following, toggleFollow, isFollowPending } = useFollow(
         />
       </div>
 
-      <div class="flex items-center justify-start gap-1.5 p-1.5 text-neutral-700">
+      <div class="flex items-center justify-start gap-1.5 p-1.5 text-neutral-700 sm:px-3.5">
         <div class="flex-1 flex items-center">
           <Button
             variant="ghost"
             data-testid="like-button"
             :data-liked="liked"
-            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-red-400"
+            class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-red-400 sm:pl-0!"
             :disabled="isLikePending"
             @click="toggleLike"
           >

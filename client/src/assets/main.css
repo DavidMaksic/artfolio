@@ -3,6 +3,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --breakpoint-*: initial;
+}
+
+@custom-variant 2xl (@media (max-width: 1580px));
+@custom-variant xl (@media (max-width: 1290px));
+@custom-variant lg (@media (max-width: 1024px));
+
+@custom-variant md (@media (max-width: 768px));
+@custom-variant sm (@media (max-width: 640px));
+@custom-variant xs (@media (max-width: 450px));
+@custom-variant 2xs (@media (max-width: 390px));
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -42,6 +55,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-card: 0 0 2.5rem 0px #e5e7eba4;
+  --shadow-dashboard: 0 0 2.5rem 0px #e5e7eb;
+  --shadow-preview: 0 0.5rem 2.5rem 0px #e5e7eb;
 }
 
 :root {

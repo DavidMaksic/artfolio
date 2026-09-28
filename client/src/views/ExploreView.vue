@@ -18,12 +18,16 @@ import {
   ComboboxItemIndicator,
 } from "@/components/ui/combobox";
 import type { AcceptableValue } from "reka-ui";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { computed, ref, watch, onUnmounted } from "vue";
 import { useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import { useRouter, useRoute } from "vue-router";
+import { useMediaQuery } from "@vueuse/core";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
+
+import FilterPanelContent from "@/components/FilterPanelContent.vue";
 import PostGrid from "@/components/post/PostGrid.vue";
 
 const router = useRouter();
@@ -188,15 +192,37 @@ function fetchNextPage() {
     exploreResult.fetchNextPage();
   }
 }
+
+// ── Styles change on lg: breakpoint and bellow ───────────────────────────────────
+
+const filtersOpen = ref(false);
+const isDesktop = useMediaQuery("(min-width: 768px)");
+const isPhone = useMediaQuery("(min-width: 640px)");
+
+const activeFilterCount = computed(() => {
+  let count = 0;
+  if (selectedCategory.value) count++;
+  if (sort.value !== "popular") count++;
+  return count;
+});
+
+function clearAllFilters() {
+  rawQuery.value = "";
+  const query = { ...route.query };
+  delete query.category;
+  delete query.sort;
+  delete query.q;
+  router.replace({ query });
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-neutral-100">
-    <main class="w-full mx-auto px-5 py-8 flex flex-col">
-      <!-- Tag filter -->
-      <div class="grid grid-cols-3 mb-1 px-5 flex-wrap gap-2">
-        <!-- Trending tags -->
-        <div v-if="trendingTags.length" class="flex items-center gap-2 flex-wrap">
+    <main class="w-full mx-auto px-5 sm:px-0 py-8 flex flex-col">
+      <!-- Filter bar -->
+      <div class="grid grid-cols-3 xl:grid-cols-2 md:grid-cols-[1fr_auto] md:gap-4 mb-1 px-5">
+        <!-- Trending tags — hidden on xl and below -->
+        <div v-if="trendingTags.length" class="flex items-center gap-2 flex-wrap flex-1 xl:hidden">
           <span class="text-[0.92rem] font-medium text-foreground shrink-0 mr-0.5">Trending:</span>
           <button
             v-for="tag in trendingTags"
@@ -212,7 +238,7 @@ function fetchNextPage() {
         </div>
 
         <!-- Search bar -->
-        <div class="relative min-w-lg justify-self-center">
+        <div class="relative w-xl 2xl:w-md xl:w-full justify-self-center xl:justify-self-start">
           <Icon
             icon="ph:magnifying-glass"
             class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none"
@@ -220,7 +246,7 @@ function fetchNextPage() {
           <input
             v-model="rawQuery"
             type="text"
-            placeholder="Search by tag, category or description…"
+            :placeholder="!isPhone ? 'Search…' : 'Search by tag, category or description…'"
             class="w-full h-12 rounded-2xl border border-neutral-200 bg-white px-11 text-[0.92rem] shadow-xs placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
@@ -233,8 +259,8 @@ function fetchNextPage() {
           </button>
         </div>
 
-        <div class="flex items-center gap-4 justify-self-end">
-          <!-- Category combobox -->
+        <!-- Category + sort — hidden on lg and below -->
+        <div class="flex items-center gap-4 xl:hidden justify-self-end">
           <Combobox
             :model-value="selectedCategory"
             by="value"
@@ -259,13 +285,11 @@ function fetchNextPage() {
               <ComboboxGroup>
                 <ComboboxItem
                   :value="null"
-                  @select="selectCategory(null)"
                   class="px-2.5 text-[0.92rem]"
+                  @select="selectCategory(null)"
                 >
                   All categories
-                  <ComboboxItemIndicator>
-                    <Icon icon="ph:check" />
-                  </ComboboxItemIndicator>
+                  <ComboboxItemIndicator><Icon icon="ph:check" /></ComboboxItemIndicator>
                 </ComboboxItem>
                 <ComboboxItem
                   v-for="cat in categories"
@@ -274,15 +298,12 @@ function fetchNextPage() {
                   class="px-2.5 text-[0.92rem] rounded-md"
                 >
                   {{ cat.label }}
-                  <ComboboxItemIndicator>
-                    <Icon icon="ph:check" />
-                  </ComboboxItemIndicator>
+                  <ComboboxItemIndicator><Icon icon="ph:check" /></ComboboxItemIndicator>
                 </ComboboxItem>
               </ComboboxGroup>
             </ComboboxList>
           </Combobox>
 
-          <!-- Sort toggle -->
           <Select :model-value="sort" @update:model-value="setSort">
             <SelectTrigger class="w-32 pl-4! bg-white h-10! rounded-lg text-[0.92rem]">
               <SelectValue />
@@ -293,7 +314,70 @@ function fetchNextPage() {
             </SelectContent>
           </Select>
         </div>
+
+        <!-- Filters button — visible on lg and below -->
+        <Button
+          variant="outline"
+          class="relative hidden xl:flex h-12 px-4! xl:justify-self-end rounded-2xl bg-white"
+          @click="filtersOpen = true"
+        >
+          <Icon icon="ph:sliders" class="text-lg" />
+          Filters
+          <span
+            v-if="activeFilterCount > 0"
+            class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-foreground text-background text-xs flex items-center justify-center font-medium"
+          >
+            {{ activeFilterCount }}
+          </span>
+        </Button>
       </div>
+
+      <Sheet v-model:open="filtersOpen">
+        <SheetContent
+          :side="isDesktop ? 'right' : 'bottom'"
+          class="flex flex-col gap-2"
+          :class="
+            isDesktop
+              ? 'w-80 rounded-l-2xl bg-neutral-100'
+              : 'px-5 sm:px-8 sm:pt-4 pb-8 rounded-t-2xl'
+          "
+        >
+          <div
+            v-if="!isDesktop"
+            class="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-2 rounded-full bg-neutral-300/80"
+          />
+          <SheetHeader
+            class="flex-row sm:justify-center sm:text-lg items-center justify-between px-6 sm:px-0"
+          >
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
+
+          <FilterPanelContent
+            :categories
+            :selected-category
+            :sort
+            :trending-tags
+            :debounced-query
+            @select-category="selectCategory"
+            @set-sort="setSort"
+            @select-tag="selectTag"
+          />
+
+          <div
+            class="mt-auto flex gap-3 px-5 py-5 sm:pb-0 sm:pt-6 sm:px-0 border-t border-neutral-200/80"
+          >
+            <Button
+              variant="outline"
+              class="flex-1 h-11 rounded-xl"
+              :disabled="activeFilterCount === 0"
+              @click="clearAllFilters"
+            >
+              Clear all
+            </Button>
+            <Button class="flex-1 h-11 rounded-xl" @click="filtersOpen = false"> Done </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <!-- Grid (explore or search results — same component, different data) -->
       <PostGrid
@@ -301,7 +385,7 @@ function fetchNextPage() {
         :is-owner="false"
         :is-loading-posts="isPending"
         :show-empty-state="false"
-        :rowHeight="420"
+        :rowHeight="!isPhone ? 300 : 420"
       />
 
       <!-- Empty state: no search results -->

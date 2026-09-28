@@ -451,7 +451,7 @@ function copyCommentLink(commentId: string) {
                   <DropdownMenuTrigger>
                     <Icon
                       icon="ph:dots-three"
-                      class="text-4xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1.5 rounded-md"
+                      class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
                     />
                   </DropdownMenuTrigger>
                   <AlertDialog>

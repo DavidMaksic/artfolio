@@ -57,8 +57,9 @@ onUnmounted(() => ro?.disconnect());
 
 const rows = computed<Row[]>(() => {
   if (!containerWidth.value || !props.posts?.length) return [];
+  const isPhone = computed(() => containerWidth.value <= 640);
 
-  const gap = 4;
+  const gap = isPhone.value ? 0 : 4;
   const rows: Row[] = [];
   let currentRow: { post: Post; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
@@ -102,7 +103,7 @@ const rows = computed<Row[]>(() => {
 </script>
 
 <template>
-  <section class="flex-1 min-w-0 p-5 pl-5">
+  <section class="flex-1 min-w-0 p-5 sm:px-0">
     <div ref="containerRef" class="w-full">
       <template v-if="isLoadingPosts">
         <div class="grid grid-cols-3 gap-1">
@@ -111,12 +112,16 @@ const rows = computed<Row[]>(() => {
       </template>
 
       <template v-else>
-        <div v-for="(row, rowIndex) in rows" :key="rowIndex" class="flex gap-1 mb-1">
+        <div
+          v-for="(row, rowIndex) in rows"
+          :key="rowIndex"
+          class="flex gap-1 sm:gap-px mb-1 sm:mb-px"
+        >
           <div
             v-for="{ post, width } in row"
             :key="post.id"
             :data-post-id="post.id"
-            class="relative overflow-hidden rounded-xl border border-neutral-200 group select-none shrink-0"
+            class="relative overflow-hidden rounded-xl sm:rounded-none border border-neutral-200 sm:border-none group select-none shrink-0"
             :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
             @click="openPost(post.id)"
           >
