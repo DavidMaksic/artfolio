@@ -118,7 +118,7 @@ function onSubmit(e: SubmitEvent) {
 
 <template>
   <div
-    class="min-h-screen flex flex-col justify-center bg-neutral-100 gap-4 pt-4 pb-20 px-4 max-w-lg mx-auto"
+    class="min-h-screen flex flex-col justify-center bg-neutral-100 gap-6 pt-4 pb-20 px-4 max-w-lg mx-auto"
   >
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">
@@ -266,46 +266,50 @@ function onSubmit(e: SubmitEvent) {
                 <!-- existing cancel + save buttons -->
               </div>
             </div>
-
-            <div class="pt-4 border-t border-border">
-              <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                Danger zone
-              </p>
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium">Delete account</p>
-                  <p class="text-xs text-muted-foreground">
-                    Permanently removes your profile and all posts.
-                  </p>
-                </div>
-                <AlertDialog>
-                  <AlertDialogTrigger as-child>
-                    <Button variant="destructive" size="sm" class="px-6" type="button">
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete your account?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently remove your profile, all your posts, and their images.
-                        This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        class="bg-destructive hover:bg-destructive/90"
-                        @click="auth.deleteAccount()"
-                      >
-                        Yes, delete everything
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <div>
+            <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              Danger zone
+            </p>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium">Delete account</p>
+                <p class="text-xs text-muted-foreground">
+                  Permanently removes your profile and all posts.
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger as-child>
+                  <Button variant="destructive" size="sm" class="px-6" type="button">
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently remove your profile, all your posts, and their images.
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      class="bg-destructive hover:bg-destructive/90"
+                      @click="auth.deleteAccount()"
+                    >
+                      Yes, delete everything
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </template>

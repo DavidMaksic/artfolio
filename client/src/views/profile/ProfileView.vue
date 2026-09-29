@@ -66,7 +66,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 
     <!-- Profile -->
     <template v-else-if="profile">
-      <div class="relative flex min-h-screen transition duration-700">
+      <div class="relative flex md:flex-col min-h-screen transition duration-700">
         <div
           class="fixed top-0 left-0 inset-0 z-0 pointer-events-none"
           :style="`background: radial-gradient(ellipse 200% 200% at -80% 60%, hsl(${paBase} / 0.6) 0%, transparent 65%)`"

@@ -189,7 +189,7 @@ function closePost() {
       </p>
     </div>
 
-    <main class="mx-auto max-w-5xl px-5 lg:px-10 md:px-20 sm:px-0 pt-4 pb-14">
+    <main class="mx-auto max-w-5xl px-5 lg:px-10 md:px-28 sm:px-0 pt-4 pb-14">
       <div class="flex gap-8 items-start">
         <!-- Feed column -->
         <div class="flex-1 min-w-0 max-w-xl lg:min-w-full mx-auto lg:mx-0">
