@@ -118,7 +118,7 @@ function onSubmit(e: SubmitEvent) {
 
 <template>
   <div
-    class="min-h-screen flex flex-col justify-center bg-neutral-100 gap-6 pt-4 pb-20 px-4 max-w-lg mx-auto"
+    class="min-h-screen flex flex-col justify-center bg-neutral-100 gap-6 pt-4 sm:pt-0 pb-20 px-4 max-w-lg mx-auto"
   >
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">

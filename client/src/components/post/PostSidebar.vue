@@ -3,14 +3,15 @@ import type { PostDetail } from "@artfolio/shared";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/vue-query";
 import { computed, ref, useTemplateRef, watch } from "vue";
 import { useTextareaAutosize } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router";
 import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
+import { useRouter } from "vue-router";
 import { nextTick } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
+import { cn } from "@/lib/utils";
 
 import {
   DropdownMenu,
@@ -45,7 +46,6 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const queryClient = useQueryClient();
@@ -242,17 +242,20 @@ function filterByCategory(slug: string) {
 </script>
 
 <template>
-  <aside class="flex-1 py-6 pr-6 flex flex-col justify-between gap-3" @click="emit('close')">
+  <aside
+    class="flex-1 md:flex-1 md:min-h-0 py-6 pr-6 md:p-0 flex flex-col justify-between gap-3 md:gap-0"
+    @click="emit('close')"
+  >
     <template v-if="post">
       <!-- Post content -->
       <div
-        class="p-6 flex flex-col gap-5 bg-background rounded-2xl border border-border shadow-2xl"
+        class="p-6 flex flex-col gap-5 bg-white/98 rounded-2xl md:rounded-none sm:rounded-b-2xl border border-border shadow-2xl sm:shadow-none md:shrink-0"
         @click.stop
       >
         <!-- Author -->
         <div class="flex justify-between">
           <div
-            class="flex items-center gap-3 cursor-default group w-fit"
+            class="flex items-center gap-4 cursor-default group w-fit"
             @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
           >
             <img
@@ -382,7 +385,14 @@ function filterByCategory(slug: string) {
 
       <!-- Comments -->
       <div
-        class="flex flex-1 flex-col bg-background rounded-2xl border border-border shadow-2xl overflow-hidden z-10"
+        class="flex flex-1 md:min-h-46 sm:m-4 sm:rounded-2xl flex-col bg-background rounded-2xl md:rounded-none border border-border shadow-2xl sm:shadow-none overflow-hidden z-10"
+        :class="
+          cn(
+            comments.length === 1 && 'md:min-h-58',
+            comments.length === 2 && 'md:min-h-80',
+            comments.length > 2 && 'md:min-h-105',
+          )
+        "
         @click.stop
       >
         <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4 scrollbar">
@@ -412,7 +422,7 @@ function filterByCategory(slug: string) {
           <!-- Comment list -->
           <div
             v-else
-            class="flex flex-col divide-y divide-neutral-200/60 last:border-b last:border-b-neutral-200/60"
+            class="flex flex-col divide-y divide-neutral-200/60 last:border-b last:border-b-neutral-200/60 md:last:border-b-0"
           >
             <div
               v-for="comment in comments"
@@ -607,7 +617,7 @@ function filterByCategory(slug: string) {
 
       <!-- Category + tags -->
       <div
-        class="flex flex-col gap-1.5 bg-background rounded-2xl border border-border px-6 py-5 space-y-3 shadow-2xl z-10"
+        class="flex flex-col gap-1.5 bg-background rounded-2xl md:rounded-none sm:rounded-t-2xl border border-border px-6 py-5 space-y-3 shadow-2xl sm:shadow-none z-10 md:shrink-0"
         @click.stop
       >
         <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>

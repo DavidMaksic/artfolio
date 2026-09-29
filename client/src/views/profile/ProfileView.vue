@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 
 import ProfileSidebar from "@/components/profile/ProfileSidebar.vue";
 import PostGrid from "@/components/post/PostGrid.vue";
+import { cn } from "@/lib/utils";
 
 const route = useRoute();
 const router = useRouter();
@@ -69,7 +70,19 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
       <div class="relative flex md:flex-col min-h-screen transition duration-700">
         <div
           class="fixed top-0 left-0 inset-0 z-0 pointer-events-none"
-          :style="`background: radial-gradient(ellipse 200% 200% at -80% 60%, hsl(${paBase} / 0.6) 0%, transparent 65%)`"
+          :class="
+            cn(
+              // Base styles
+              '[--bg-size:200%_200%] [--bg-pos:-80%_60%]',
+
+              // Tablets
+              'md:[--bg-size:220%_220%] md:[--bg-pos:-80%_20%]',
+
+              // Mobile
+              'sm:[--bg-size:200%_200%] sm:[--bg-pos:-80%_10%]',
+            )
+          "
+          :style="`background: radial-gradient(ellipse var(--bg-size) at var(--bg-pos), hsl(${paBase} / 0.6) 0%, transparent 65%)`"
         ></div>
 
         <!-- Left — profile sidebar -->

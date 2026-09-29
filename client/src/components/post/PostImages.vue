@@ -47,7 +47,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
 <template>
   <section
-    class="relative flex-4 scrollbar-none"
+    class="relative flex-4 scrollbar-none md:h-auto md:min-h-0 md:w-full md:flex-none"
     :class="
       post && post.images.length > 1
         ? 'overflow-y-auto'
@@ -63,13 +63,13 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     <!-- Single image — centered -->
     <template v-else-if="post && post.images.length === 1">
       <div
-        class="w-full h-full flex items-center justify-center px-18 py-6"
+        class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0"
         @click.self="emit('close')"
       >
         <img
           :src="post.images[0]!.imageUrl"
           :alt="post.category.name"
-          class="max-h-[90vh] w-auto max-w-full object-contain rounded-md shadow-2xl"
+          class="max-h-[90vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl"
           @click.stop
         />
       </div>
@@ -77,7 +77,10 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
     <!-- Multiple images — scrollable column -->
     <template v-else-if="post">
-      <div class="flex flex-col items-center gap-6 py-8 px-18" @click.self="emit('close')">
+      <div
+        class="flex flex-col items-center gap-6 md:gap-px py-8 px-18 md:p-0"
+        @click.self="emit('close')"
+      >
         <div
           v-for="image in post.images"
           :key="image.id"
@@ -87,7 +90,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
           <img
             :src="image.imageUrl"
             :alt="post.category.name"
-            class="max-h-[90vh] w-auto max-w-full object-contain rounded-md shadow-2xl"
+            class="max-h-[90vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl"
             @click.stop
           />
         </div>

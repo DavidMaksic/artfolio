@@ -104,7 +104,7 @@ const rows = computed<Row[]>(() => {
 
 <template>
   <section class="flex-1 min-w-0 p-5 sm:px-0">
-    <div ref="containerRef" class="w-full">
+    <div ref="containerRef" class="w-full overflow-x-hidden">
       <template v-if="isLoadingPosts">
         <div class="grid grid-cols-3 gap-1">
           <Skeleton v-for="n in 9" :key="n" class="h-95 w-full rounded-xl" />

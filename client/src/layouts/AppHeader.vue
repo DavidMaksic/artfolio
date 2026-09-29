@@ -22,8 +22,10 @@ const profileReady = computed(
 </script>
 
 <template>
-  <header class="z-50 w-full border-b border-b-neutral-300/80">
-    <div class="mx-auto px-10 md:px-20 sm:px-7 h-14 flex items-center justify-between gap-4">
+  <header class="z-50 w-full border-b border-b-neutral-300/80 md:border-b-0">
+    <div
+      class="mx-auto px-10 md:px-20 sm:px-7 h-14 flex items-center justify-between sm:justify-center gap-4"
+    >
       <!-- Logo -->
       <button
         class="font-bold text-lg tracking-tight hover:opacity-80 transition-opacity"
@@ -33,7 +35,7 @@ const profileReady = computed(
       </button>
 
       <!-- Right side -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 sm:hidden">
         <Button
           class="hover:bg-neutral-200/60"
           variant="ghost"
@@ -41,7 +43,7 @@ const profileReady = computed(
           @click="router.push({ name: 'explore' })"
         >
           <Icon icon="ph:compass" class="mr-1.5" />
-          <span class="sm:hidden">Explore</span>
+          Explore
         </Button>
 
         <template v-if="auth.isAuthenticated">
@@ -53,7 +55,7 @@ const profileReady = computed(
             @click="router.push({ name: 'post-create' })"
           >
             <Icon icon="ph:plus" class="mr-1.5" aria-label="New post" />
-            <span class="sm:hidden">New post</span>
+            New post
           </Button>
 
           <Button
@@ -64,12 +66,12 @@ const profileReady = computed(
             @click="router.push({ name: 'profile', params: { username: me!.username } })"
           >
             <Icon icon="ph:user" class="mr-1.5" />
-            <span class="sm:hidden">{{ me!.username }}</span>
+            {{ me!.username }}
           </Button>
 
           <Button class="hover:bg-neutral-200/60" variant="ghost" size="sm" @click="auth.signOut()">
             <Icon icon="ph:sign-out" class="mr-1.5" />
-            <span class="sm:hidden">Sign out</span>
+            Sign out
           </Button>
         </template>
 

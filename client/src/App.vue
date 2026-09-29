@@ -4,6 +4,7 @@ import { computed } from "vue";
 
 import AppHeader from "@/layouts/AppHeader.vue";
 import AppFooter from "@/layouts/AppFooter.vue";
+import BottomNav from "@/components/BottomNav.vue";
 
 const route = useRoute();
 
@@ -15,6 +16,7 @@ const isAuthPage = computed(() => route.name === "sign-in");
     <AppHeader v-if="!isAuthPage" />
     <main class="flex-1">
       <RouterView />
+      <BottomNav />
     </main>
     <AppFooter v-if="!isAuthPage" />
   </div>

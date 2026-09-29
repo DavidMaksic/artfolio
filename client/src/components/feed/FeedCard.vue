@@ -222,7 +222,7 @@ function copyPostLink() {
 
       <div
         v-if="post.description"
-        class="flex items-center gap-2 py-3.5 px-5.5 border-t border-t-neutral-200/80 text-[0.9rem]"
+        class="flex items-center gap-2 py-3.5 px-5.5 sm:px-3.5 border-t border-t-neutral-200/80 text-[0.9rem]"
       >
         <p>
           <span class="font-semibold">{{ post.profile.displayName }}:</span>

@@ -44,8 +44,8 @@ function handleEmailSubmit() {
 </script>
 
 <template>
-  <div class="grid grid-cols-[1.5fr_2fr] items-start">
-    <img :src="image" class="h-screen w-full object-cover object-center" />
+  <div class="grid grid-cols-[1.5fr_2fr] sm:grid-cols-1 items-start">
+    <img :src="image" class="h-screen w-full object-cover object-center sm:hidden" />
 
     <div class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
       <Card class="w-full max-w-sm shadow-2xl">

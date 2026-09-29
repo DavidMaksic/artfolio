@@ -19,6 +19,16 @@ export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = computed(() => !!user.value);
   const error = computed(() => session.value?.error ?? null);
 
+  // ── Profile (username, display name, etc.) ──────────────
+  const { data: me } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => trpc.profile.getMe.query(),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const username = computed(() => me.value?.username ?? null);
+
   // ── Email OTP ──────────────
   async function requestOtp(email: string) {
     const result = await authClient.emailOtp.sendVerificationOtp({
@@ -76,6 +86,8 @@ export const useAuthStore = defineStore("auth", () => {
     isAuthenticated,
     isPending,
     error,
+    me,
+    username,
     requestOtp,
     verifyOtp,
     signInWithGoogle,

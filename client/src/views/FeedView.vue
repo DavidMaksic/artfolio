@@ -179,7 +179,10 @@ function closePost() {
 <template>
   <div class="min-h-screen bg-neutral-100">
     <!-- Discovery banner — guests only -->
-    <div v-if="!auth.user" class="border-b border-b-neutral-300/80 bg-neutral-200/40 px-6 py-3">
+    <div
+      v-if="!auth.user"
+      class="border-b border-b-neutral-300/80 bg-neutral-200/40 px-6 py-3 md:border-t md:border-t-neutral-300/80"
+    >
       <p class="text-center text-sm text-muted-foreground">
         Discover work from artists on Artfolio —
         <RouterLink :to="{ name: 'sign-in' }" class="text-foreground underline">
@@ -189,10 +192,12 @@ function closePost() {
       </p>
     </div>
 
-    <main class="mx-auto max-w-5xl px-5 lg:px-10 md:px-28 sm:px-0 pt-4 pb-14">
+    <main
+      class="mx-auto sm:mx-0 max-w-5xl lg:max-w-fit md:max-w-full px-5 md:px-28 sm:px-0 pt-4 sm:pt-0 pb-14"
+    >
       <div class="flex gap-8 items-start">
         <!-- Feed column -->
-        <div class="flex-1 min-w-0 max-w-xl lg:min-w-full mx-auto lg:mx-0">
+        <div class="flex-1 min-w-0 max-w-xl md:min-w-full mx-auto md:mx-0">
           <!-- Loading -->
           <template v-if="isPending">
             <div class="grid grid-cols-1 gap-8">
@@ -239,7 +244,7 @@ function closePost() {
         </div>
 
         <!-- Sidebar column -->
-        <div class="md:hidden w-80 lg:w-full sticky mt-14 top-7 shrink-0">
+        <div class="md:hidden w-80 md:w-full sticky mt-14 top-7 shrink-0">
           <FeedSidebar @open-post="openPostFromDiscussion" />
         </div>
       </div>

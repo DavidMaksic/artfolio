@@ -218,7 +218,7 @@ function clearAllFilters() {
 
 <template>
   <div class="min-h-screen bg-neutral-100">
-    <main class="w-full mx-auto px-5 sm:px-0 py-8 flex flex-col">
+    <main class="w-full mx-auto px-5 sm:px-0 py-8 md:pt-2 flex flex-col">
       <!-- Filter bar -->
       <div class="grid grid-cols-3 xl:grid-cols-2 md:grid-cols-[1fr_auto] md:gap-4 mb-1 px-5">
         <!-- Trending tags — hidden on xl and below -->

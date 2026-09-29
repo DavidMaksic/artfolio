@@ -2,12 +2,15 @@
 import type { ProfileWithFollow } from "@artfolio/shared";
 import { computed, ref, watch } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
+import { useAuthStore } from "@/stores/auth.store";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
+const auth = useAuthStore();
 
 const props = defineProps<{
   profile: ProfileWithFollow;
@@ -47,7 +50,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
 
 <template>
   <aside
-    class="w-72 lg:w-58 bg-white/80 shrink-0 h-[calc(100vh-7.2rem)] mt-5 ml-5 px-10 lg:px-6 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700 md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-auto md:mx-auto md:rounded-2xl md:px-6 md:py-5 md:grid md:grid-cols-[auto_1fr] md:justify-start md:justify-items-start md:items-center md:text-left md:gap-x-8 md:gap-y-3 md:mb-2"
+    class="w-72 lg:w-62 bg-white/80 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 px-10 lg:px-6 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700 md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-auto md:mx-auto md:rounded-2xl md:px-6 md:py-5 md:grid md:grid-cols-[auto_1fr] md:justify-start md:justify-items-start md:items-center md:text-left md:gap-x-8 md:gap-y-3 md:mb-2"
   >
     <!-- Profile image (spans name + stats rows on mobile) -->
     <img
@@ -156,6 +159,13 @@ const { following, toggleFollow, isFollowPending } = useFollow(
         >
           <Icon icon="ph:pencil-simple" class="mr-2" />
           Edit profile
+        </Button>
+        <Button
+          variant="outline"
+          class="w-full pa-btn hidden sm:block sm:w-fit"
+          @click="auth.signOut()"
+        >
+          <Icon icon="ph:sign-out" />
         </Button>
       </template>
 
