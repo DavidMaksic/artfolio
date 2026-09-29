@@ -241,13 +241,13 @@ function clearAllFilters() {
         <div class="relative w-xl 2xl:w-md xl:w-full justify-self-center xl:justify-self-start">
           <Icon
             icon="ph:magnifying-glass"
-            class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none"
+            class="absolute left-4 top-1/2 sm:top-5 -translate-y-1/2 text-muted-foreground text-lg pointer-events-none"
           />
           <input
             v-model="rawQuery"
             type="text"
             :placeholder="!isPhone ? 'Search…' : 'Search by tag, category or description…'"
-            class="w-full h-12 rounded-2xl border border-neutral-200 bg-white px-11 text-[0.92rem] shadow-xs placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full h-12 sm:h-10 rounded-2xl border border-neutral-200 bg-white px-11 text-[0.92rem] shadow-xs placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button
             v-if="rawQuery"
@@ -318,7 +318,7 @@ function clearAllFilters() {
         <!-- Filters button — visible on lg and below -->
         <Button
           variant="outline"
-          class="relative hidden xl:flex h-12 px-4! xl:justify-self-end rounded-2xl bg-white"
+          class="relative hidden xl:flex h-12 sm:h-10 px-4! xl:justify-self-end rounded-2xl bg-white"
           @click="filtersOpen = true"
         >
           <Icon icon="ph:sliders" class="text-lg" />

@@ -249,7 +249,7 @@ function filterByCategory(slug: string) {
     <template v-if="post">
       <!-- Post content -->
       <div
-        class="p-6 flex flex-col gap-5 bg-white/98 rounded-2xl md:rounded-none sm:rounded-b-2xl border border-border shadow-2xl sm:shadow-none md:shrink-0"
+        class="p-6 flex flex-col gap-5 bg-white/98 rounded-2xl md:rounded-none md:rounded-b-2xl border border-border shadow-2xl md:shadow-none md:shrink-0"
         @click.stop
       >
         <!-- Author -->
@@ -385,7 +385,7 @@ function filterByCategory(slug: string) {
 
       <!-- Comments -->
       <div
-        class="flex flex-1 md:min-h-46 sm:m-4 sm:rounded-2xl flex-col bg-background rounded-2xl md:rounded-none border border-border shadow-2xl sm:shadow-none overflow-hidden z-10"
+        class="flex flex-1 md:min-h-46 md:m-4 flex-col bg-background rounded-2xl border border-border shadow-2xl md:shadow-none overflow-hidden z-10"
         :class="
           cn(
             comments.length === 1 && 'md:min-h-58',
@@ -617,7 +617,7 @@ function filterByCategory(slug: string) {
 
       <!-- Category + tags -->
       <div
-        class="flex flex-col gap-1.5 bg-background rounded-2xl md:rounded-none sm:rounded-t-2xl border border-border px-6 py-5 space-y-3 shadow-2xl sm:shadow-none z-10 md:shrink-0"
+        class="flex flex-col gap-1.5 bg-background rounded-2xl md:rounded-none md:rounded-t-2xl border border-border px-6 py-5 space-y-3 shadow-2xl md:shadow-none z-10 md:shrink-0"
         @click.stop
       >
         <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>
