@@ -30,7 +30,7 @@ const profileReady = computed(
       <div class="flex items-center gap-2">
         <!-- Logo -->
         <button
-          class="font-logo font-bold text-xl tracking-tight hover:opacity-80 transition-opacity md:hidden"
+          class="font-logo font-bold text-xl tracking-tight hover:opacity-70 transition-opacity md:hidden"
           @click="router.push({ name: 'home' })"
         >
           Artfolio
@@ -41,7 +41,7 @@ const profileReady = computed(
         >
 
         <Button
-          class="hover:bg-neutral-200/60 sm:hidden"
+          class="hover:bg-neutral-400/12 sm:hidden"
           variant="ghost"
           size="sm"
           @click="router.push({ name: 'home' })"
@@ -51,7 +51,7 @@ const profileReady = computed(
         </Button>
 
         <Button
-          class="hover:bg-neutral-200/60 sm:hidden"
+          class="hover:bg-neutral-400/12 sm:hidden"
           variant="ghost"
           size="sm"
           @click="router.push({ name: 'explore' })"
@@ -63,7 +63,7 @@ const profileReady = computed(
 
       <!-- Logo -->
       <button
-        class="font-logo font-bold text-2xl tracking-tight hover:opacity-80 transition-opacity hidden md:block"
+        class="font-logo font-bold text-2xl tracking-tight transition-opacity hidden md:block"
         @click="router.push({ name: 'home' })"
       >
         Artfolio
@@ -74,7 +74,7 @@ const profileReady = computed(
         <template v-if="auth.isAuthenticated">
           <Button
             v-if="profileReady"
-            class="hover:bg-neutral-200/60"
+            class="hover:bg-neutral-400/12"
             variant="ghost"
             size="sm"
             @click="router.push({ name: 'post-create' })"
@@ -85,7 +85,7 @@ const profileReady = computed(
 
           <Button
             v-if="profileReady"
-            class="hover:bg-neutral-200/60"
+            class="hover:bg-neutral-400/12"
             variant="ghost"
             size="sm"
             @click="router.push({ name: 'profile', params: { username: me!.username } })"
@@ -94,7 +94,7 @@ const profileReady = computed(
             <span class="md:hidden">{{ me!.username }}</span>
           </Button>
 
-          <Button class="hover:bg-neutral-200/60" variant="ghost" size="sm" @click="auth.signOut()">
+          <Button class="hover:bg-neutral-400/12" variant="ghost" size="sm" @click="auth.signOut()">
             <Icon icon="ph:sign-out" class="mr-0.5 size-5" />
             <span class="md:hidden">Sign out</span>
           </Button>

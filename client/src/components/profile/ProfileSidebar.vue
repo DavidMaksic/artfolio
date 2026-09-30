@@ -117,7 +117,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     <!-- Bio -->
     <p
       v-if="profile.bio"
-      class="text-sm md:text-base text-neutral-800 leading-relaxed md:col-span-2 md:pt-1 whitespace-pre-wrap"
+      class="text-sm py-2 md:text-base text-neutral-800 leading-relaxed md:col-span-2 md:pt-1 whitespace-pre-wrap"
     >
       {{ profile.bio }}
     </p>

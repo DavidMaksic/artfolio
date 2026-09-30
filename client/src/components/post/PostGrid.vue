@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { FeedItem, Post } from "@artfolio/shared";
-import PostDetailModal from "@/components/post/PostDetailModal.vue";
-
 import { ref, computed, watch, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { Icon } from "@iconify/vue";
+import PostDetailModal from "@/components/post/PostDetailModal.vue";
 
 type Row = { post: Post; width: number }[];
 
@@ -19,6 +19,7 @@ const props = defineProps<{
 
 const route = useRoute();
 const router = useRouter();
+const { thumb } = useCloudinaryUrl();
 
 const activePostId = computed(() => (route.query.post as string | null) ?? null);
 const postIds = computed(() => props.posts?.map((p) => p.id) ?? []);
@@ -126,7 +127,7 @@ const rows = computed<Row[]>(() => {
             @click="openPost(post.id)"
           >
             <img
-              :src="post.coverImage?.imageUrl"
+              :src="thumb(post.coverImage?.imageUrl, width, TARGET_ROW_HEIGHT)"
               :alt="post.category.name"
               class="w-full h-full object-cover transition-transform duration-300"
             />

@@ -7,6 +7,7 @@ import { computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
+import { cloudinaryUrl } from "@/lib/cloudinary";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -119,7 +120,9 @@ const canLoadMore = computed(() => hasNextPage.value && totalLoaded.value < 10);
 
           <!-- Post thumbnail -->
           <img
-            :src="item.coverImage.imageUrl"
+            :src="
+              cloudinaryUrl(item.coverImage.imageUrl, { width: 450, height: 450, crop: 'fill' })
+            "
             class="size-12 rounded-lg object-cover shrink-0 border"
           />
         </div>
