@@ -48,6 +48,14 @@ function handleEmailSubmit() {
     <img :src="image" class="h-screen w-full object-cover object-center sm:hidden" />
 
     <div class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
+      <!-- Logo -->
+      <button
+        class="font-logo font-bold text-2xl tracking-tight transition-opacity hover:opacity-70"
+        @click="router.push({ name: 'home' })"
+      >
+        Artfolio
+      </button>
+
       <Card class="w-full max-w-sm shadow-2xl">
         <CardHeader class="pb-3 mr-3">
           <CardTitle class="text-xl">Sign in</CardTitle>
@@ -74,7 +82,11 @@ function handleEmailSubmit() {
               {{ error }}
             </p>
 
-            <Button type="submit" class="w-full" :disabled="isPending">
+            <Button
+              type="submit"
+              class="w-full bg-neutral-800/90 hover:bg-neutral-600/95"
+              :disabled="isPending"
+            >
               <Icon
                 v-if="isPending"
                 icon="ph:spinner"

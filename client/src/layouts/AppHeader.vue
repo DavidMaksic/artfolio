@@ -101,7 +101,13 @@ const profileReady = computed(
         </template>
 
         <template v-else>
-          <Button size="sm" @click="router.push({ name: 'sign-in' })"> Sign in </Button>
+          <Button
+            class="bg-neutral-800/90 hover:bg-neutral-600/95 px-4"
+            size="sm"
+            @click="router.push({ name: 'sign-in' })"
+          >
+            Sign in
+          </Button>
         </template>
       </div>
     </div>

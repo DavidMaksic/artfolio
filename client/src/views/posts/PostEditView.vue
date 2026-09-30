@@ -277,6 +277,7 @@ async function handleSubmit() {
           <div class="space-y-1.5">
             <Label for="description">Description</Label>
             <Textarea
+              class="text-sm"
               id="description"
               v-model="description"
               placeholder="Tell people about this work..."
