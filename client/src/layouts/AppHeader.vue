@@ -24,28 +24,46 @@ const profileReady = computed(
 <template>
   <header class="z-50 w-full border-b border-b-neutral-300/80 md:border-b-0">
     <div
-      class="mx-auto px-10 md:px-20 sm:px-7 h-14 flex items-center justify-between sm:justify-center gap-4"
+      class="mx-auto px-10 md:px-10 sm:px-7 h-14 flex items-center justify-between sm:justify-center gap-4"
     >
-      <!-- Logo -->
-      <button
-        class="font-bold text-lg tracking-tight hover:opacity-80 transition-opacity"
-        @click="router.push({ name: 'home' })"
-      >
-        Artfolio
-      </button>
+      <!-- Left side -->
+      <div class="flex items-center gap-2">
+        <!-- Logo -->
+        <button
+          class="font-bold text-lg tracking-tight hover:opacity-80 transition-opacity"
+          @click="router.push({ name: 'home' })"
+        >
+          Artfolio
+        </button>
 
-      <!-- Right side -->
-      <div class="flex items-center gap-2 sm:hidden">
+        <span
+          class="text-xl ml-5 mr-3 text-neutral-400 font-extralight select-none self-start sm:hidden"
+          >|</span
+        >
+
         <Button
-          class="hover:bg-neutral-200/60"
+          class="hover:bg-neutral-200/60 sm:hidden"
           variant="ghost"
           size="sm"
           @click="router.push({ name: 'explore' })"
         >
-          <Icon icon="ph:compass" class="mr-1.5" />
-          Explore
+          <Icon icon="ph:house" class="mr-0.5 size-5" />
+          Home
         </Button>
 
+        <Button
+          class="hover:bg-neutral-200/60 sm:hidden"
+          variant="ghost"
+          size="sm"
+          @click="router.push({ name: 'explore' })"
+        >
+          <Icon icon="ph:compass" class="mr-0.5 size-5" />
+          Explore
+        </Button>
+      </div>
+
+      <!-- Right side -->
+      <div class="flex items-center gap-2 sm:hidden">
         <template v-if="auth.isAuthenticated">
           <Button
             v-if="profileReady"
@@ -54,8 +72,8 @@ const profileReady = computed(
             size="sm"
             @click="router.push({ name: 'post-create' })"
           >
-            <Icon icon="ph:plus" class="mr-1.5" aria-label="New post" />
-            New post
+            <Icon icon="ph:plus" class="mr-0.5 size-5" aria-label="New post" />
+            <span class="md:hidden">New post</span>
           </Button>
 
           <Button
@@ -65,13 +83,13 @@ const profileReady = computed(
             size="sm"
             @click="router.push({ name: 'profile', params: { username: me!.username } })"
           >
-            <Icon icon="ph:user" class="mr-1.5" />
-            {{ me!.username }}
+            <Icon icon="ph:user" class="mr-0.5 size-5" />
+            <span class="md:hidden">{{ me!.username }}</span>
           </Button>
 
           <Button class="hover:bg-neutral-200/60" variant="ghost" size="sm" @click="auth.signOut()">
-            <Icon icon="ph:sign-out" class="mr-1.5" />
-            Sign out
+            <Icon icon="ph:sign-out" class="mr-0.5 size-5" />
+            <span class="md:hidden">Sign out</span>
           </Button>
         </template>
 

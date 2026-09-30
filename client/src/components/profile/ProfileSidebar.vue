@@ -99,16 +99,15 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     <Badge
       v-if="profile.availableForCommissions"
       variant="secondary"
-      class="gap-1.5 transition-colors duration-700 py-1 px-3 md:col-span-2 md:absolute md:top-0 md:right-0 md:rounded-tl-none md:rounded-br-none md:rounded-tr-2xl md:rounded-bl-2xl md:border-none md:py-1.5 md:px-3.5"
+      class="gap-1.5 transition-colors duration-700 md:col-span-2 absolute top-0 right-0 rounded-tl-none rounded-br-none rounded-tr-2xl rounded-bl-2xl border-none py-1.5 px-3.5"
       :style="{
-        backgroundColor: `hsl(${paBase} / 0.15)`,
-        color: `hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) - 10%))`,
+        backgroundColor: `hsl(${paBase} / 0.3)`,
+        color: `hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) - 15%))`,
         borderColor: `hsl(${paBase} / 0.35)`,
       }"
     >
       <Icon icon="ph:paint-brush" class="text-sm" />
-      <span class="md:hidden">Available for commissions</span>
-      <span class="hidden md:block">Open for work</span>
+      <span>Open for work</span>
     </Badge>
 
     <!-- Bio -->
@@ -133,7 +132,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
         :href="profile.website"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center gap-1 hover:text-foreground transition-colors"
+        class="flex items-center gap-1 hover:text-foreground transition-colors cursor-default"
       >
         <Icon icon="ph:link" />
         {{ profile.website.replace(/^https?:\/\//, "") }}
