@@ -9,6 +9,7 @@ import { Icon } from "@iconify/vue";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const auth = useAuthStore();
 
@@ -50,7 +51,8 @@ const { following, toggleFollow, isFollowPending } = useFollow(
 
 <template>
   <aside
-    class="w-72 lg:w-62 bg-white/80 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 px-10 lg:px-6 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700 md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-auto md:mx-auto md:rounded-2xl md:px-6 md:py-5 md:grid md:grid-cols-[auto_1fr] md:justify-start md:justify-items-start md:items-center md:text-left md:gap-x-8 md:gap-y-3 md:mb-2"
+    class="w-76 lg:w-62 bg-white/80 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 lg:px-6 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700 md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-auto md:mx-auto md:rounded-2xl md:px-6 md:py-5 md:grid md:grid-cols-[auto_1fr] md:justify-start md:justify-items-start md:items-center md:text-left md:gap-x-8 md:gap-y-3 md:mb-2"
+    :class="cn(!isOwner ? 'px-12' : 'px-6')"
   >
     <!-- Profile image (spans name + stats rows on mobile) -->
     <img
@@ -140,7 +142,10 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     </div>
 
     <!-- Actions -->
-    <div class="flex flex-col gap-2 w-full pt-2 md:col-span-2 md:flex-row md:pt-0">
+    <div
+      class="gap-2 w-full pt-2 md:col-span-2 md:flex-row md:pt-0"
+      :class="cn(!isOwner ? 'flex' : 'grid grid-cols-2')"
+    >
       <!-- Owner actions -->
       <template v-if="isOwner">
         <Button
@@ -148,7 +153,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
           class="w-full pa-btn md:flex-1"
           @click="router.push({ name: 'post-create' })"
         >
-          <Icon icon="ph:plus" class="mr-2" />
+          <Icon icon="ph:plus" />
           New post
         </Button>
         <Button
@@ -156,7 +161,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
           class="w-full pa-btn md:flex-1"
           @click="router.push({ name: 'profile-edit' })"
         >
-          <Icon icon="ph:pencil-simple" class="mr-2" />
+          <Icon icon="ph:pencil-simple" />
           Edit profile
         </Button>
         <Button

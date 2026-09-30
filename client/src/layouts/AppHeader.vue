@@ -30,14 +30,13 @@ const profileReady = computed(
       <div class="flex items-center gap-2">
         <!-- Logo -->
         <button
-          class="font-bold text-lg tracking-tight hover:opacity-80 transition-opacity"
+          class="font-logo font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
           @click="router.push({ name: 'home' })"
         >
           Artfolio
         </button>
 
-        <span
-          class="text-xl ml-5 mr-3 text-neutral-400 font-extralight select-none self-start sm:hidden"
+        <span class="text-xl ml-5 mr-3 text-neutral-400 font-extralight select-none sm:hidden"
           >|</span
         >
 
@@ -45,7 +44,7 @@ const profileReady = computed(
           class="hover:bg-neutral-200/60 sm:hidden"
           variant="ghost"
           size="sm"
-          @click="router.push({ name: 'explore' })"
+          @click="router.push({ name: 'home' })"
         >
           <Icon icon="ph:house" class="mr-0.5 size-5" />
           Home

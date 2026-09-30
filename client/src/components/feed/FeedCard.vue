@@ -175,7 +175,7 @@ function copyPostLink() {
               :icon="liked ? 'ph:heart-fill' : 'ph:heart'"
               :class="liked && 'text-red-400'"
             />
-            <span v-if="likeCount" class="inline-block text-left text-sm tabular-nums">
+            <span v-if="likeCount" class="inline-block text-left text-sm">
               {{ likeCount || "" }}
             </span>
           </Button>
@@ -187,7 +187,7 @@ function copyPostLink() {
             @click="$emit('openWithComment', post.id)"
           >
             <Icon class="size-6" icon="ph:chat-circle" />
-            <span v-if="post.commentCount" class="inline-block text-left text-sm tabular-nums">
+            <span v-if="post.commentCount" class="inline-block text-left text-sm">
               {{ post.commentCount || "" }}
             </span>
           </Button>
@@ -205,7 +205,7 @@ function copyPostLink() {
               :icon="bookmarked ? 'ph:bookmark-simple-fill' : 'ph:bookmark-simple'"
               :class="bookmarked && 'text-blue-400'"
             />
-            <span v-if="bookmarkCount" class="inline-block text-left text-sm tabular-nums">
+            <span v-if="bookmarkCount" class="inline-block text-left text-sm">
               {{ bookmarkCount || "" }}
             </span>
           </Button>

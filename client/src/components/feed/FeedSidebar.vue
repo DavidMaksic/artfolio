@@ -108,8 +108,8 @@ const canLoadMore = computed(() => hasNextPage.value && totalLoaded.value < 10);
                 <Icon icon="ph:user" class="text-muted-foreground text-lg" />
               </div>
               <div class="flex items-center gap-1">
-                <p class="text-sm text-neutral-600 line-clamp-3">
-                  <span class="text-sm font-medium truncate">
+                <p class="text-[0.85rem] text-neutral-600 line-clamp-3">
+                  <span class="font-medium text-neutral-800 truncate">
                     {{ item.profile.displayName ?? item.profile.username }}: </span
                   >{{ item.body }}
                 </p>
