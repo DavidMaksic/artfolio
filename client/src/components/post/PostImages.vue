@@ -78,13 +78,13 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     <!-- Multiple images — scrollable column -->
     <template v-else-if="post">
       <div
-        class="flex flex-col items-center gap-6 md:gap-px py-8 px-18 md:p-0"
+        class="flex flex-col items-center gap-6 md:gap-0 py-8 px-18 md:p-0"
         @click.self="emit('close')"
       >
         <div
           v-for="image in post.images"
           :key="image.id"
-          class="w-full flex justify-center"
+          class="w-full flex justify-center md:border-t md:border-t-neutral-900/70 md:first:border-t-0"
           @click.self="emit('close')"
         >
           <img

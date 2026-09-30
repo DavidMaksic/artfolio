@@ -22,21 +22,21 @@ const profileReady = computed(
 </script>
 
 <template>
-  <header class="z-50 w-full border-b border-b-neutral-300/80 md:border-b-0">
+  <header class="z-50 w-full border-b border-b-neutral-300/80 sm:border-b-0">
     <div
-      class="mx-auto px-10 md:px-10 sm:px-7 h-14 flex items-center justify-between sm:justify-center gap-4"
+      class="mx-auto px-10 md:px-10 sm:px-7 h-14 flex md:grid md:grid-cols-3 items-center justify-between sm:justify-center gap-4"
     >
       <!-- Left side -->
       <div class="flex items-center gap-2">
         <!-- Logo -->
         <button
-          class="font-logo font-bold text-xl tracking-tight hover:opacity-80 transition-opacity"
+          class="font-logo font-bold text-xl tracking-tight hover:opacity-80 transition-opacity md:hidden"
           @click="router.push({ name: 'home' })"
         >
           Artfolio
         </button>
 
-        <span class="text-xl ml-5 mr-3 text-neutral-400 font-extralight select-none sm:hidden"
+        <span class="text-xl ml-5 mr-3 text-neutral-400 font-extralight select-none md:hidden"
           >|</span
         >
 
@@ -47,7 +47,7 @@ const profileReady = computed(
           @click="router.push({ name: 'home' })"
         >
           <Icon icon="ph:house" class="mr-0.5 size-5" />
-          Home
+          <span class="md:hidden">Home</span>
         </Button>
 
         <Button
@@ -57,12 +57,20 @@ const profileReady = computed(
           @click="router.push({ name: 'explore' })"
         >
           <Icon icon="ph:compass" class="mr-0.5 size-5" />
-          Explore
+          <span class="md:hidden">Explore</span>
         </Button>
       </div>
 
+      <!-- Logo -->
+      <button
+        class="font-logo font-bold text-2xl tracking-tight hover:opacity-80 transition-opacity hidden md:block"
+        @click="router.push({ name: 'home' })"
+      >
+        Artfolio
+      </button>
+
       <!-- Right side -->
-      <div class="flex items-center gap-2 sm:hidden">
+      <div class="flex items-center gap-2 sm:hidden md:justify-self-end">
         <template v-if="auth.isAuthenticated">
           <Button
             v-if="profileReady"

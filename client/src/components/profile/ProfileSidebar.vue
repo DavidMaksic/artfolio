@@ -6,10 +6,11 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@vueuse/core";
 
 const auth = useAuthStore();
 
@@ -22,6 +23,7 @@ const props = defineProps<{
 
 const router = useRouter();
 const queryClient = useQueryClient();
+const isPhone = useMediaQuery("(min-width: 768px)");
 const followerCount = ref(props.profile.followerCount);
 
 const existing = queryClient.getQueryData(["follow", props.profile.id]);
@@ -103,7 +105,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
       variant="secondary"
       class="gap-1.5 transition-colors duration-700 md:col-span-2 absolute top-0 right-0 rounded-tl-none rounded-br-none rounded-tr-2xl rounded-bl-2xl border-none py-1.5 px-3.5"
       :style="{
-        backgroundColor: `hsl(${paBase} / 0.3)`,
+        backgroundColor: `hsl(${paBase} / 0.${!isPhone ? '2' : '3'})`,
         color: `hsl(var(--pa-h) var(--pa-s) calc(var(--pa-l) - 15%))`,
         borderColor: `hsl(${paBase} / 0.35)`,
       }"
@@ -144,7 +146,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     <!-- Actions -->
     <div
       class="gap-2 w-full pt-2 md:col-span-2 md:flex-row md:pt-0"
-      :class="cn(!isOwner ? 'flex' : 'grid grid-cols-2')"
+      :class="cn(!isOwner ? 'flex' : 'grid grid-cols-2 md:grid-cols-[1fr_1fr_auto]')"
     >
       <!-- Owner actions -->
       <template v-if="isOwner">

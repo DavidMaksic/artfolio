@@ -67,7 +67,7 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 
     <!-- Profile -->
     <template v-else-if="profile">
-      <div class="relative flex md:flex-col min-h-screen transition duration-700">
+      <div class="relative md:pt-5 sm:pt-0 flex md:flex-col min-h-screen transition duration-700">
         <div
           class="fixed top-0 left-0 inset-0 z-0 pointer-events-none"
           :class="
