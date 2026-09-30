@@ -335,8 +335,8 @@ function filterByCategory(slug: string) {
             class="flex-1 transition-colors"
             :class="
               following
-                ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
-                : 'bg-black/80 hover:bg-black/60 text-white'
+                ? 'bg-neutral-400/60 hover:bg-neutral-300 text-neutral-800 border border-neutral-400/30'
+                : 'bg-neutral-600 hover:bg-neutral-600/80 text-white border border-neutral-400/30'
             "
             :disabled="isFollowPending"
             @click="toggleFollow"
@@ -346,7 +346,7 @@ function filterByCategory(slug: string) {
           </Button>
 
           <Button
-            class="flex-1"
+            class="flex-1 bg-neutral-200/70 border border-neutral-200 text-neutral-900 hover:bg-red-50 group hover:text-red-600/80 hover:border-red-200"
             variant="secondary"
             data-testid="like-button"
             :data-liked="liked"
@@ -354,14 +354,14 @@ function filterByCategory(slug: string) {
             @click="toggleLike"
           >
             <Icon
-              class="size-5 transition-colors"
+              class="size-5 transition-colors group-hover:text-red-500/80"
               :icon="liked ? 'ph:heart-fill' : 'ph:heart'"
-              :class="liked ? 'text-red-500' : ''"
+              :class="liked ? 'text-red-500/80' : ''"
             />
             Like
           </Button>
           <Button
-            class="flex-1"
+            class="flex-1 text-neutral-800 border-neutral-200 hover:bg-blue-50/50 group hover:text-blue-500 hover:border-blue-200"
             variant="outline"
             data-testid="bookmark-button"
             :data-bookmarked="bookmarked"
@@ -369,9 +369,9 @@ function filterByCategory(slug: string) {
             @click="toggleBookmark"
           >
             <Icon
-              class="size-5 transition-colors"
+              class="size-5 transition-colors group-hover:text-blue-500/80"
               :icon="bookmarked ? 'ph:bookmark-simple-fill' : 'ph:bookmark-simple'"
-              :class="bookmarked ? 'text-blue-500' : ''"
+              :class="bookmarked ? 'text-blue-500/80' : ''"
             />
             Save
           </Button>

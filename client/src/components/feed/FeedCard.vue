@@ -104,8 +104,8 @@ function copyPostLink() {
             class="h-7 px-4 rounded-lg transition-colors"
             :class="
               following
-                ? 'bg-neutral-200 text-neutral-800 hover:bg-neutral-300'
-                : 'bg-black/80 hover:bg-black/60 text-white'
+                ? 'bg-neutral-400/60 hover:bg-neutral-300 text-neutral-800 border border-neutral-400/30'
+                : 'bg-neutral-700 hover:bg-neutral-600/70 text-white border border-neutral-400/30'
             "
             :disabled="isFollowPending"
             data-testid="follow-button"

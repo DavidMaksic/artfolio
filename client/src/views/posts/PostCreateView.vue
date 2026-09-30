@@ -172,7 +172,7 @@ async function handleSubmit() {
     class="min-h-screen pt-4 sm:pt-0 pb-20 flex flex-col bg-neutral-100 gap-4 px-8 xs:px-5 max-w-xl mx-auto"
   >
     <div class="flex items-center gap-2">
-      <Button variant="ghost" size="icon" @click="router.back()">
+      <Button class="hover:bg-white" variant="ghost" size="icon" @click="router.back()">
         <Icon icon="ph:arrow-left" class="size-5 mt-0.5" />
       </Button>
       <h1 class="text-xl font-bold">New Post</h1>
