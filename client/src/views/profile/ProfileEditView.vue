@@ -289,7 +289,7 @@ function onSubmit(e: SubmitEvent) {
                     Delete
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent class="max-w-lg">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                     <AlertDialogDescription>

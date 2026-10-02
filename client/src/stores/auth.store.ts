@@ -50,14 +50,14 @@ export const useAuthStore = defineStore("auth", () => {
   async function signInWithGoogle() {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/",
+      callbackURL: `${window.location.origin}/`,
     });
   }
 
   async function signInWithDiscord() {
     await authClient.signIn.social({
       provider: "discord",
-      callbackURL: "/",
+      callbackURL: `${window.location.origin}/`,
     });
   }
 
