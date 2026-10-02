@@ -45,6 +45,7 @@ const emit = defineEmits<{
         <button
           v-for="tag in trendingTags"
           :key="tag.id"
+          data-testid="tag-button"
           class="text-sm px-4 py-1.5 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
           :class="{
             'border-neutral-300 text-foreground bg-neutral-100!': debouncedQuery === tag.name,
@@ -60,6 +61,7 @@ const emit = defineEmits<{
     <div class="flex flex-col gap-2.5">
       <p class="text-sm font-medium">Category</p>
       <Combobox
+        data-testid="category-button"
         :model-value="selectedCategory"
         by="value"
         @update:model-value="

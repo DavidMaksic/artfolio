@@ -26,7 +26,7 @@
 ## Auth
 
 - BetterAuth
-- OAuth
+- Google and Github OAuth
 - Resend
 
 ## Image Storage
@@ -39,8 +39,9 @@
 
 ## Deployment
 
+- Render for back-end
 - Vercel for front-end
-- Railway for back-end
+- Neon for database
 
 ## Testing
 

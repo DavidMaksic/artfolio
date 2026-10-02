@@ -318,6 +318,7 @@ function clearAllFilters() {
         <!-- Filters button — visible on lg and below -->
         <Button
           variant="outline"
+          data-testid="filters-button"
           class="relative hidden xl:flex h-12 sm:h-10 px-4! xl:justify-self-end rounded-2xl bg-white"
           @click="filtersOpen = true"
         >

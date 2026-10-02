@@ -69,8 +69,9 @@ test.describe('explore', () => {
       await createPost(auth, { tags: ['e2e'] });
 
       await auth.page.goto('/explore');
+      await auth.page.locator('[data-testid="filters-button"]').click();
 
-      const firstPill = auth.page.locator('button.rounded-full').first();
+      const firstPill = auth.page.locator('[data-testid="tag-button"]').first();
       await expect(firstPill).toBeVisible({ timeout: 10_000 });
       const tagName = await firstPill.textContent();
       await firstPill.click();
@@ -86,9 +87,10 @@ test.describe('explore', () => {
       await createPost(auth);
 
       await auth.page.goto('/explore');
+      await auth.page.locator('[data-testid="filters-button"]').click();
 
       // Open category combobox and select first option
-      await auth.page.getByText('All categories').click();
+      await auth.page.locator('[data-testid="category-button"]').click();
       await auth.page.getByRole('option').nth(1).click();
 
       await expect(auth.page).toHaveURL(/category=/);
@@ -99,6 +101,8 @@ test.describe('explore', () => {
       await completeProfileSetup(auth);
 
       await auth.page.goto('/explore');
+      await auth.page.locator('[data-testid="filters-button"]').click();
+
       await auth.page.getByRole('combobox').click();
       await auth.page.getByRole('option', { name: 'New' }).click();
       await expect(auth.page).toHaveURL(/sort=new/);
