@@ -8,7 +8,6 @@ import { db } from '../db/index.js';
 import * as schema from '../db/schema/index.js';
 
 const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:5173';
-const FROM_EMAIL = 'onboarding@resend.dev';
 
 export const auth = betterAuth({
    database: drizzleAdapter(db, {
@@ -110,7 +109,7 @@ export const auth = betterAuth({
 
    advanced: {
       ipAddress: {
-         ipAddressHeaders: ['x-forwarded-for'],
+         ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'],
       },
    },
 });
