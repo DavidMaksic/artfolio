@@ -1,0 +1,13 @@
+{
+   "rewrites": [
+      {
+         "source": "/trpc/:path*",
+         "destination": "https://https://artfolio-api-8nok.onrender.com/trpc/:path*"
+      },
+      {
+         "source": "/api/auth/:path*",
+         "destination": "https://https://artfolio-api-8nok.onrender.com/api/auth/:path*"
+      },
+      { "source": "/(.*)", "destination": "/index.html" }
+   ]
+}
