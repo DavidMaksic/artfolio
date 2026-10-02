@@ -116,11 +116,12 @@ const { mutate: resendCode, isPending } = useMutation({
           Verifying…
         </p>
 
-
-
         <!-- Resend -->
-        <p class="text-sm text-muted-foreground">
-          <p class="text-sm text-muted-foreground mb-1"><span class="font-medium text-red-700/70">Important:</span> Email will be sent to your spam folder.</p>
+        <div class="text-sm text-muted-foreground">
+          <p class="text-sm text-muted-foreground mb-1">
+            <span class="font-medium text-red-700/70">Important:</span> Email will be sent to your
+            spam folder.
+          </p>
 
           Didn't get it?
           <button
@@ -142,7 +143,7 @@ const { mutate: resendCode, isPending } = useMutation({
                   : "Resend code"
             }}
           </button>
-        </p>
+        </div>
 
         <!-- Back -->
         <Button variant="ghost" class="w-full" @click="router.push({ name: 'sign-in' })">
