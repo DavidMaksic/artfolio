@@ -27,7 +27,7 @@
 
 - BetterAuth
 - Google and Github OAuth
-- Resend
+- Mailjet
 
 ## Image Storage
 
@@ -42,6 +42,7 @@
 - Render for back-end
 - Vercel for front-end
 - Neon for database
+- Upstash Redis for prod
 
 ## Testing
 

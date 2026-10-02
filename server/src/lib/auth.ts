@@ -1,8 +1,8 @@
 import { buildSignInEmail, buildWelcomeEmail } from './emails/auth-email.js';
 import { betterAuth, generateId } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { sendEmail } from '@/lib/mailer.js';
 import { emailOTP } from 'better-auth/plugins';
-import { resend } from './resend.js';
 import { redis } from './redis.js';
 import { db } from '../db/index.js';
 import * as schema from '../db/schema/index.js';
@@ -53,8 +53,7 @@ export const auth = betterAuth({
             const params = new URLSearchParams({ email, code: otp });
             const magicLinkUrl = `${CLIENT_URL}/auth/verify?${params}`;
 
-            await resend.emails.send({
-               from: FROM_EMAIL,
+            await sendEmail({
                to: email,
                subject: 'Your Artfolio sign-in code',
                html: buildSignInEmail({ otp, magicLinkUrl }),
@@ -89,28 +88,25 @@ export const auth = betterAuth({
                });
 
                // Fire-and-forget: send welcome email
-               resend.emails
-                  .send({
-                     from: FROM_EMAIL,
-                     to: user.email,
-                     subject: 'Welcome to Artfolio 🎨',
-                     html: buildWelcomeEmail(user.name),
-                  })
-                  .catch((err) => {
-                     console.error('[auth] Failed to send welcome email:', err);
-                  });
+               sendEmail({
+                  to: user.email,
+                  subject: 'Welcome to Artfolio 🎨',
+                  html: buildWelcomeEmail(user.name),
+               }).catch((err) => {
+                  console.error('[auth] Failed to send welcome email:', err);
+               });
             },
          },
       },
    },
+
+   trustedOrigins: [CLIENT_URL],
 
    user: {
       deleteUser: {
          enabled: true,
       },
    },
-
-   trustedOrigins: [CLIENT_URL],
 
    advanced: {
       ipAddress: {
