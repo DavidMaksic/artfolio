@@ -341,3 +341,8 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Issues resolved:**
 
 **Known issues carried forward:**
+
+## Things to add
+
+- Tags should be suggested in post create/edit
+- Make image on feedCard smaller instead of being full size

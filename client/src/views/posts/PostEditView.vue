@@ -223,7 +223,7 @@ async function handleSubmit() {
                   :disabled="isUploading || isSubmitting"
                   @click.stop="removeImage(index)"
                 >
-                  <Icon icon="ph:x-bold" class="text-white text-sm" />
+                  <Icon icon="ph:x-bold" class="text-white text-lg" />
                 </button>
               </div>
             </div>
