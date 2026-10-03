@@ -213,7 +213,7 @@ function copyPostLink() {
 
         <Badge
           variant="secondary"
-          class="py-1 px-3 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
+          class="py-1 px-3 mr-1 text-[0.85rem] text-neutral-600 border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
           @click="router.push({ name: 'explore', query: { category: post.category.slug } })"
         >
           {{ post.category.name }}
@@ -224,10 +224,14 @@ function copyPostLink() {
         v-if="post.description"
         class="flex items-center gap-2 py-3.5 px-5.5 sm:px-3.5 border-t border-t-neutral-200/80 text-[0.9rem]"
       >
-        <p>
-          <span class="font-semibold">{{ post.profile.displayName }}:</span>
+        <div>
+          <span
+            class="font-semibold cursor-default"
+            @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
+            >{{ post.profile.displayName }}:</span
+          >
           {{ post.description }}
-        </p>
+        </div>
       </div>
     </div>
   </div>

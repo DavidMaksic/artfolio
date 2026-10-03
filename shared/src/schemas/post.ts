@@ -54,7 +54,7 @@ export const engagementSchema = z.object({
 export const createPostSchema = z.object({
    description: z.string().max(2000).optional(),
    categoryId: z.string({ error: 'Category is required' }),
-   tags: z.array(z.string().min(1).max(30)).max(10).default([]),
+   tags: z.array(z.string().min(1).max(30)).max(5).default([]),
    images: z
       .array(imageInputSchema)
       .min(1, {

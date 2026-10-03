@@ -97,6 +97,10 @@ const { mutate, isPending } = useMutation({
   },
   onSuccess: async () => {
     await queryClient.invalidateQueries({ queryKey: ["profile"] });
+    await queryClient.invalidateQueries({ queryKey: ["feed"] });
+    await queryClient.invalidateQueries({ queryKey: ["posts"] });
+    await queryClient.invalidateQueries({ queryKey: ["post"] });
+    await queryClient.invalidateQueries({ queryKey: ["me"] });
     router.push({ name: "profile", params: { username: username.value } });
   },
   onError: (err) => (error.value = extractTrpcError(err)),
@@ -289,7 +293,7 @@ function onSubmit(e: SubmitEvent) {
                     Delete
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent class="max-w-lg">
+                <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Delete your account?</AlertDialogTitle>
                     <AlertDialogDescription>

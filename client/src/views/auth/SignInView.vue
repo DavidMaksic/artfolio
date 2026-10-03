@@ -46,6 +46,9 @@ function handleEmailSubmit() {
 <template>
   <div class="grid grid-cols-[1.5fr_2fr] sm:grid-cols-1 items-start">
     <img :src="image" class="h-screen w-full object-cover object-center sm:hidden" />
+    <span class="absolute left-0 bottom-0 px-3 py-2 text-sm text-neutral-400"
+      >Art by Lane Brown</span
+    >
 
     <div class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
       <!-- Logo -->

@@ -1,5 +1,5 @@
 import { category, postTag, tag } from '@/db/schema/post.js';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 import { count } from 'drizzle-orm';
 import { db } from '@/db/index.js';
 import { t } from '@/trpc/init.js';
@@ -23,6 +23,12 @@ export const tagRouter = t.router({
    }),
 
    getCategories: t.procedure.query(async () => {
-      return db.select().from(category).orderBy(category.name);
+      return db
+         .select()
+         .from(category)
+         .orderBy(
+            sql`CASE WHEN ${category.slug} = 'other' THEN 1 ELSE 0 END`,
+            category.name,
+         );
    }),
 });

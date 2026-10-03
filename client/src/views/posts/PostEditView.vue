@@ -223,7 +223,7 @@ async function handleSubmit() {
                   :disabled="isUploading || isSubmitting"
                   @click.stop="removeImage(index)"
                 >
-                  <Icon icon="ph:x-bold" class="text-white text-xs" />
+                  <Icon icon="ph:x-bold" class="text-white text-sm" />
                 </button>
               </div>
             </div>
@@ -314,13 +314,13 @@ async function handleSubmit() {
                 placeholder="Add a tag..."
                 @keydown="
                   (e: KeyboardEvent) => {
-                    if (tags.length >= 10) e.preventDefault();
+                    if (tags.length >= 5) e.preventDefault();
                   }
                 "
               />
             </TagsInput>
             <p class="text-xs text-muted-foreground">
-              Press Enter or comma to add · {{ tags.length }}/10
+              Press Enter or comma to add · {{ tags.length }}/5
             </p>
           </div>
 

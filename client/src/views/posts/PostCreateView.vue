@@ -315,13 +315,13 @@ async function handleSubmit() {
                 placeholder="Add a tag..."
                 @keydown="
                   (e: KeyboardEvent) => {
-                    if (tags.length >= 10) e.preventDefault();
+                    if (tags.length >= 5) e.preventDefault();
                   }
                 "
               />
             </TagsInput>
             <p class="text-xs text-muted-foreground">
-              Press Enter or comma to add · {{ tags.length }}/10
+              Press Enter or comma to add · {{ tags.length }}/5
             </p>
           </div>
 

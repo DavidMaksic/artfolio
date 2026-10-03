@@ -142,6 +142,15 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+
+    ::selection {
+      @apply bg-neutral-700 text-white;
+    }
+
+    /* Firefox support */
+    ::-moz-selection {
+      @apply bg-neutral-600 text-white;
+    }
   }
 }
 
