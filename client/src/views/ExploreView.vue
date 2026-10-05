@@ -109,7 +109,7 @@ const exploreResult = useInfiniteQuery({
   queryKey: computed(() => ["feed", "explore", sort.value, selectedCategory.value?.value ?? ""]),
   queryFn: ({ pageParam }) =>
     trpc.feed.getExplorePosts.query({
-      limit: 20,
+      limit: 23,
       cursor: pageParam,
       sort: sort.value,
       category: selectedCategory.value?.value,
@@ -131,7 +131,7 @@ const searchResult = useInfiniteQuery({
   queryFn: ({ pageParam }) =>
     trpc.post.search.query({
       query: debouncedQuery.value,
-      limit: 20,
+      limit: 23,
       cursor: pageParam,
       sort: sort.value,
       category: selectedCategory.value?.value,
@@ -222,19 +222,31 @@ function clearAllFilters() {
       <!-- Filter bar -->
       <div class="grid grid-cols-3 xl:grid-cols-2 md:grid-cols-[1fr_auto] md:gap-4 mb-1 px-5">
         <!-- Trending tags — hidden on xl and below -->
-        <div v-if="trendingTags.length" class="flex items-center gap-2 flex-wrap flex-1 xl:hidden">
+        <div class="flex items-center gap-2 flex-wrap flex-1 xl:hidden">
           <span class="text-[0.92rem] font-medium text-foreground shrink-0 mr-0.5">Trending:</span>
-          <button
-            v-for="tag in trendingTags"
-            :key="tag.id"
-            class="text-[0.92rem] px-4 py-1.5 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
-            :class="{
-              'border-neutral-300 text-foreground bg-neutral-100!': debouncedQuery === tag.name,
-            }"
-            @click="selectTag(tag.name)"
-          >
-            {{ tag.name }}
-          </button>
+
+          <template v-if="trendingTags.length">
+            <button
+              v-for="tag in trendingTags"
+              :key="tag.id"
+              class="text-[0.92rem] px-4 py-1.5 rounded-full border border-neutral-200 bg-white text-muted-foreground hover:border-neutral-400/80 transition-colors"
+              :class="{
+                'border-neutral-300 text-foreground bg-neutral-100!': debouncedQuery === tag.name,
+              }"
+              @click="selectTag(tag.name)"
+            >
+              {{ tag.name }}
+            </button>
+          </template>
+
+          <template v-else>
+            <div
+              v-for="w in ['w-20', 'w-26', 'w-22', 'w-18']"
+              :key="w"
+              :class="['h-8 rounded-full', w]"
+              class="animate-pulse bg-neutral-200"
+            />
+          </template>
         </div>
 
         <!-- Search bar -->
@@ -386,7 +398,7 @@ function clearAllFilters() {
         :is-owner="false"
         :is-loading-posts="isPending"
         :show-empty-state="false"
-        :rowHeight="!isPhone ? 300 : 420"
+        :rowHeight="!isPhone ? 300 : 380"
       />
 
       <!-- Empty state: no search results -->

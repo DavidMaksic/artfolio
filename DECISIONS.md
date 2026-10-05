@@ -346,3 +346,6 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 - Tags should be suggested in post create/edit
 - Make image on feedCard smaller instead of being full size
+- Fix all skeletons
+- When navigating from detail view (while in the scrolled main feed) to someone's profile, scroll does not reset
+- Liking a post should not invalidate postGrid query (posts update in the background now), but only the like count on postGrid, not post position
