@@ -343,7 +343,7 @@ async function handleSubmit() {
             >
               Cancel
             </Button>
-            <Button type="submit" class="flex-1" :disabled="!canSubmit">
+            <Button type="submit" class="flex-1 shadow-none" :disabled="!canSubmit">
               <Icon v-if="isSubmitting" icon="ph:spinner" class="animate-spin mr-2" />
               {{ isSubmitting ? "Saving..." : "Save changes" }}
             </Button>

@@ -9,7 +9,7 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-linear-to-r from-blue-accent-700 to-red-accent-500 text-primary-foreground hover:from-blue-accent-600 hover:to-red-accent-400",
+          "bg-linear-to-r from-blue-accent-700 to-red-accent-500 text-primary-foreground hover:from-blue-accent-600 hover:to-red-accent-400 shadow-[0_6px_20px_0_var(--color-red-accent-200)]/60",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:

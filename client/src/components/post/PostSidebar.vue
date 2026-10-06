@@ -332,7 +332,7 @@ function filterByCategory(slug: string) {
         <div class="flex items-center justify-between gap-1.5">
           <Button
             v-if="!isPostOwner"
-            class="flex-1 transition-colors"
+            class="flex-1 transition-colors shadow-[0_2px_15px_0_var(--color-neutral-300)]"
             :disabled="isFollowPending"
             @click="toggleFollow"
           >
@@ -341,8 +341,9 @@ function filterByCategory(slug: string) {
           </Button>
 
           <Button
-            class="flex-1 bg-neutral-200/70 border border-neutral-200 text-neutral-900 hover:bg-red-50 group hover:text-red-600/80 hover:border-red-200"
             variant="secondary"
+            class="flex-1 border group text-red-600/80 border-red-300 hover:bg-red-50"
+            :class="!liked ? 'bg-white' : 'bg-red-100/70'"
             data-testid="like-button"
             :data-liked="liked"
             :disabled="isLikePending"
@@ -356,8 +357,9 @@ function filterByCategory(slug: string) {
             Like
           </Button>
           <Button
-            class="flex-1 text-neutral-800 border-neutral-200 hover:bg-blue-50/50 group hover:text-blue-500 hover:border-blue-200"
-            variant="outline"
+            variant="secondary"
+            class="flex-1 border group text-blue-500 border-blue-300 hover:bg-blue-50/50"
+            :class="!bookmarked ? 'bg-white' : 'bg-blue-100/70'"
             data-testid="bookmark-button"
             :data-bookmarked="bookmarked"
             :disabled="isBookmarkPending"
@@ -539,7 +541,7 @@ function filterByCategory(slug: string) {
                     >
                     <Button
                       size="sm"
-                      class="text-[0.8rem] px-4 h-7 rounded-lg from-blue-accent-600 to-red-accent-400 hover:from-blue-accent-700 hover:to-red-accent-500"
+                      class="text-[0.8rem] px-4 h-7 rounded-lg from-blue-accent-600 to-red-accent-400 hover:from-blue-accent-700 hover:to-red-accent-500 shadow-none"
                       data-testid="save-comment-button"
                       :disabled="!editingBody.trim() || updateCommentMutation.isPending.value"
                       @click="

@@ -261,7 +261,7 @@ function onSubmit(e: SubmitEvent) {
               >
                 Cancel
               </Button>
-              <Button type="submit" class="flex-1" :disabled="isPending">
+              <Button type="submit" class="flex-1 shadow-none" :disabled="isPending">
                 <Icon v-if="isPending" icon="ph:spinner" class="animate-spin mr-2" />
                 {{ isPending ? "Saving..." : "Save changes" }}
               </Button>

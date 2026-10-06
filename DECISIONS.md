@@ -399,3 +399,5 @@ Purpose of this file is to track progress and decisions of each sprint.
 - When navigating from detail view (while in the scrolled main feed) to someone's profile, scroll does not reset
 - Fix all skeletons
 - Focus on comment edit textarea not working
+- Refactor client view files that are too big
+- Newly created post does not always appear on main feed

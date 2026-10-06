@@ -96,13 +96,12 @@ function handleEmailSubmit() {
           </form>
 
           <!-- Divider -->
-          <div class="relative">
-            <div class="absolute inset-0 flex items-center">
-              <Separator />
-            </div>
+          <div class="relative grid grid-cols-[1fr_auto_1fr] items-center">
+            <Separator />
             <div class="relative flex justify-center text-xs uppercase">
-              <span class="bg-card px-2 text-muted-foreground">or</span>
+              <span class="px-3 text-muted-foreground">or</span>
             </div>
+            <Separator />
           </div>
 
           <!-- OAuth buttons -->

@@ -63,7 +63,7 @@ const profileReady = computed(
 
       <!-- Logo -->
       <button
-        class="font-logo font-bold text-2xl tracking-tight transition-opacity hidden md:block bg-linear-to-r from-primary-accent-700 to-primary-accent-500 styled-text"
+        class="font-logo font-bold text-2xl tracking-tight transition-opacity hidden md:block bg-linear-to-r from-blue-accent-700 to-red-accent-500 styled-text"
         @click="router.push({ name: 'home' })"
       >
         Artfolio
@@ -102,8 +102,8 @@ const profileReady = computed(
 
         <template v-else>
           <Button
-            class="bg-neutral-800/90 hover:bg-neutral-600/95 px-5 rounded-lg"
             size="sm"
+            class="bg-neutral-800/90 hover:bg-neutral-600/95 px-5 rounded-lg"
             @click="router.push({ name: 'sign-in' })"
           >
             Sign in
