@@ -242,7 +242,7 @@ function closePost() {
         </div>
 
         <!-- Sidebar column -->
-        <div class="md:hidden w-80 md:w-full sticky mt-14 top-7 shrink-0">
+        <div class="md:hidden w-80 md:w-full sticky mt-14 top-22 shrink-0">
           <FeedSidebar @open-post="openPostFromDiscussion" />
         </div>
       </div>
