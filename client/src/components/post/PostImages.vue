@@ -84,7 +84,7 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
         <div
           v-for="image in post.images"
           :key="image.id"
-          class="w-full flex justify-center md:border-t md:border-t-neutral-900/70 md:first:border-t-0"
+          class="w-full flex justify-center md:border-t md:border-t-neutral-400/70 md:first:border-t-0"
           @click.self="emit('close')"
         >
           <img

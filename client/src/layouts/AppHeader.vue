@@ -21,6 +21,8 @@ const profileReady = computed(
 );
 </script>
 
+// TODO: Fix header not being transparent on profile view
+
 <template>
   <header
     class="sticky sm:static top-0 bg-neutral-100/80 backdrop-blur-xl z-50 w-full border-b border-b-neutral-400/30 sm:border-b-0"
