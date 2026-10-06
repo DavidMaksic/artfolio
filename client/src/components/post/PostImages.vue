@@ -99,31 +99,31 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
     <!-- Close button -->
     <button
-      class="absolute left-4 top-8 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2 transition-colors z-10 backdrop-blur-xl"
+      class="absolute left-4 md:left-2 top-8 md:top-6 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2 md:p-1.5 transition-colors z-10 backdrop-blur-xl"
       aria-label="Close button"
       @click="emit('close')"
     >
-      <Icon icon="ph:x" class="text-xl" />
+      <Icon icon="ph:x" class="text-xl md:text-lg" />
     </button>
 
     <!-- Prev button -->
     <button
       v-if="hasPrev"
-      class="absolute left-4 top-1/2 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2.5 transition-colors z-10 backdrop-blur-xl"
+      class="absolute left-4 md:left-2 top-1/2 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2.5 md:p-2 transition-colors z-10 backdrop-blur-xl"
       aria-label="Previous post"
       @click="navigatePrev"
     >
-      <Icon icon="ph:caret-left-bold" class="text-xl" />
+      <Icon icon="ph:caret-left-bold" class="text-xl md:text-lg" />
     </button>
 
     <!-- Next button — sits just inside the left panel -->
     <button
       v-if="hasNext"
-      class="absolute right-4 top-1/2 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2.5 transition-colors z-10 backdrop-blur-xl"
+      class="absolute right-4 md:right-2 top-1/2 -translate-y-1/2 bg-neutral-800/20 hover:bg-black/30 text-white rounded-full p-2.5 md:p-2 transition-colors z-10 backdrop-blur-xl"
       aria-label="Next post"
       @click="navigateNext"
     >
-      <Icon icon="ph:caret-right-bold" class="text-xl" />
+      <Icon icon="ph:caret-right-bold" class="text-xl md:text-lg" />
     </button>
   </section>
 </template>

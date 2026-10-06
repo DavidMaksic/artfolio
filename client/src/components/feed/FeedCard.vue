@@ -139,7 +139,7 @@ function copyPostLink() {
         />
         <div
           v-if="post.imageCount > 1"
-          class="absolute top-2 right-2 flex items-center gap-1 rounded-lg bg-black/35 px-1 py-1"
+          class="absolute top-2 right-2 flex items-center gap-1 rounded-lg bg-neutral-500/30 backdrop-blur-xl px-1 py-1"
         >
           <Icon icon="famicons:copy-outline" class="text-white drop-shadow text-lg" />
         </div>

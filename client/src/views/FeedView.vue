@@ -181,13 +181,11 @@ function closePost() {
     <!-- Discovery banner — guests only -->
     <div
       v-if="!auth.user"
-      class="border-b border-b-neutral-300/80 bg-neutral-200/40 px-6 py-3 md:border-t md:border-t-neutral-300/80"
+      class="border-b border-b-neutral-300/80 bg-linear-to-r from-blue-accent-400 to-red-accent-300 px-6 py-3 md:border-t md:border-t-neutral-300/80"
     >
-      <p class="text-center text-sm text-muted-foreground">
+      <p class="text-center text-sm text-white">
         Discover work from artists on Artfolio —
-        <RouterLink :to="{ name: 'sign-in' }" class="text-foreground underline">
-          sign in
-        </RouterLink>
+        <RouterLink :to="{ name: 'sign-in' }" class="underline font-semibold">sign in</RouterLink>
         to get a feed tailored to you.
       </p>
     </div>

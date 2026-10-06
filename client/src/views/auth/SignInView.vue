@@ -49,7 +49,9 @@ function handleEmailSubmit() {
       >Art by Lane Brown</span
     >
 
-    <div class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
+    <div
+      class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4 md:-translate-y-5"
+    >
       <!-- Logo -->
       <button
         class="font-logo font-bold text-2xl tracking-tight transition-opacity hover:opacity-70 bg-linear-to-r from-blue-accent-700 to-red-accent-500 styled-text"

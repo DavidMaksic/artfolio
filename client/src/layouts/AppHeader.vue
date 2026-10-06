@@ -22,7 +22,9 @@ const profileReady = computed(
 </script>
 
 <template>
-  <header class="z-50 w-full border-b border-b-neutral-300/80 sm:border-b-0">
+  <header
+    class="sticky sm:static top-0 bg-neutral-100/80 backdrop-blur-xl z-50 w-full border-b border-b-neutral-400/30 sm:border-b-0"
+  >
     <div
       class="mx-auto px-10 md:px-10 sm:px-7 h-14 flex md:grid md:grid-cols-3 items-center justify-between sm:justify-center gap-4"
     >

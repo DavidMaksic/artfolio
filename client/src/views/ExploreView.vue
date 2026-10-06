@@ -398,7 +398,7 @@ function clearAllFilters() {
         :is-owner="false"
         :is-loading-posts="isPending"
         :show-empty-state="false"
-        :rowHeight="!isPhone ? 300 : 380"
+        :rowHeight="!isPhone ? 200 : 380"
       />
 
       <!-- Empty state: no search results -->
