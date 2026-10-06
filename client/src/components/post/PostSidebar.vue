@@ -317,7 +317,7 @@ function filterByCategory(slug: string) {
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    class="bg-destructive hover:bg-destructive/90"
+                    class="from-red-700/70 to-red-700/70 hover:from-red-700/80 hover:to-red-700/80"
                     @click="deletePostMutation.mutate()"
                   >
                     Delete
@@ -333,11 +333,6 @@ function filterByCategory(slug: string) {
           <Button
             v-if="!isPostOwner"
             class="flex-1 transition-colors"
-            :class="
-              following
-                ? 'bg-neutral-400/60 hover:bg-neutral-300 text-neutral-800 border border-neutral-400/30'
-                : 'bg-neutral-600 hover:bg-neutral-600/80 text-white border border-neutral-400/30'
-            "
             :disabled="isFollowPending"
             @click="toggleFollow"
           >
@@ -508,7 +503,7 @@ function filterByCategory(slug: string) {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          class="bg-destructive hover:bg-destructive/90"
+                          class="from-red-700/70 to-red-700/70 hover:from-red-700/80 hover:to-red-700/80"
                           @click="deleteCommentMutation.mutate(comment.id)"
                         >
                           Delete
@@ -534,13 +529,17 @@ function filterByCategory(slug: string) {
                     @keydown.shift.enter.exact="() => {}"
                     @keydown.escape="cancelEdit"
                   />
-                  <div class="flex gap-2 justify-end">
-                    <Button variant="ghost" size="sm" class="text-xs" @click="cancelEdit"
+                  <div class="flex gap-2 mt-1 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      class="text-[0.8rem] h-7 rounded-lg"
+                      @click="cancelEdit"
                       >Cancel</Button
                     >
                     <Button
                       size="sm"
-                      class="text-xs"
+                      class="text-[0.8rem] px-4 h-7 rounded-lg from-blue-accent-600 to-red-accent-400 hover:from-blue-accent-700 hover:to-red-accent-500"
                       data-testid="save-comment-button"
                       :disabled="!editingBody.trim() || updateCommentMutation.isPending.value"
                       @click="

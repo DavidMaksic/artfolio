@@ -309,7 +309,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 **Known issues carried forward:**
 
 - No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint
-- Like/bookmark/comment counts on feed not updated in real time across tabs — delegated to Sprint 8, as it requires websockets
+- Like/bookmark/comment counts on feed not updated in real time across tabs — delegated to Sprint 9, as it requires websockets
 - Load more comments resets to page 1 after create/delete mutation — acceptable for now
 - When validation error happens for username when setting up profile, its only shown when submitting during the second step, which is unintuitive
 - `getExplorePosts` should suggest based on popularity and tag similarity
@@ -322,11 +322,45 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 **Completed:**
 
+- Deployed frontend to Vercel (`artfolio-project.vercel.app`) and backend to Render
+- Neon hosts production Postgres database
+- Set up Upstash Redis for Better Auth `secondaryStorage`
+- Set up UptimeRobot (5-minute `/health` ping) to keep Render awake
+- Switched the server build to tsup and added `client/vercel.json` rewrites for `/trpc` and `/api/auth`
+- Updated CI: dummy email credentials plus `EMAIL_DISABLED`; Node 24 and a server build step
+- Configured Google and Discord OAuth with production callback URLs
+- Post and comment options dropdown menu (three dots) with copy link, edit and delete
+- Feed card three dots dropdown with copy link
+- Explore page filter sheet/drawer — Sheet on xl to md, Drawer on sm and below
+- Unit tests for `updateComment` procedure
+- E2E test for comment edit flow
+- Responsive breakpoints set up desktop-first
+
 **Decisions:**
+
+- Fully free stack: Vercel, Render, Neon, Upstash, Cloudinary, Mailjet, UptimeRobot — no custom domain
+- Replaced Resend with Mailjet (HTTP API) for OTP and welcome emails
+- Bundle the server with tsup, so `@/` aliases and `@artfolio/shared` resolve in production
+- Vercel runs `build-only`, skipping `vue-tsc`, since CI already type-checks
+- Use an HTTP email API, because Render's free tier blocks outbound SMTP ports
+- Run migrations manually against Neon, and keep CI on its own Postgres and Redis containers instead of production
+- `EMAIL_DISABLED=true` in CI and E2E. Tests read the OTP from Redis, so no real email is needed
 
 **Issues resolved:**
 
+- Scroll position preserved on modal close via `scrollBehavior`
+- Tags normalized to lowercase on input in edit view
+- Black overlay bug when mixing DropdownMenu and AlertDialog fixed
+- `getExplorePosts` now suggests based on popularity first, tag and description similarity second, and profile user data last
+
 **Known issues carried forward:**
+
+- No Cloudinary `publicId` stored on profile table — cleanup relies on `extractPublicId` parsing the URL, which is fragile if Cloudinary URL format changes. Consider adding a `profileImagePublicId` column in a future sprint
+- Like/bookmark/comment counts on feed not updated in real time across tabs — delegated to Sprint 9, as it requires websockets
+- Load more comments resets to page 1 after create/delete mutation — acceptable for now
+- When validation error happens for username when setting up profile, its only shown when submitting during the second step, which is unintuitive
+- OTP emails land in spam, because there's no custom domain for SPF/DKIM
+- Cold starts of about a minute if the keep-alive ping fails, plus slower first queries after Neon scales to zero
 
 ---
 
@@ -344,8 +378,20 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to add
 
+- Add custom favicon
+- Make follow/unfollow state on detail modal and feed card to be optimistic
 - Tags should be suggested in post create/edit
+- Add accent colors to remade email templates
+- Bookmark page not yet implemented
+
+## Things to fix
+
 - Make image on feedCard smaller instead of being full size
-- Fix all skeletons
-- When navigating from detail view (while in the scrolled main feed) to someone's profile, scroll does not reset
+- Make categories dropdown width dynamic (imitate sorting dropdown)
 - Liking a post should not invalidate postGrid query (posts update in the background now), but only the like count on postGrid, not post position
+- When logging in for the first time, user can see main feed for a moment, before being redirected to profile setup view
+- Right chevron should not appear on post detail modal when opened from discussions tab
+- 'View more' on discussions tab does not load any comments in some cases
+- When navigating from detail view (while in the scrolled main feed) to someone's profile, scroll does not reset
+- Fix all skeletons
+- Focus on comment edit textarea not working

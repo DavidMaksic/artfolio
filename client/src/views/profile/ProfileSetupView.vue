@@ -73,14 +73,29 @@ function onSubmit() {
       <CardHeader class="pb-2">
         <!-- Step indicator -->
         <div class="flex items-center gap-2 mb-4">
-          <div
-            class="h-1.5 rounded-full flex-1 transition-colors duration-300"
-            :class="step >= 1 ? 'bg-primary' : 'bg-muted'"
-          />
-          <div
-            class="h-1.5 rounded-full flex-1 transition-colors duration-300"
-            :class="step >= 2 ? 'bg-primary' : 'bg-muted'"
-          />
+          <!-- step 1: gradient starts at full color (left half) -->
+          <div class="relative h-1.5 flex-1 rounded-full overflow-hidden bg-muted">
+            <div
+              class="absolute inset-0 transition-all duration-500"
+              :style="{
+                background:
+                  'linear-gradient(to right, var(--color-blue-accent-700), var(--color-red-accent-500))',
+                transform: step >= 1 ? 'translateX(0)' : 'translateX(-100%)',
+              }"
+            />
+          </div>
+
+          <!-- step 2: gradient continues (right half) -->
+          <div class="relative h-1.5 flex-1 rounded-full overflow-hidden bg-muted">
+            <div
+              class="absolute inset-0 transition-all duration-500"
+              :style="{
+                background:
+                  'linear-gradient(to right, var(--color-red-accent-500), var(--color-red-accent-300))',
+                transform: step >= 2 ? 'translateX(0)' : 'translateX(-100%)',
+              }"
+            />
+          </div>
         </div>
 
         <p class="text-xs text-muted-foreground uppercase tracking-widest font-medium">
@@ -257,7 +272,7 @@ function onSubmit() {
     </Card>
 
     <!-- Fine print -->
-    <p class="text-xs text-muted-foreground text-center max-w-xs">
+    <p class="text-xs text-muted-foreground text-center max-w-sm">
       You can update your profile at any time from your settings.
     </p>
   </div>

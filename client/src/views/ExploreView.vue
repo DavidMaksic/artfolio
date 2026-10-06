@@ -241,7 +241,7 @@ function clearAllFilters() {
 
           <template v-else>
             <div
-              v-for="w in ['w-20', 'w-26', 'w-22', 'w-18']"
+              v-for="w in ['w-20', 'w-26', 'w-22']"
               :key="w"
               :class="['h-8 rounded-full', w]"
               class="animate-pulse bg-neutral-200"
@@ -351,7 +351,7 @@ function clearAllFilters() {
           class="flex flex-col gap-2"
           :class="
             isDesktop
-              ? 'w-80 rounded-l-2xl bg-neutral-100'
+              ? 'w-84 rounded-l-2xl bg-neutral-100'
               : 'px-5 sm:px-8 sm:pt-4 pb-8 rounded-t-2xl'
           "
         >
@@ -381,13 +381,13 @@ function clearAllFilters() {
           >
             <Button
               variant="outline"
-              class="flex-1 h-11 rounded-xl"
+              class="flex-1 h-10 rounded-xl"
               :disabled="activeFilterCount === 0"
               @click="clearAllFilters"
             >
               Clear all
             </Button>
-            <Button class="flex-1 h-11 rounded-xl" @click="filtersOpen = false"> Done </Button>
+            <Button class="flex-1 h-10 rounded-xl" @click="filtersOpen = false"> Done </Button>
           </div>
         </SheetContent>
       </Sheet>

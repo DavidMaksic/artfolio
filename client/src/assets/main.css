@@ -56,6 +56,30 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
 
+  --color-blue-accent-50: var(--blue-accent-50);
+  --color-blue-accent-100: var(--blue-accent-100);
+  --color-blue-accent-200: var(--blue-accent-200);
+  --color-blue-accent-300: var(--blue-accent-300);
+  --color-blue-accent-400: var(--blue-accent-400);
+  --color-blue-accent-500: var(--blue-accent-500);
+  --color-blue-accent-600: var(--blue-accent-600);
+  --color-blue-accent-700: var(--blue-accent-700);
+  --color-blue-accent-800: var(--blue-accent-800);
+  --color-blue-accent-900: var(--blue-accent-900);
+  --color-blue-accent-950: var(--blue-accent-950);
+
+  --color-red-accent-50: var(--red-accent-50);
+  --color-red-accent-100: var(--red-accent-100);
+  --color-red-accent-200: var(--red-accent-200);
+  --color-red-accent-300: var(--red-accent-300);
+  --color-red-accent-400: var(--red-accent-400);
+  --color-red-accent-500: var(--red-accent-500);
+  --color-red-accent-600: var(--red-accent-600);
+  --color-red-accent-700: var(--red-accent-700);
+  --color-red-accent-800: var(--red-accent-800);
+  --color-red-accent-900: var(--red-accent-900);
+  --color-red-accent-950: var(--red-accent-950);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -99,6 +123,30 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --blue-accent-50: #e4eaf1;
+  --blue-accent-100: #c9d5e3;
+  --blue-accent-200: #aec0d5;
+  --blue-accent-300: #93acc8;
+  --blue-accent-400: #7797bb;
+  --blue-accent-500: #5c82ad;
+  --blue-accent-600: #4b6e95;
+  --blue-accent-700: #3e5a7a;
+  --blue-accent-800: #30465f;
+  --blue-accent-900: #223244;
+  --blue-accent-950: #151e29;
+
+  --red-accent-50: #efe6e8;
+  --red-accent-100: #dfcdd1;
+  --red-accent-200: #cfb4b9;
+  --red-accent-300: #bf9ba3;
+  --red-accent-400: #af838c;
+  --red-accent-500: #a06a74;
+  --red-accent-600: #895861;
+  --red-accent-700: #70484f;
+  --red-accent-800: #57383d;
+  --red-accent-900: #3e282c;
+  --red-accent-950: #25181a;
 }
 
 .dark {
@@ -155,6 +203,11 @@
 }
 
 @layer components {
+  .styled-text {
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
   .scrollbar {
     &::-webkit-scrollbar {
       width: 2px;

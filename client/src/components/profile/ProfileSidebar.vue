@@ -54,7 +54,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
 <template>
   <aside
     class="w-76 lg:w-62 bg-white/80 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 lg:px-6 flex flex-col items-center sticky top-10 text-center gap-4 justify-center rounded-2xl transition duration-700 md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-auto md:mx-auto md:rounded-2xl md:px-6 md:py-5 md:grid md:grid-cols-[auto_1fr] md:justify-start md:justify-items-start md:items-center md:text-left md:gap-x-8 md:gap-y-3 md:mb-2"
-    :class="cn(!isOwner ? 'px-12' : 'px-6')"
+    :class="cn(!isOwner ? 'px-8' : 'px-6')"
   >
     <!-- Profile image (spans name + stats rows on mobile) -->
     <img

@@ -17,7 +17,7 @@ import FeedCard from "@/components/feed/FeedCard.vue";
 type FeedItemWithMeta = FeedItem & { suggested: boolean };
 const feedStore = useFeedStore();
 
-const SUGGEST_EVERY = 2; // inject a suggested post every N following posts
+const SUGGEST_EVERY = 3; // inject a suggested post every N following posts
 
 const route = useRoute();
 const router = useRouter();

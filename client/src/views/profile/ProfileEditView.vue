@@ -289,7 +289,12 @@ function onSubmit(e: SubmitEvent) {
               </div>
               <AlertDialog>
                 <AlertDialogTrigger as-child>
-                  <Button variant="destructive" size="sm" class="px-6" type="button">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    class="px-6 bg-red-700/70 hover:bg-red-700/80"
+                    type="button"
+                  >
                     Delete
                   </Button>
                 </AlertDialogTrigger>
@@ -304,7 +309,7 @@ function onSubmit(e: SubmitEvent) {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                      class="bg-destructive hover:bg-destructive/90"
+                      class="from-red-700/70 to-red-700/70 hover:from-red-700/80 hover:to-red-700/80"
                       @click="auth.deleteAccount()"
                     >
                       Yes, delete everything

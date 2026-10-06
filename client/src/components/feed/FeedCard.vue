@@ -101,12 +101,7 @@ function copyPostLink() {
           <!-- Only show follow button on suggested posts -->
           <Button
             v-if="suggested"
-            class="h-7 px-4 rounded-lg transition-colors"
-            :class="
-              following
-                ? 'bg-neutral-400/60 hover:bg-neutral-300 text-neutral-800 border border-neutral-400/30'
-                : 'bg-neutral-700 hover:bg-neutral-600/90 text-white border border-neutral-400/30'
-            "
+            class="h-7 px-4 rounded-lg transition-colors from-blue-accent-500 to-red-accent-300"
             :disabled="isFollowPending"
             data-testid="follow-button"
             :data-following="following"

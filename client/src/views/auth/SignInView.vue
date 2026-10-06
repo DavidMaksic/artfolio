@@ -52,7 +52,7 @@ function handleEmailSubmit() {
     <div class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
       <!-- Logo -->
       <button
-        class="font-logo font-bold text-2xl tracking-tight transition-opacity hover:opacity-70"
+        class="font-logo font-bold text-2xl tracking-tight transition-opacity hover:opacity-70 bg-linear-to-r from-blue-accent-700 to-red-accent-500 styled-text"
         @click="router.push({ name: 'home' })"
       >
         Artfolio
@@ -84,11 +84,7 @@ function handleEmailSubmit() {
               {{ error }}
             </p>
 
-            <Button
-              type="submit"
-              class="w-full bg-neutral-800/90 hover:bg-neutral-600/95"
-              :disabled="isPending"
-            >
+            <Button type="submit" class="w-full" :disabled="isPending">
               <Icon
                 v-if="isPending"
                 icon="ph:spinner"
