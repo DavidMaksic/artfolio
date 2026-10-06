@@ -332,9 +332,13 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Post and comment options dropdown menu (three dots) with copy link, edit and delete
 - Feed card three dots dropdown with copy link
 - Explore page filter sheet/drawer — Sheet on xl to md, Drawer on sm and below
+- Responsive breakpoints set up desktop-first
+- Bottom navigation bar for `sm:` and below (Home, Explore, New Post, Profile links)
+- Two gradient accent colors applied to interactive elements and logo only, keeping artworks visually primary
+- Cloudinary image transformation pipeline — thumbnails and card images are resized
+- Font stack corrected — Inter variable font applied for text globally, while Oldernburg is used for logo
 - Unit tests for `updateComment` procedure
 - E2E test for comment edit flow
-- Responsive breakpoints set up desktop-first
 
 **Decisions:**
 
