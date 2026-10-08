@@ -186,7 +186,7 @@ function closePost() {
       <p class="text-center text-sm text-white">
         Discover work from artists on Artfolio —
         <RouterLink :to="{ name: 'sign-in' }" class="underline font-semibold">sign in</RouterLink>
-        to get a feed tailored to you.
+        to get a feed tailored to you
       </p>
     </div>
 

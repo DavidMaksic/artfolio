@@ -3,15 +3,6 @@ import { registerAuthGuards } from "./guards";
 import { trpc } from "@/lib/trpc";
 import FeedView from "@/views/FeedView.vue";
 
-declare module "vue-router" {
-  interface RouteMeta {
-    title?: string;
-    description?: string;
-    requiresAuth?: boolean;
-    requiresGuest?: boolean;
-  }
-}
-
 const router = createRouter({
   history: createWebHistory(),
   scrollBehavior(to, from, savedPosition) {
@@ -81,7 +72,7 @@ const router = createRouter({
       path: "/explore",
       name: "explore",
       component: () => import("@/views/ExploreView.vue"),
-      meta: { requiresAuth: true, title: "Explore" },
+      meta: { title: "Explore" },
     },
     {
       path: "/:username",
