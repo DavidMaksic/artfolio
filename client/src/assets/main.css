@@ -200,10 +200,6 @@
       @apply bg-neutral-600 text-white;
     }
   }
-
-  html {
-    scrollbar-width: none;
-  }
 }
 
 @layer components {
