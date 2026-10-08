@@ -382,12 +382,10 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to add
 
-- Add custom favicon and app name (current: Vite App)
 - Make follow/unfollow state on detail modal and feed card to be optimistic
 - Tags should be suggested in post create/edit
 - Add accent colors to remade email templates
 - Bookmark page not yet implemented
-- Add custom scrollbar to all scrollable pages
 
 ## Things to fix
 
@@ -402,3 +400,4 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Focus on comment edit textarea not working
 - Refactor client view files that are too big
 - Newly created post does not always appear on main feed
+- getMe is called on every route unnecessarily (throwing 401 error)

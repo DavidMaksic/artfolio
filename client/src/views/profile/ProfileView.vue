@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, watchEffect } from "vue";
+import { computed, watch, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useProfilePalette } from "@/composables/useProfilePalette";
-import { useMediaQuery } from "@vueuse/core";
+import { useMediaQuery, useTitle } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth.store";
 import { useQuery } from "@tanstack/vue-query";
 import { Icon } from "@iconify/vue";
@@ -32,6 +32,15 @@ const { data: posts, isPending: isLoadingPosts } = useQuery({
   queryKey: computed(() => ["posts", username.value]),
   queryFn: () => trpc.post.getByUsername.query({ username: username.value }),
 });
+
+const title = useTitle();
+watch(
+  profile,
+  (p) => {
+    if (p) title.value = `${p.displayName} (@${p.username}) · Artfolio`;
+  },
+  { immediate: true },
+);
 
 const auth = useAuthStore();
 const isOwner = computed(() => auth.user?.id === profile.value?.userId);
