@@ -15,6 +15,7 @@ const props = defineProps<{
   accentOverlay?: boolean;
   showEmptyState?: boolean;
   rowHeight?: number;
+  minWidth?: number;
 }>();
 
 const route = useRoute();
@@ -64,10 +65,14 @@ const rows = computed<Row[]>(() => {
   const rows: Row[] = [];
   let currentRow: { post: Post; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
+  const MIN_WIDTH = props.minWidth ?? 280;
 
   for (const post of props.posts ?? []) {
     const cover = post.coverImage;
-    const aspectRatio = cover ? cover.width / cover.height : 1;
+    const naturalRatio = cover ? cover.width / cover.height : 1;
+
+    // Never lay an item out narrower than MIN_WIDTH at the target height
+    const aspectRatio = Math.max(naturalRatio, MIN_WIDTH / TARGET_ROW_HEIGHT);
     const scaledWidth = aspectRatio * TARGET_ROW_HEIGHT;
 
     currentRow.push({ post, aspectRatio });
@@ -116,13 +121,13 @@ const rows = computed<Row[]>(() => {
         <div
           v-for="(row, rowIndex) in rows"
           :key="rowIndex"
-          class="flex gap-1 sm:gap-px mb-1 sm:mb-px"
+          class="flex gap-1 sm:gap-0.5 mb-1 sm:mb-0.5"
         >
           <div
             v-for="{ post, width } in row"
             :key="post.id"
             :data-post-id="post.id"
-            class="relative overflow-hidden rounded-xl sm:rounded-none border border-neutral-200 sm:border-none group select-none shrink-0"
+            class="relative overflow-hidden rounded-xl border border-neutral-300/80 sm:border-neutral-300/70 sm:first:border-l-0 sm:last:border-r-0 group select-none shrink-0 sm:rounded-lg sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
             :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
             @click="openPost(post.id)"
           >

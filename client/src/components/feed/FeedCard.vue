@@ -129,7 +129,7 @@ function copyPostLink() {
     </div>
 
     <div
-      class="border border-neutral-200 sm:border-none rounded-2xl sm:rounded-none sm:shadow-card overflow-hidden transition-shadow duration-300 bg-white"
+      class="border border-neutral-200 sm:border-x-0 sm:border-b-0 rounded-2xl sm:rounded-none sm:shadow-card overflow-hidden transition-shadow duration-300 bg-white"
     >
       <div class="relative group" @click="$emit('open', post.id)">
         <img

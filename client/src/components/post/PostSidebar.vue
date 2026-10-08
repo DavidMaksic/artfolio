@@ -386,7 +386,7 @@ function filterByCategory(slug: string) {
         :class="
           cn(
             comments.length === 1 && 'md:min-h-58',
-            comments.length === 2 && 'md:min-h-80',
+            comments.length === 2 && 'md:min-h-88',
             comments.length > 2 && 'md:min-h-105',
           )
         "

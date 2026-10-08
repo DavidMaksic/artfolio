@@ -160,7 +160,7 @@ function onSubmit() {
             <div class="space-y-1.5">
               <Label for="bio">
                 Bio
-                <span class="text-muted-foreground font-normal ml-1">— optional</span>
+                <span class="text-neutral-400 font-normal">− optional</span>
               </Label>
               <Textarea
                 id="bio"
@@ -169,13 +169,13 @@ function onSubmit() {
                 :disabled="isPending"
                 rows="3"
               />
-              <p class="text-xs text-muted-foreground text-right">{{ bio.length }} / 500</p>
+              <p class="text-xs text-neutral-400 text-right">{{ bio.length }} / 500</p>
             </div>
 
             <div class="space-y-1.5">
               <Label for="location">
                 Location
-                <span class="text-muted-foreground font-normal ml-1">— optional</span>
+                <span class="text-neutral-400 font-normal">− optional</span>
               </Label>
               <div class="relative">
                 <Icon
@@ -196,7 +196,7 @@ function onSubmit() {
             <div class="space-y-1.5">
               <Label for="website">
                 Website
-                <span class="text-muted-foreground font-normal ml-1">— optional</span>
+                <span class="text-neutral-400 font-normal">− optional</span>
               </Label>
               <div class="relative">
                 <Icon
@@ -273,7 +273,7 @@ function onSubmit() {
 
     <!-- Fine print -->
     <p class="text-xs text-muted-foreground text-center max-w-sm">
-      You can update your profile at any time from your settings.
+      You can update your profile at any time from your settings
     </p>
   </div>
 </template>

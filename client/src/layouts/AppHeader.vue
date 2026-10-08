@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
-import { useRouter } from "vue-router";
 import { computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
+import { cn } from "@/lib/utils";
 
-const router = useRouter();
 const auth = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
 const { data: me } = useQuery({
   queryKey: ["me"],
@@ -16,16 +18,23 @@ const { data: me } = useQuery({
   enabled: computed(() => auth.isAuthenticated),
 });
 
+const isProfile = computed(() => route.name === "profile");
+
 const profileReady = computed(
   () => !!me.value && (me.value.profileSetupSkipped || !!me.value.displayName),
 );
 </script>
 
-// TODO: Fix header not being transparent on profile view
-
 <template>
   <header
-    class="sticky sm:static top-0 bg-neutral-100/80 backdrop-blur-xl z-50 w-full border-b border-b-neutral-400/30 sm:border-b-0"
+    class="sm:static z-50 w-full border-b border-b-neutral-400/30 sm:border-b-0"
+    :class="
+      cn(
+        isProfile
+          ? 'relative bg-transparent'
+          : 'sticky top-0 bg-neutral-100/80 backdrop-blur-xl sm:backdrop-blur-none',
+      )
+    "
   >
     <div
       class="mx-auto px-10 md:px-10 sm:px-7 h-14 flex md:grid md:grid-cols-3 items-center justify-between sm:justify-center gap-4"

@@ -220,7 +220,9 @@ function clearAllFilters() {
   <div class="min-h-screen bg-neutral-100">
     <main class="w-full mx-auto px-5 sm:px-0 py-8 md:pt-6 sm:pt-2 flex flex-col">
       <!-- Filter bar -->
-      <div class="grid grid-cols-3 xl:grid-cols-2 md:grid-cols-[1fr_auto] md:gap-4 mb-1 px-5">
+      <div
+        class="grid grid-cols-3 xl:grid-cols-2 md:grid-cols-[1fr_auto] md:gap-4 sm:gap-2 mb-1 px-5 sm:px-3"
+      >
         <!-- Trending tags — hidden on xl and below -->
         <div class="flex items-center gap-2 flex-wrap flex-1 xl:hidden">
           <span class="text-[0.92rem] font-medium text-foreground shrink-0 mr-0.5">Trending:</span>
@@ -399,6 +401,7 @@ function clearAllFilters() {
         :is-loading-posts="isPending"
         :show-empty-state="false"
         :rowHeight="!isPhone ? 200 : 380"
+        :minWidth="!isPhone ? 200 : 340"
       />
 
       <!-- Empty state: no search results -->

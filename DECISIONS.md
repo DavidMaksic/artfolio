@@ -382,11 +382,12 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to add
 
-- Add custom favicon
+- Add custom favicon and app name (current: Vite App)
 - Make follow/unfollow state on detail modal and feed card to be optimistic
 - Tags should be suggested in post create/edit
 - Add accent colors to remade email templates
 - Bookmark page not yet implemented
+- Add custom scrollbar to all scrollable pages
 
 ## Things to fix
 

@@ -2,17 +2,18 @@
 import { computed, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useProfilePalette } from "@/composables/useProfilePalette";
+import { useMediaQuery } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth.store";
 import { useQuery } from "@tanstack/vue-query";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
+import { cn } from "@/lib/utils";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 import ProfileSidebar from "@/components/profile/ProfileSidebar.vue";
 import PostGrid from "@/components/post/PostGrid.vue";
-import { cn } from "@/lib/utils";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,6 +35,7 @@ const { data: posts, isPending: isLoadingPosts } = useQuery({
 
 const auth = useAuthStore();
 const isOwner = computed(() => auth.user?.id === profile.value?.userId);
+const isPhone = useMediaQuery("(min-width: 640px)");
 
 // Palette theming
 const { accentHsl, extractPalette } = useProfilePalette();
@@ -89,7 +91,14 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
         <ProfileSidebar :profile :isOwner :paBase :postCount="posts?.items.length" />
 
         <!-- Right — posts -->
-        <PostGrid :posts="posts?.items" :isOwner :isLoadingPosts :accentOverlay="true" />
+        <PostGrid
+          :posts="posts?.items"
+          :isOwner
+          :isLoadingPosts
+          :accentOverlay="true"
+          :rowHeight="!isPhone ? 200 : 380"
+          :minWidth="!isPhone ? 200 : 340"
+        />
       </div>
     </template>
 
