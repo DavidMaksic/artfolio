@@ -339,6 +339,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Font stack corrected — Inter variable font applied for text globally, while Oldernburg is used for logo
 - Unit tests for `updateComment` procedure
 - E2E test for comment edit flow
+- Added favicon + routes metadata
 
 **Decisions:**
 

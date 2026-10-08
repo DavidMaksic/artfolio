@@ -441,7 +441,7 @@ function filterByCategory(slug: string) {
                     <img
                       v-if="comment.profile.profileImageUrl"
                       :src="comment.profile.profileImageUrl"
-                      class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity"
+                      class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity border"
                     />
                     <div
                       v-else

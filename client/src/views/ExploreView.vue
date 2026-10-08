@@ -389,7 +389,9 @@ function clearAllFilters() {
             >
               Clear all
             </Button>
-            <Button class="flex-1 h-10 rounded-xl" @click="filtersOpen = false"> Done </Button>
+            <Button class="flex-1 h-10 rounded-xl shadow-none" @click="filtersOpen = false">
+              Done
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
