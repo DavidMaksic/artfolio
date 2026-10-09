@@ -109,7 +109,7 @@ const exploreResult = useInfiniteQuery({
   queryKey: computed(() => ["feed", "explore", sort.value, selectedCategory.value?.value ?? ""]),
   queryFn: ({ pageParam }) =>
     trpc.feed.getExplorePosts.query({
-      limit: 23,
+      limit: 30,
       cursor: pageParam,
       sort: sort.value,
       category: selectedCategory.value?.value,
@@ -131,7 +131,7 @@ const searchResult = useInfiniteQuery({
   queryFn: ({ pageParam }) =>
     trpc.post.search.query({
       query: debouncedQuery.value,
-      limit: 23,
+      limit: 30,
       cursor: pageParam,
       sort: sort.value,
       category: selectedCategory.value?.value,

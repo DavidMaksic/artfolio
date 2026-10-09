@@ -55,7 +55,7 @@ const {
   isPending: isFollowingPending,
 } = useInfiniteQuery({
   queryKey: ["feed", "following"],
-  queryFn: ({ pageParam }) => trpc.feed.getFollowingFeed.query({ limit: 5, cursor: pageParam }),
+  queryFn: ({ pageParam }) => trpc.feed.getFollowingFeed.query({ limit: 10, cursor: pageParam }),
   initialPageParam: undefined as string | undefined,
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   enabled: computed(() => auth.isAuthenticated),

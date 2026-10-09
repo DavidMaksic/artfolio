@@ -385,7 +385,7 @@ function filterByCategory(slug: string) {
         class="flex flex-1 md:min-h-46 md:m-4 flex-col bg-background rounded-2xl border border-border shadow-2xl md:shadow-none overflow-hidden z-10"
         :class="
           cn(
-            comments.length === 1 && 'md:min-h-58',
+            comments.length === 1 && 'md:min-h-66',
             comments.length === 2 && 'md:min-h-88',
             comments.length > 2 && 'md:min-h-105',
           )

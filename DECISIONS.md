@@ -387,9 +387,12 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Tags should be suggested in post create/edit
 - Add accent colors to remade email templates
 - Bookmark page not yet implemented
+- Add better form validation
 
 ## Things to fix
 
+- Remove some padding-bottom from 'New Post', 'Edit profile' and other headers
+- Add gap between text and delete button in danger zone on profile edit
 - Make image on feedCard smaller instead of being full size
 - Make categories dropdown width dynamic (imitate sorting dropdown)
 - Liking a post should not invalidate postGrid query (posts update in the background now), but only the like count on postGrid, not post position
@@ -402,3 +405,4 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Refactor client view files that are too big
 - Newly created post does not always appear on main feed
 - getMe is called on every route unnecessarily (throwing 401 error)
+- Number indicator on filters button needs better background color
