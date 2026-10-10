@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FeedItem, Post } from "@artfolio/shared";
-import { ref, computed, watch, onUnmounted } from "vue";
+import { ref, computed, watch, onUnmounted, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { Icon } from "@iconify/vue";
@@ -112,8 +112,13 @@ const rows = computed<Row[]>(() => {
   <section class="flex-1 min-w-0 p-5 sm:px-0 sm:pt-4">
     <div ref="containerRef" class="w-full overflow-x-hidden">
       <template v-if="isLoadingPosts">
-        <div class="grid grid-cols-3 gap-1">
-          <Skeleton v-for="n in 9" :key="n" class="h-95 w-full rounded-xl" />
+        <div v-for="row in 3" :key="row" class="flex gap-1 sm:gap-0.5 mb-1 sm:mb-0.5">
+          <Skeleton
+            v-for="col in 3"
+            :key="col"
+            class="flex-1 min-w-0 bg-neutral-200 rounded-xl sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
+            :style="{ height: `${TARGET_ROW_HEIGHT || 200}px` }"
+          />
         </div>
       </template>
 

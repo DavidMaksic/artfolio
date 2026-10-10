@@ -69,41 +69,41 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
 
 <template>
   <div class="min-h-screen bg-neutral-100" :style="cssVars">
-    <!-- Loading -->
-    <template v-if="isPending">
-      <div class="relative flex min-h-screen w-full">
-        <Skeleton class="w-72 shrink-0 h-[calc(100vh-7.2rem)] mt-5 ml-5 rounded-2xl" />
-      </div>
-    </template>
-
-    <!-- Profile -->
-    <template v-else-if="profile">
+    <!-- Loading or Profile -->
+    <template v-if="isPending || profile">
       <div class="relative md:pt-5 sm:pt-0 flex md:flex-col min-h-screen transition duration-700">
+        <!-- Background accent (only when profile is ready) -->
         <div
+          v-if="profile"
           class="fixed top-0 left-0 inset-0 z-0 pointer-events-none"
           :class="
             cn(
-              // Base styles
               '[--bg-size:200%_200%] [--bg-pos:-80%_60%]',
-
-              // Tablets
               'md:[--bg-size:220%_220%] md:[--bg-pos:-80%_20%]',
-
-              // Mobile
               'sm:[--bg-size:200%_200%] sm:[--bg-pos:-80%_10%]',
             )
           "
           :style="`background: radial-gradient(ellipse var(--bg-size) at var(--bg-pos), hsl(${paBase} / 0.6) 0%, transparent 65%)`"
-        ></div>
+        />
 
-        <!-- Left — profile sidebar -->
-        <ProfileSidebar :profile :isOwner :paBase :postCount="posts?.items.length" />
+        <!-- Sidebar: skeleton while pending, real once profile is ready -->
+        <Skeleton
+          v-if="isPending"
+          class="w-76 lg:w-62 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 sticky top-10 rounded-2xl md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-32 md:mx-auto"
+        />
+        <ProfileSidebar
+          v-else-if="profile"
+          :profile
+          :isOwner
+          :paBase
+          :postCount="posts?.items.length"
+        />
 
-        <!-- Right — posts -->
+        <!-- Grid: single persistent instance, skeleton handled internally -->
         <PostGrid
           :posts="posts?.items"
-          :isOwner
-          :isLoadingPosts
+          :isOwner="isPending ? false : isOwner"
+          :isLoadingPosts="isPending || isLoadingPosts"
           :accentOverlay="true"
           :rowHeight="!isPhone ? 200 : 380"
           :minWidth="!isPhone ? 200 : 340"

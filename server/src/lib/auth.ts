@@ -106,12 +106,6 @@ export const auth = betterAuth({
          enabled: true,
       },
    },
-
-   advanced: {
-      ipAddress: {
-         ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'],
-      },
-   },
 });
 
 export type Auth = typeof auth;
