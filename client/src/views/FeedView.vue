@@ -2,9 +2,9 @@
 import type { FeedItem } from "@artfolio/shared";
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/vue-query";
 import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
-import { useRoute, useRouter } from "vue-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
@@ -148,9 +148,11 @@ const hasNextPage = computed(() => {
   }
   return hasNextFollowing.value || hasNextExplore.value;
 });
+
 const isFetchingNextPage = computed(
   () => isFetchingNextFollowing.value || isFetchingNextExplore.value,
 );
+
 const isPending = computed(() =>
   auth.isAuthenticated ? isFollowingPending.value : isExplorePending.value,
 );
@@ -199,7 +201,26 @@ function closePost() {
           <!-- Loading -->
           <template v-if="isPending">
             <div class="grid grid-cols-1 gap-8">
-              <Skeleton v-for="n in 5" :key="n" class="h-160 rounded-2xl" />
+              <div v-for="n in 5" :key="n" class="flex flex-col">
+                <!-- Header -->
+                <div class="space-y-2.5 py-2.5">
+                  <div class="flex items-center justify-between gap-2 sm:px-2">
+                    <div class="flex items-center gap-1.5">
+                      <Skeleton class="size-9 rounded-full shrink-0" />
+                      <Skeleton class="h-4 w-28 ml-1" />
+                      <Skeleton class="h-3 w-14" />
+                    </div>
+                    <Skeleton class="size-7 rounded-md shrink-0" />
+                  </div>
+                </div>
+
+                <!-- Card body -->
+                <div class="rounded-2xl sm:rounded-none">
+                  <Skeleton
+                    class="w-full aspect-square xs:aspect-3/4 2xs:aspect-3/4 rounded-2xl sm:rounded-none"
+                  />
+                </div>
+              </div>
             </div>
           </template>
 

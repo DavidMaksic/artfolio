@@ -6,8 +6,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
+import { computed, onMounted, ref, watch } from "vue";
 import { formatDistanceToNow } from "date-fns";
-import { computed, watch } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import { useEngagement } from "@/composables/useEngagement";
 import { useFollow } from "@/composables/useFollow";
@@ -64,6 +64,22 @@ const { following, toggleFollow, isFollowPending } = useFollow(
 function copyPostLink() {
   navigator.clipboard.writeText(`${window.location.origin}/?post=${props.post.id}`);
 }
+
+const imageRef = ref<HTMLImageElement | null>(null);
+const imageLoaded = ref(false);
+
+onMounted(() => {
+  if (imageRef.value?.complete) {
+    imageLoaded.value = true;
+  }
+});
+
+watch(
+  () => props.post.coverImage.imageUrl,
+  () => {
+    imageLoaded.value = false;
+  },
+);
 </script>
 
 <template>
@@ -118,7 +134,7 @@ function copyPostLink() {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" class="rounded-lg w-36">
-              <DropdownMenuItem class="text-[0.92rem] cursor-pointer" @click="copyPostLink">
+              <DropdownMenuItem class="text-[0.92rem]" @click="copyPostLink">
                 <Icon icon="ph:link" class="mr-2 text-sm" />
                 Copy link
               </DropdownMenuItem>
@@ -132,10 +148,20 @@ function copyPostLink() {
       class="border border-neutral-200 sm:border-x-0 sm:border-b-0 rounded-2xl sm:rounded-none sm:shadow-card overflow-hidden transition-shadow duration-300 bg-white"
     >
       <div class="relative group" @click="$emit('open', post.id)">
+        <!-- Placeholder holds space while image fetches -->
+        <div
+          v-if="!imageLoaded"
+          class="w-full bg-neutral-200 animate-pulse rounded-2xl sm:rounded-none"
+          :style="{ aspectRatio: `${post.coverImage.width} / ${post.coverImage.height}` }"
+        />
+
         <img
+          ref="imageRef"
           :src="post.coverImage.imageUrl"
           :alt="post.category.name"
-          class="w-full max-h-180 xs:max-h-140 2xs:max-h-120 object-cover transition-transform duration-500 rounded-2xl sm:rounded-none shadow-xs"
+          class="w-full max-h-180 xs:max-h-140 2xs:max-h-120 object-cover transition-all duration-200 rounded-2xl sm:rounded-none shadow-xs"
+          :class="imageLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'"
+          @load="imageLoaded = true"
         />
         <div
           v-if="post.imageCount > 1"
