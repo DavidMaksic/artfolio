@@ -15,8 +15,6 @@ const props = defineProps<{
   isLoadingPosts: boolean;
   accentOverlay?: boolean;
   showEmptyState?: boolean;
-  rowHeight?: number;
-  minWidth?: number;
 }>();
 
 const route = useRoute();
@@ -38,9 +36,33 @@ function closePost() {
   }
 }
 
+const isDesktop = useMediaQuery("(min-width: 1920px)");
+const isLaptop = useMediaQuery("(min-width: 1290px)");
+const isTablet = useMediaQuery("(min-width: 1024px)");
+const isVerticalTablet = useMediaQuery("(min-width: 768px)");
+const isPhone = useMediaQuery("(min-width: 640px)");
+
+const rowHeight = computed(() => {
+  if (isDesktop.value) return 380;
+  if (isLaptop.value) return 340;
+  if (isTablet.value) return 280;
+  if (isVerticalTablet.value) return 280;
+  if (isPhone.value) return 240;
+  return 200;
+});
+
+const minWidth = computed(() => {
+  if (isDesktop.value) return 340;
+  if (isLaptop.value) return 340;
+  if (isTablet.value) return 260;
+  if (isVerticalTablet.value) return 280;
+  if (isPhone.value) return 220;
+  return 200;
+});
+
 const containerRef = ref<HTMLElement | null>(null);
 const containerWidth = ref(0);
-const TARGET_ROW_HEIGHT = props.rowHeight ?? 380;
+const TARGET_ROW_HEIGHT = rowHeight.value ?? 380;
 
 let ro: ResizeObserver | null = null;
 
@@ -60,13 +82,12 @@ onUnmounted(() => ro?.disconnect());
 
 const rows = computed<Row[]>(() => {
   if (!containerWidth.value || !props.posts?.length) return [];
-  const isPhone = computed(() => containerWidth.value <= 640);
 
   const gap = isPhone.value ? 0 : 4;
   const rows: Row[] = [];
   let currentRow: { post: Post; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
-  const MIN_WIDTH = props.minWidth ?? 280;
+  const MIN_WIDTH = minWidth.value ?? 280;
 
   for (const post of props.posts ?? []) {
     const cover = post.coverImage;
@@ -107,10 +128,6 @@ const rows = computed<Row[]>(() => {
 
   return rows;
 });
-
-const isLaptop = useMediaQuery("(min-width: 1290px)");
-const isTablet = useMediaQuery("(min-width: 1024px)");
-const isPhone = useMediaQuery("(min-width: 640px)");
 
 const columnsPerRow = computed(() => {
   if (isLaptop.value) return 4;

@@ -196,7 +196,7 @@ function fetchNextPage() {
 // ── Styles change on lg: breakpoint and bellow ───────────────────────────────────
 
 const filtersOpen = ref(false);
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isVerticalTablet = useMediaQuery("(min-width: 768px)");
 const isPhone = useMediaQuery("(min-width: 640px)");
 
 const activeFilterCount = computed(() => {
@@ -349,16 +349,16 @@ function clearAllFilters() {
 
       <Sheet v-model:open="filtersOpen">
         <SheetContent
-          :side="isDesktop ? 'right' : 'bottom'"
+          :side="isVerticalTablet ? 'right' : 'bottom'"
           class="flex flex-col gap-2"
           :class="
-            isDesktop
+            isVerticalTablet
               ? 'w-84 rounded-l-2xl bg-neutral-100'
               : 'px-5 sm:px-8 sm:pt-4 pb-8 rounded-t-2xl'
           "
         >
           <div
-            v-if="!isDesktop"
+            v-if="!isVerticalTablet"
             class="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-2 rounded-full bg-neutral-300/80"
           />
           <SheetHeader

@@ -222,6 +222,11 @@
       margin-top: 10px;
       margin-bottom: 10px;
     }
+
+    @media (max-width: 768px) {
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+    }
   }
 
   .textarea-scrollbar {
@@ -232,6 +237,11 @@
     &::-webkit-scrollbar-thumb {
       background-color: var(--color-neutral-200);
       border-radius: 15px;
+    }
+
+    @media (max-width: 768px) {
+      scrollbar-width: auto;
+      scrollbar-color: auto;
     }
   }
 }

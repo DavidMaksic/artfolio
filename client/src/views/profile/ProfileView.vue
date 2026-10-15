@@ -2,9 +2,9 @@
 import { computed, watch, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useProfilePalette } from "@/composables/useProfilePalette";
-import { useMediaQuery, useTitle } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth.store";
 import { useQuery } from "@tanstack/vue-query";
+import { useTitle } from "@vueuse/core";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,6 @@ watch(
 
 const auth = useAuthStore();
 const isOwner = computed(() => auth.user?.id === profile.value?.userId);
-const isPhone = useMediaQuery("(min-width: 640px)");
 
 // Palette theming
 const { accentHsl, extractPalette } = useProfilePalette();
@@ -86,11 +85,12 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
           :style="`background: radial-gradient(ellipse var(--bg-size) at var(--bg-pos), hsl(${paBase} / 0.6) 0%, transparent 65%)`"
         />
 
-        <!-- Sidebar: skeleton while pending, real once profile is ready -->
+        <!-- Sidebar -->
         <Skeleton
           v-if="isPending"
-          class="w-76 lg:w-62 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 sticky top-10 rounded-2xl md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-32 md:mx-auto"
+          class="w-76 lg:w-62 shrink-0 h-[calc(100vh-7.2rem)] mt-5 md:mt-2 ml-5 sticky top-10 rounded-2xl md:relative md:top-auto md:w-[60%] sm:w-3/4 xs:w-[94%] md:h-77 md:mb-2 md:mx-auto"
         />
+
         <ProfileSidebar
           v-else-if="profile"
           :profile
@@ -105,8 +105,6 @@ const paBase = computed(() => "var(--pa-h) var(--pa-s) var(--pa-l)");
           :isOwner="isPending ? false : isOwner"
           :isLoadingPosts="isPending || isLoadingPosts"
           :accentOverlay="true"
-          :rowHeight="!isPhone ? 200 : 380"
-          :minWidth="!isPhone ? 200 : 340"
         />
       </div>
     </template>

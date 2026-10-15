@@ -19,7 +19,7 @@ const emit = defineEmits<{
 
 // ── Profile card ───────────────────────────────────────────────
 
-const { data: me } = useQuery({
+const { data: me, isPending: isLoadingMe } = useQuery({
   queryKey: ["me"],
   queryFn: () => trpc.profile.getMe.query(),
   enabled: computed(() => auth.isAuthenticated),
@@ -58,6 +58,16 @@ const canLoadMore = computed(() => (hasNextPage.value && totalLoaded.value < 10)
 <template>
   <div class="flex flex-col gap-4">
     <!-- Profile card -->
+    <template v-if="auth.isPending || (auth.isAuthenticated && isLoadingMe)">
+      <div class="bg-white rounded-2xl border border-neutral-200 p-4 flex items-center gap-3">
+        <Skeleton class="size-12 rounded-full shrink-0" />
+        <div class="min-w-0 space-y-1.5">
+          <Skeleton class="h-3.5 w-30" />
+          <Skeleton class="h-2 w-18" />
+        </div>
+      </div>
+    </template>
+
     <div
       v-if="auth.isAuthenticated && me"
       class="bg-white rounded-2xl border border-neutral-200 p-4 flex items-center gap-3 cursor-default hover:bg-neutral-50 transition-colors"

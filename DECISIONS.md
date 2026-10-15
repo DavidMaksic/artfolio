@@ -406,3 +406,4 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Newly created post does not always appear on main feed
 - getMe is called on every route unnecessarily (throwing 401 error)
 - Number indicator on filters button needs better background color
+- Limit image size upload, individually and in batch
