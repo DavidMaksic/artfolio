@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { FeedItem, Post } from "@artfolio/shared";
-import { ref, computed, watch, onUnmounted, watchEffect } from "vue";
+import { ref, computed, watch, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
+import { useMediaQuery } from "@vueuse/core";
 import { Icon } from "@iconify/vue";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
 
@@ -106,18 +107,47 @@ const rows = computed<Row[]>(() => {
 
   return rows;
 });
+
+const isLaptop = useMediaQuery("(min-width: 1290px)");
+const isTablet = useMediaQuery("(min-width: 1024px)");
+const isPhone = useMediaQuery("(min-width: 640px)");
+
+const columnsPerRow = computed(() => {
+  if (isLaptop.value) return 4;
+  if (isTablet.value) return 3;
+  if (isPhone.value) return 2;
+  return 2;
+});
+
+function getSkeletonGrow(row: number, col: number): number {
+  return skeletonWidths[row]?.[col] ?? 1;
+}
+
+const skeletonWidths: number[][] = [
+  [1.4, 0.8, 1.1, 0.6, 1.3],
+  [0.9, 1.5, 0.7, 1.2, 1.0],
+  [1.1, 0.6, 1.4, 0.9, 1.3],
+];
 </script>
 
 <template>
   <section class="flex-1 min-w-0 p-5 sm:px-0 sm:pt-4">
     <div ref="containerRef" class="w-full overflow-x-hidden">
       <template v-if="isLoadingPosts">
-        <div v-for="row in 3" :key="row" class="flex gap-1 sm:gap-0.5 mb-1 sm:mb-0.5">
+        <div
+          v-for="(row, rowIndex) in 4"
+          :key="rowIndex"
+          class="flex gap-1 sm:gap-0.5 mb-1 sm:mb-0.5"
+        >
           <Skeleton
-            v-for="col in 3"
+            v-for="col in columnsPerRow"
             :key="col"
-            class="flex-1 min-w-0 bg-neutral-200 rounded-xl sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
-            :style="{ height: `${TARGET_ROW_HEIGHT || 200}px` }"
+            class="min-w-0 bg-neutral-200 rounded-xl sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
+            :style="{
+              height: `${TARGET_ROW_HEIGHT || 200}px`,
+              flexGrow: getSkeletonGrow(rowIndex, col - 1),
+              flexBasis: 0,
+            }"
           />
         </div>
       </template>

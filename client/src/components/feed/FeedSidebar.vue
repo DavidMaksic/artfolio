@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { DiscussionItem } from "@artfolio/shared";
 import { useQuery, useInfiniteQuery } from "@tanstack/vue-query";
+import { cloudinaryUrl } from "@/lib/cloudinary";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
 import { computed } from "vue";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
-import { cloudinaryUrl } from "@/lib/cloudinary";
+import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -31,6 +32,7 @@ const {
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
+  isPending,
 } = useInfiniteQuery({
   queryKey: ["discussions"],
   queryFn: ({ pageParam }) =>
@@ -50,7 +52,7 @@ const discussions = computed<DiscussionItem[]>(
 const totalLoaded = computed(() => discussions.value.length);
 
 // Cap at 10 total — hide button after second page
-const canLoadMore = computed(() => hasNextPage.value && totalLoaded.value < 10);
+const canLoadMore = computed(() => (hasNextPage.value && totalLoaded.value < 10) || !isPending);
 </script>
 
 <template>
@@ -88,6 +90,21 @@ const canLoadMore = computed(() => hasNextPage.value && totalLoaded.value < 10);
       </div>
 
       <div class="divide-y divide-neutral-100">
+        <!-- Loading -->
+        <template v-if="isPending">
+          <div class="divide-y divide-neutral-100">
+            <div v-for="n in 5" :key="n" class="flex items-center gap-2.5 py-3 px-3">
+              <Skeleton class="size-10 rounded-full shrink-0 self-start" />
+              <div class="w-full flex flex-col gap-2 py-1">
+                <Skeleton class="h-3 w-[85%]" />
+                <Skeleton class="h-3 w-[95%]" />
+                <Skeleton class="h-3 w-[70%]" />
+              </div>
+              <Skeleton class="size-12 rounded-lg shrink-0" />
+            </div>
+          </div>
+        </template>
+
         <div
           v-for="item in discussions"
           :key="item.id"
@@ -128,7 +145,10 @@ const canLoadMore = computed(() => hasNextPage.value && totalLoaded.value < 10);
         </div>
 
         <!-- Empty state -->
-        <div v-if="discussions.length === 0" class="p-4 text-center text-sm text-muted-foreground">
+        <div
+          v-if="discussions.length === 0 && !isPending"
+          class="p-4 text-center text-sm text-muted-foreground"
+        >
           No discussions yet.
         </div>
       </div>

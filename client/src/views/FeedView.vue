@@ -193,11 +193,11 @@ function closePost() {
     </div>
 
     <main
-      class="mx-auto sm:mx-0 max-w-5xl lg:max-w-fit md:max-w-full px-5 md:px-28 sm:px-0 pt-4 sm:pt-0 pb-14"
+      class="mx-auto sm:mx-0 max-w-5xl lg:max-w-full px-5 lg:px-10 md:px-28 sm:px-0 pt-4 sm:pt-0 pb-14"
     >
       <div class="flex gap-8 items-start">
         <!-- Feed column -->
-        <div class="flex-1 min-w-0 max-w-xl md:min-w-full mx-auto md:mx-0">
+        <div class="flex-1 min-w-0 max-w-xl lg:max-w-full md:min-w-full mx-auto md:mx-0">
           <!-- Loading -->
           <template v-if="isPending">
             <div class="grid grid-cols-1 gap-8">
@@ -216,9 +216,7 @@ function closePost() {
 
                 <!-- Card body -->
                 <div class="rounded-2xl sm:rounded-none">
-                  <Skeleton
-                    class="w-full aspect-square xs:aspect-3/4 2xs:aspect-3/4 rounded-2xl sm:rounded-none"
-                  />
+                  <Skeleton class="w-full aspect-square rounded-2xl sm:rounded-none" />
                 </div>
               </div>
             </div>
