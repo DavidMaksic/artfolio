@@ -50,7 +50,7 @@ function handleEmailSubmit() {
     >
 
     <div
-      class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4 md:-translate-y-5"
+      class="h-screen flex flex-col items-center justify-center bg-neutral-100 gap-3 px-4 md:-translate-y-5"
     >
       <!-- Logo -->
       <button

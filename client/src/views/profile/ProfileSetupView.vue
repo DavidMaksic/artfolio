@@ -68,7 +68,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-neutral-100 gap-6 px-4">
+  <div class="min-h-[85vh] flex flex-col items-center justify-center bg-neutral-100 gap-3 px-4">
     <Card class="w-full max-w-md shadow-2xl">
       <CardHeader class="pb-2">
         <!-- Step indicator -->

@@ -122,7 +122,7 @@ function onSubmit(e: SubmitEvent) {
 
 <template>
   <div
-    class="min-h-screen flex flex-col justify-center bg-neutral-100 gap-6 pt-4 sm:pt-0 pb-20 px-4 max-w-lg mx-auto"
+    class="min-h-screen flex flex-col justify-center bg-neutral-100 gap-3 pt-4 sm:pt-0 pb-20 px-4 max-w-lg mx-auto"
   >
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">
@@ -133,13 +133,72 @@ function onSubmit(e: SubmitEvent) {
 
     <template v-if="isLoadingProfile">
       <Card>
-        <CardContent class="space-y-5 pt-6">
-          <Skeleton class="h-4 w-24" />
-          <Skeleton class="h-10 w-full" />
-          <Skeleton class="h-4 w-24" />
-          <Skeleton class="h-10 w-full" />
-          <Skeleton class="h-4 w-24" />
-          <Skeleton class="h-24 w-full" />
+        <CardContent class="space-y-5">
+          <!-- Profile image upload -->
+          <div class="flex flex-col items-center gap-3 justify-center mb-4">
+            <Skeleton class="size-28 rounded-full" />
+            <Skeleton class="h-2 w-10" />
+          </div>
+
+          <!-- Username -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-20" />
+            <Skeleton class="h-10 w-full rounded-md" />
+          </div>
+
+          <!-- Display name -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-24" />
+            <Skeleton class="h-10 w-full rounded-md" />
+          </div>
+
+          <!-- Bio -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-10" />
+            <Skeleton class="h-15 w-full rounded-md" />
+            <Skeleton class="h-3 w-16 ml-auto" />
+          </div>
+
+          <!-- Location -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-16" />
+            <Skeleton class="h-10 w-full rounded-md" />
+          </div>
+
+          <!-- Website -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-16" />
+            <Skeleton class="h-10 w-full rounded-md" />
+          </div>
+
+          <!-- Commissions toggle -->
+          <div class="flex items-center justify-between rounded-lg border p-4">
+            <div class="space-y-1.5">
+              <Skeleton class="h-3.5 w-44" />
+              <Skeleton class="h-3 w-56" />
+            </div>
+            <Skeleton class="h-5 w-9 rounded-full shrink-0" />
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2 pt-1">
+            <Skeleton class="h-10 flex-1 rounded-md" />
+            <Skeleton class="h-10 flex-1 rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Danger zone -->
+      <Card>
+        <CardContent>
+          <Skeleton class="h-3 w-24 mb-3" />
+          <div class="flex items-center justify-between">
+            <div class="space-y-1.5">
+              <Skeleton class="h-3.5 w-28" />
+              <Skeleton class="h-3 w-48" />
+            </div>
+            <Skeleton class="h-8 w-20 rounded-md shrink-0" />
+          </div>
         </CardContent>
       </Card>
     </template>
@@ -280,8 +339,8 @@ function onSubmit(e: SubmitEvent) {
             <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
               Danger zone
             </p>
-            <div class="flex items-center justify-between">
-              <div>
+            <div class="flex items-center gap-2 justify-between">
+              <div class="xs:space-y-1">
                 <p class="text-sm font-medium">Delete account</p>
                 <p class="text-xs text-muted-foreground">
                   Permanently removes your profile and all posts.
