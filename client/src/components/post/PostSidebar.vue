@@ -104,7 +104,7 @@ const commentBody = defineModel<string>("commentBody", { default: "" });
 const textarea = useTemplateRef<HTMLTextAreaElement>("textarea");
 
 const editingBody = defineModel<string>("editingBody", { default: "" });
-const editTextarea = useTemplateRef<HTMLTextAreaElement>("editTextarea");
+// const editTextarea = useTemplateRef<HTMLTextAreaElement>("editTextarea");
 const editingCommentId = ref<string | null>(null);
 
 watch(
@@ -243,7 +243,7 @@ function filterByCategory(slug: string) {
 
 <template>
   <aside
-    class="flex-1 md:flex-1 md:min-h-0 py-6 pr-6 md:p-0 flex flex-col justify-between gap-3 md:gap-0"
+    class="flex-1 md:flex-1 md:min-h-0 min-w-0 py-6 pr-6 md:p-0 flex flex-col justify-between gap-3 md:gap-0"
     @click="emit('close')"
   >
     <template v-if="post">
@@ -402,11 +402,17 @@ function filterByCategory(slug: string) {
 
           <!-- Loading -->
           <div v-if="isCommentsPending" class="flex flex-col gap-3">
-            <div v-for="i in 3" :key="i" class="flex items-start gap-2">
-              <Skeleton class="size-8 rounded-full shrink-0" />
-              <div class="flex flex-col gap-1.5 flex-1">
-                <Skeleton class="h-3 w-24 rounded" />
-                <Skeleton class="h-3 w-full rounded" />
+            <div v-for="i in 1" :key="i" class="space-y-2 py-2.5 first:pt-2.5">
+              <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center gap-2">
+                  <Skeleton class="size-8 rounded-full shrink-0" />
+                  <Skeleton class="h-3.5 w-24" />
+                </div>
+                <Skeleton class="size-6 rounded-md shrink-0" />
+              </div>
+              <div class="space-y-1.5">
+                <Skeleton class="h-3.5 w-full" />
+                <Skeleton class="h-3.5 w-2/3" />
               </div>
             </div>
           </div>
@@ -645,10 +651,80 @@ function filterByCategory(slug: string) {
 
     <!-- Skeleton -->
     <template v-else>
-      <div class="flex-1 p-6 flex flex-col justify-between gap-3">
-        <Skeleton class="h-72 rounded-2xl" />
-        <Skeleton class="flex-1 rounded-2xl" />
-        <Skeleton class="h-24 rounded-2xl" />
+      <!-- Post content -->
+      <div
+        class="p-6 flex flex-col gap-5 bg-white/98 rounded-2xl md:rounded-none md:rounded-b-2xl border border-border shadow-2xl md:shadow-none md:shrink-0"
+      >
+        <!-- Author -->
+        <div class="flex justify-between">
+          <div class="flex items-center gap-4 w-fit">
+            <Skeleton class="size-20 rounded-full shrink-0" />
+            <div class="space-y-2">
+              <Skeleton class="h-5 w-36" />
+              <Skeleton class="h-3 w-24" />
+            </div>
+          </div>
+          <Skeleton class="size-9 rounded-md shrink-0 self-start" />
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between gap-1.5">
+          <Skeleton class="flex-1 h-9 rounded-md" />
+          <Skeleton class="flex-1 h-9 rounded-md" />
+          <Skeleton class="flex-1 h-9 rounded-md" />
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-2 py-2">
+          <Skeleton class="h-4 w-full" />
+          <Skeleton class="h-4 w-2/3" />
+        </div>
+      </div>
+
+      <!-- Comments -->
+      <div
+        class="flex flex-1 md:min-h-105 md:m-4 flex-col bg-background rounded-2xl border border-border shadow-2xl md:shadow-none overflow-hidden z-10"
+      >
+        <div class="flex flex-col flex-1 px-6 py-5 gap-4">
+          <Skeleton class="h-4 w-24 mt-1" />
+
+          <div class="flex flex-col">
+            <div v-for="i in 1" :key="i" class="space-y-2 py-2.5 first:pt-2.5">
+              <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center gap-2">
+                  <Skeleton class="size-8 rounded-full shrink-0" />
+                  <Skeleton class="h-3.5 w-24" />
+                </div>
+                <Skeleton class="size-6 rounded-md shrink-0" />
+              </div>
+              <div class="space-y-1.5">
+                <Skeleton class="h-3.5 w-full" />
+                <Skeleton class="h-3.5 w-2/3" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment input -->
+        <div class="border-t border-border p-4 flex items-center gap-2">
+          <Skeleton class="size-8 rounded-full shrink-0" />
+          <Skeleton class="h-4 flex-1" />
+        </div>
+      </div>
+
+      <!-- Category + tags -->
+      <div
+        class="flex flex-col gap-1.5 bg-background rounded-2xl md:rounded-none md:rounded-t-2xl border border-border px-6 py-6.5 space-y-3 shadow-2xl md:shadow-none z-10 md:shrink-0"
+      >
+        <Skeleton class="h-4 w-32" />
+        <div class="flex flex-wrap gap-1.5">
+          <Skeleton class="h-7 w-18 rounded-full" />
+          <Skeleton class="h-7 w-14 rounded-full" />
+          <Skeleton class="h-7 w-22 rounded-full" />
+          <Skeleton class="h-7 w-20 rounded-full" />
+          <Skeleton class="h-7 w-24 rounded-full" />
+          <Skeleton class="h-7 w-14 rounded-full" />
+        </div>
       </div>
     </template>
   </aside>

@@ -56,8 +56,8 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
     @click.self="emit('close')"
   >
     <!-- Loading -->
-    <div v-if="isPending" class="flex items-center justify-center h-full">
-      <Icon icon="ph:spinner" class="animate-spin text-white text-4xl" />
+    <div v-if="isPending" class="flex items-center justify-center h-full md:min-h-[45vh]">
+      <Icon icon="ph:spinner" class="animate-spin text-white text-5xl" />
     </div>
 
     <!-- Single image — centered -->

@@ -407,3 +407,4 @@ Purpose of this file is to track progress and decisions of each sprint.
 - getMe is called on every route unnecessarily (throwing 401 error)
 - Number indicator on filters button needs better background color
 - Limit image size upload, individually and in batch
+- When navigating through posts using chevrons, if two posts in a row have multiple images, scroll does not reset on navigation
