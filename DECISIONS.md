@@ -393,6 +393,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
+- Last image on the grid on mobile has no border radius applied
 - Remove some padding-bottom from 'New Post', 'Edit profile' and other headers
 - Add gap between text and delete button in danger zone on profile edit
 - Make categories dropdown width dynamic (imitate sorting dropdown)
