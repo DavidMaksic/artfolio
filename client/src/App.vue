@@ -2,12 +2,12 @@
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 
+import PageAnimation from "@/components/PageAnimation.vue";
 import AppHeader from "@/layouts/AppHeader.vue";
 import AppFooter from "@/layouts/AppFooter.vue";
 import BottomNav from "@/components/BottomNav.vue";
 
 const route = useRoute();
-
 const isAuthPage = computed(() => route.name === "sign-in");
 </script>
 
@@ -15,7 +15,7 @@ const isAuthPage = computed(() => route.name === "sign-in");
   <div class="min-h-screen flex flex-col bg-neutral-100">
     <AppHeader v-if="!isAuthPage" />
     <main class="flex-1">
-      <RouterView />
+      <PageAnimation />
       <BottomNav />
     </main>
     <AppFooter v-if="!isAuthPage" />

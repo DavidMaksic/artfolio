@@ -268,12 +268,11 @@ function closePost() {
     </main>
 
     <PostDetailModal
-      v-if="activePostId"
       :post-id="activePostId"
       :post-ids="postIds"
       :focus-comment="focusComment"
       :focus-comment-id="focusCommentId ?? undefined"
-      :comment-body="commentBodies[activePostId] ?? ''"
+      v-model:comment-body="commentBodies[activePostId!]"
       @close="closePost"
       @navigate="router.replace({ query: { post: $event } })"
       @update:comment-body="commentBodies[activePostId!] = $event"

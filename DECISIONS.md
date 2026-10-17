@@ -388,10 +388,10 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Add accent colors to remade email templates
 - Bookmark page not yet implemented
 - Add better form validation
+- Add skeleton for post edit view
+- Add skeleton for header items + fix 'sign in' appearing abruptly when user is authenticated
 
 ## Things to fix
-
-- Make image on feedCard smaller instead of being full size
 
 - Remove some padding-bottom from 'New Post', 'Edit profile' and other headers
 - Add gap between text and delete button in danger zone on profile edit

@@ -6,6 +6,8 @@ import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { useMediaQuery } from "@vueuse/core";
 import { Icon } from "@iconify/vue";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
+import { motion } from "motion-v";
+import { reactive } from "vue";
 
 type Row = { post: Post; width: number }[];
 
@@ -82,8 +84,9 @@ onUnmounted(() => ro?.disconnect());
 
 const rows = computed<Row[]>(() => {
   if (!containerWidth.value || !props.posts?.length) return [];
+  const isPhoneRow = computed(() => containerWidth.value <= 640);
 
-  const gap = isPhone.value ? 0 : 4;
+  const gap = isPhoneRow.value ? 0 : 4;
   const rows: Row[] = [];
   let currentRow: { post: Post; aspectRatio: number }[] = [];
   let currentRowWidth = 0;
@@ -145,6 +148,29 @@ const skeletonWidths: number[][] = [
   [0.9, 1.5, 0.7, 1.2, 1.0],
   [1.1, 0.6, 1.4, 0.9, 1.3],
 ];
+
+const imageLoaded = reactive<Record<string, boolean>>({});
+
+function preloadImage(postId: string, url: string | undefined) {
+  if (!url || imageLoaded[postId]) return;
+  const img = new Image();
+  img.onload = () => {
+    imageLoaded[postId] = true;
+  };
+  img.src = url;
+}
+
+watch(
+  rows,
+  (newRows) => {
+    for (const row of newRows) {
+      for (const { post, width } of row) {
+        preloadImage(post.id, thumb(post.coverImage?.imageUrl, width, TARGET_ROW_HEIGHT));
+      }
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -179,14 +205,23 @@ const skeletonWidths: number[][] = [
             v-for="{ post, width } in row"
             :key="post.id"
             :data-post-id="post.id"
-            class="relative overflow-hidden rounded-xl border border-neutral-300/80 sm:border-neutral-300/70 sm:first:border-l-0 sm:last:border-r-0 group select-none shrink-0 sm:rounded-lg sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
+            class="relative overflow-hidden rounded-xl border border-neutral-300/80 sm:border-neutral-300/70 sm:first:border-l-0 sm:last:border-r-0 group select-none sm:rounded-lg sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
             :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
             @click="openPost(post.id)"
           >
-            <img
+            <!-- Placeholder holds space while image fetches -->
+            <div
+              v-if="!imageLoaded[post.id]"
+              class="absolute inset-0 w-full h-full bg-neutral-200 animate-pulse"
+            />
+
+            <motion.img
               :src="thumb(post.coverImage?.imageUrl, width, TARGET_ROW_HEIGHT)"
               :alt="post.category.name"
               class="w-full h-full object-cover transition-transform duration-300"
+              :initial="{ opacity: 0 }"
+              :animate="{ opacity: imageLoaded[post.id] ? 1 : 0 }"
+              :transition="{ type: 'tween', duration: 0.3, ease: 'easeOut' }"
             />
 
             <!-- Hover overlay -->
@@ -227,12 +262,12 @@ const skeletonWidths: number[][] = [
     </div>
 
     <PostDetailModal
-      v-if="activePostId"
       :post-id="activePostId"
       :post-ids="postIds"
       @close="closePost"
       @navigate="router.replace({ query: { ...route.query, post: $event } })"
     />
+
     <div
       v-if="(props.showEmptyState ?? true) && posts?.length === 0"
       class="flex flex-col items-center justify-center -translate-y-20 h-full text-center gap-3"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PostDetail } from "@artfolio/shared";
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 
 const props = defineProps<{
@@ -43,6 +44,16 @@ function handleKeydown(e: KeyboardEvent) {
 
 onMounted(() => window.addEventListener("keydown", handleKeydown));
 onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
+
+const imageLoaded = ref(false);
+
+// reset when the image source changes (e.g. switching posts)
+watch(
+  () => props.post?.images[0]?.imageUrl,
+  () => {
+    imageLoaded.value = false;
+  },
+);
 </script>
 
 <template>
@@ -66,10 +77,14 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
         class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0"
         @click.self="emit('close')"
       >
-        <img
+        <motion.img
           :src="post.images[0]!.imageUrl"
           :alt="post.category.name"
           class="max-h-[90vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: imageLoaded ? 1 : 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          @load="imageLoaded = true"
           @click.stop
         />
       </div>
@@ -87,11 +102,15 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
           class="w-full flex justify-center md:border-t md:border-t-neutral-400/70 md:first:border-t-0"
           @click.self="emit('close')"
         >
-          <img
+          <motion.img
             :src="image.imageUrl"
             :alt="post.category.name"
             class="max-h-[90vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
             @click.stop
+            :initial="{ opacity: 0 }"
+            :animate="{ opacity: imageLoaded ? 1 : 0 }"
+            :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+            @load="imageLoaded = true"
           />
         </div>
       </div>

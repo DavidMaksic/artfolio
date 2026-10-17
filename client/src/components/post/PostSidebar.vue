@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
 import { useRouter } from "vue-router";
 import { nextTick } from "vue";
+import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
@@ -253,7 +254,13 @@ function filterByCategory(slug: string) {
         @click.stop
       >
         <!-- Author -->
-        <div class="flex justify-between">
+        <motion.div
+          class="flex justify-between"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+        >
           <div
             class="flex items-center gap-4 cursor-default group w-fit"
             @click="router.push({ name: 'profile', params: { username: post.profile.username } })"
@@ -326,10 +333,16 @@ function filterByCategory(slug: string) {
               </AlertDialogContent>
             </AlertDialog>
           </DropdownMenu>
-        </div>
+        </motion.div>
 
         <!-- Actions -->
-        <div class="flex items-center justify-between gap-1.5">
+        <motion.div
+          class="flex items-center justify-between gap-1.5"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+        >
           <Button
             v-if="!isPostOwner"
             class="flex-1 transition-colors shadow-[0_2px_15px_0_var(--color-neutral-300)]"
@@ -372,12 +385,19 @@ function filterByCategory(slug: string) {
             />
             Save
           </Button>
-        </div>
+        </motion.div>
 
         <!-- Description -->
-        <p v-if="post.description" class="text-md text-neutral-800 leading-relaxed py-0.5">
+        <motion.p
+          v-if="post.description"
+          class="text-md text-neutral-800 leading-relaxed py-0.5"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+        >
           {{ post.description }}
-        </p>
+        </motion.p>
       </div>
 
       <!-- Comments -->
@@ -392,7 +412,13 @@ function filterByCategory(slug: string) {
         "
         @click.stop
       >
-        <div class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4 scrollbar">
+        <motion.div
+          class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4 scrollbar"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+        >
           <div class="font-semibold">
             Comments
             <span v-if="comments.length > 1" class="text-muted-foreground"
@@ -530,6 +556,7 @@ function filterByCategory(slug: string) {
                     v-model="editingBody"
                     maxlength="1000"
                     data-testid="comment-edit-input"
+                    rows="1"
                     class="flex-1 min-h-33 resize-none text-sm bg-muted rounded-md px-3 py-2 outline-none w-full scrollbar"
                     @keydown.enter.exact.prevent="
                       updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
@@ -573,10 +600,17 @@ function filterByCategory(slug: string) {
               Load more comments
             </button>
           </div>
-        </div>
+        </motion.div>
 
         <!-- Comment input -->
-        <div v-if="auth.isAuthenticated" class="border-t border-border p-4 flex items-center gap-2">
+        <motion.div
+          v-if="auth.isAuthenticated"
+          class="border-t border-border p-4 flex items-center gap-2"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+        >
           <img
             v-if="me?.profileImageUrl"
             :src="me.profileImageUrl"
@@ -593,8 +627,7 @@ function filterByCategory(slug: string) {
             v-model="commentBody"
             placeholder="Add a comment…"
             maxlength="1000"
-            rows="1"
-            class="flex-1 resize-none text-sm bg-transparent outline-none placeholder:text-muted-foreground textarea-scrollbar pr-1"
+            class="flex-1 max-h-30 resize-none text-sm bg-transparent outline-none placeholder:text-muted-foreground textarea-scrollbar pr-1"
             @keydown.enter.exact.prevent="submitComment"
             @keydown.shift.enter.exact="() => {}"
           />
@@ -611,41 +644,53 @@ function filterByCategory(slug: string) {
             />
             <span v-else>Post</span>
           </Button>
-        </div>
+        </motion.div>
 
-        <div
+        <motion.div
           v-else
           class="border-t border-border p-4 text-sm text-muted-foreground text-center hover:text-foreground"
           @click="router.push({ name: 'sign-in' })"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
         >
           <span class="cursor-default transition-colors"> Sign in to comment </span>
-        </div>
+        </motion.div>
       </div>
 
       <!-- Category + tags -->
       <div
-        class="flex flex-col gap-1.5 bg-background rounded-2xl md:rounded-none md:rounded-t-2xl border border-border px-6 py-5 space-y-3 shadow-2xl md:shadow-none z-10 md:shrink-0"
+        class="bg-background rounded-2xl md:rounded-none md:rounded-t-2xl border border-border px-6 py-5 shadow-2xl md:shadow-none z-10 md:shrink-0"
         @click.stop
       >
-        <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>
-        <div class="flex flex-wrap gap-1.5">
-          <Badge
-            class="py-1.5 px-3.5 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
-            variant="secondary"
-            @click="filterByCategory(post.category.slug)"
-          >
-            {{ post.category.name }}
-          </Badge>
-          <Badge
-            v-for="tag in post.tags"
-            :key="tag.id"
-            class="py-1.5 px-3.5 text-xs cursor-default hover:border-neutral-400/80 transition-[border-color]"
-            variant="outline"
-            @click="filterByTag(tag.name)"
-          >
-            {{ tag.name }}
-          </Badge>
-        </div>
+        <motion.div
+          class="flex flex-col gap-1.5 space-y-3"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :exit="{ opacity: 0 }"
+          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+        >
+          <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>
+          <div class="flex flex-wrap gap-1.5">
+            <Badge
+              class="py-1.5 px-3.5 text-xs border-neutral-200 cursor-default hover:border-neutral-400/80 transition-[border-color]"
+              variant="secondary"
+              @click="filterByCategory(post.category.slug)"
+            >
+              {{ post.category.name }}
+            </Badge>
+            <Badge
+              v-for="tag in post.tags"
+              :key="tag.id"
+              class="py-1.5 px-3.5 text-xs cursor-default hover:border-neutral-400/80 transition-[border-color]"
+              variant="outline"
+              @click="filterByTag(tag.name)"
+            >
+              {{ tag.name }}
+            </Badge>
+          </div>
+        </motion.div>
       </div>
     </template>
 
