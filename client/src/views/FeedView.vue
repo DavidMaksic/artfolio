@@ -5,6 +5,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
+import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
@@ -182,16 +183,20 @@ function closePost() {
 <template>
   <div class="min-h-screen bg-neutral-100">
     <!-- Discovery banner — guests only -->
-    <div
+    <motion.div
       v-if="!auth.user"
       class="border-b border-b-neutral-300/80 bg-linear-to-r from-blue-accent-400 to-red-accent-300 px-6 py-3 md:border-t md:border-t-neutral-300/80"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :exit="{ opacity: 0 }"
+      :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
     >
       <p class="text-center text-sm text-white">
         Discover work from artists on Artfolio —
         <RouterLink :to="{ name: 'sign-in' }" class="underline font-semibold">sign in</RouterLink>
         to get a feed tailored to you
       </p>
-    </div>
+    </motion.div>
 
     <main
       class="mx-auto sm:mx-0 max-w-5xl lg:max-w-full px-5 lg:px-10 md:px-28 sm:px-0 pt-4 sm:pt-0 pb-14"

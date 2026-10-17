@@ -97,7 +97,7 @@ const profileReady = computed(
               class="flex items-center gap-1.5"
               :initial="{ opacity: 0 }"
               :animate="{ opacity: 1 }"
-              :transition="{ type: 'tween', duration: 0.3, ease: 'easeOut' }"
+              :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
             >
               <Icon icon="ph:plus" class="mr-0.5 size-5" aria-label="New post" />
               <span class="md:hidden">New post</span>
@@ -115,7 +115,7 @@ const profileReady = computed(
               class="flex items-center gap-1.5"
               :initial="{ opacity: 0 }"
               :animate="{ opacity: 1 }"
-              :transition="{ type: 'tween', duration: 0.3, ease: 'easeOut' }"
+              :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
             >
               <Icon icon="ph:user" class="mr-0.5 size-5" />
               <span class="md:hidden">{{ me!.username }}</span></motion.div

@@ -9,7 +9,7 @@ import { motion } from "motion-v";
       :initial="{ opacity: 0 }"
       :animate="{ opacity: 1 }"
       :exit="{ opacity: 0 }"
-      :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+      :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
     >
       <component :is="Component" />
     </motion.div>

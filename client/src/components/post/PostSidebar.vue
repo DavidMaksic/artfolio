@@ -259,7 +259,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           <div
             class="flex items-center gap-4 cursor-default group w-fit"
@@ -341,7 +341,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           <Button
             v-if="!isPostOwner"
@@ -394,7 +394,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           {{ post.description }}
         </motion.p>
@@ -417,7 +417,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           <div class="font-semibold">
             Comments
@@ -609,7 +609,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           <img
             v-if="me?.profileImageUrl"
@@ -653,7 +653,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           <span class="cursor-default transition-colors"> Sign in to comment </span>
         </motion.div>
@@ -669,7 +669,7 @@ function filterByCategory(slug: string) {
           :initial="{ opacity: 0 }"
           :animate="{ opacity: 1 }"
           :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
         >
           <p class="font-semibold">Category <span v-if="post.tags.length">and Tags</span></p>
           <div class="flex flex-wrap gap-1.5">

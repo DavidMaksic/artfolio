@@ -83,7 +83,7 @@ watch(
           class="max-h-[90vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
           :initial="{ opacity: 0 }"
           :animate="{ opacity: imageLoaded ? 1 : 0 }"
-          :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
           @load="imageLoaded = true"
           @click.stop
         />
@@ -109,7 +109,7 @@ watch(
             @click.stop
             :initial="{ opacity: 0 }"
             :animate="{ opacity: imageLoaded ? 1 : 0 }"
-            :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+            :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
             @load="imageLoaded = true"
           />
         </div>

@@ -4,6 +4,7 @@ import { sendOtpSchema } from "@artfolio/shared";
 import { useAuthStore } from "@/stores/auth.store";
 import { useMutation } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
+import { motion } from "motion-v";
 import { ref } from "vue";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +45,14 @@ function handleEmailSubmit() {
 
 <template>
   <div class="grid grid-cols-[1.5fr_2fr] sm:grid-cols-1 items-start">
-    <img :src="image" class="h-screen w-full object-cover object-center sm:hidden" />
+    <motion.img
+      :src="image"
+      class="h-screen w-full object-cover object-center sm:hidden"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :exit="{ opacity: 0 }"
+      :transition="{ type: 'tween', duration: 0.15, ease: 'easeOut' }"
+    />
     <span class="absolute left-0 bottom-0 px-3 py-2 text-sm text-neutral-400"
       >Art by Lane Brown</span
     >
