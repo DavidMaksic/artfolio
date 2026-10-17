@@ -391,9 +391,10 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
+- Make image on feedCard smaller instead of being full size
+
 - Remove some padding-bottom from 'New Post', 'Edit profile' and other headers
 - Add gap between text and delete button in danger zone on profile edit
-- Make image on feedCard smaller instead of being full size
 - Make categories dropdown width dynamic (imitate sorting dropdown)
 - Liking a post should not invalidate postGrid query (posts update in the background now), but only the like count on postGrid, not post position
 - When logging in for the first time, user can see main feed for a moment, before being redirected to profile setup view
@@ -408,3 +409,4 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Number indicator on filters button needs better background color
 - Limit image size upload, individually and in batch
 - When navigating through posts using chevrons, if two posts in a row have multiple images, scroll does not reset on navigation
+- Make Drizzle DB calls either use select or query

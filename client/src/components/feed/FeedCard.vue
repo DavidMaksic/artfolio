@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { computed, onMounted, ref, watch } from "vue";
 import { formatDistanceToNow } from "date-fns";
+import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { useQueryClient } from "@tanstack/vue-query";
 import { useEngagement } from "@/composables/useEngagement";
 import { useFollow } from "@/composables/useFollow";
@@ -28,6 +29,7 @@ defineEmits<{
 
 const router = useRouter();
 const queryClient = useQueryClient();
+const { detail } = useCloudinaryUrl();
 
 // Seed the follow state cache from the feed item on mount
 watch(
@@ -157,7 +159,7 @@ watch(
 
         <img
           ref="imageRef"
-          :src="post.coverImage.imageUrl"
+          :src="detail(post.coverImage.imageUrl, 700)"
           :alt="post.category.name"
           class="w-full max-h-180 xs:max-h-140 2xs:max-h-120 object-cover transition-all duration-200 rounded-2xl sm:rounded-none shadow-xs"
           :class="imageLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'"

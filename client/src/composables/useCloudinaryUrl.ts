@@ -11,5 +11,10 @@ export function useCloudinaryUrl() {
         height: Math.round(height * dpr),
         crop: "fill",
       }),
+    detail: (url: string | null | undefined, width: number) =>
+      cloudinaryUrl(url, {
+        width: Math.round(width * dpr),
+        crop: "limit",
+      }),
   };
 }
