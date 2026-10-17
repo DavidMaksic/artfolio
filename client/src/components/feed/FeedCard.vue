@@ -16,6 +16,7 @@ import { useRouter } from "vue-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/vue";
+import { useMediaQuery } from "@vueuse/core";
 
 const props = defineProps<{
   post: FeedItem;
@@ -29,7 +30,16 @@ defineEmits<{
 
 const router = useRouter();
 const queryClient = useQueryClient();
+
 const { detail } = useCloudinaryUrl();
+const COLUMN_WIDTH = 600;
+const isPhone = useMediaQuery("(max-width: 768px)");
+
+const feedImageWidth = computed(() => {
+  const { width, height } = props.post.coverImage;
+  const displayedHeight = COLUMN_WIDTH * (height / width);
+  return displayedHeight < 400 ? (isPhone.value ? 550 : 750) : 900;
+});
 
 // Seed the follow state cache from the feed item on mount
 watch(
@@ -159,7 +169,7 @@ watch(
 
         <img
           ref="imageRef"
-          :src="detail(post.coverImage.imageUrl, 700)"
+          :src="detail(post.coverImage.imageUrl, feedImageWidth)"
           :alt="post.category.name"
           class="w-full max-h-180 xs:max-h-140 2xs:max-h-120 object-cover transition-all duration-200 rounded-2xl sm:rounded-none shadow-xs"
           :class="imageLoaded ? 'opacity-100' : 'opacity-0 absolute inset-0'"
