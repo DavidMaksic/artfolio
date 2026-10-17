@@ -22,8 +22,10 @@ import {
   TagsInputItemDelete,
 } from "@/components/ui/tags-input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { motion } from "motion-v";
 import { Label } from "@/components/ui/label";
 
 const route = useRoute();
@@ -172,10 +174,43 @@ async function handleSubmit() {
       <h1 class="text-xl font-bold">Edit Post</h1>
     </div>
 
-    <div v-if="isPending" class="space-y-3">
-      <div class="h-64 bg-muted rounded-2xl animate-pulse" />
-      <div class="h-10 bg-muted rounded animate-pulse" />
-    </div>
+    <template v-if="isPending">
+      <Card>
+        <CardContent class="space-y-5">
+          <!-- Images -->
+          <div class="space-y-2">
+            <Skeleton class="h-3.5 w-14" />
+            <Skeleton class="h-68 w-full rounded-lg" />
+          </div>
+
+          <!-- Description -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-24" />
+            <Skeleton class="h-24 w-full rounded-md" />
+            <Skeleton class="h-3 w-16 ml-auto" />
+          </div>
+
+          <!-- Category -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-20" />
+            <Skeleton class="h-10 w-full rounded-md" />
+          </div>
+
+          <!-- Tags -->
+          <div class="space-y-1.5">
+            <Skeleton class="h-3.5 w-10" />
+            <Skeleton class="h-10 w-full rounded-md" />
+            <Skeleton class="h-3 w-40" />
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2 pt-1">
+            <Skeleton class="h-9 flex-1 rounded-md" />
+            <Skeleton class="h-9 flex-1 rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+    </template>
 
     <div v-else-if="isError" class="flex flex-col items-center gap-3 text-center py-24">
       <Icon icon="ph:image-broken" class="text-5xl text-muted-foreground" />
@@ -183,174 +218,184 @@ async function handleSubmit() {
       <Button variant="ghost" @click="router.back()">Go back</Button>
     </div>
 
-    <Card v-else>
-      <CardContent>
-        <form class="space-y-5" @submit.prevent="handleSubmit">
-          <!-- Image Upload -->
-          <div class="space-y-2">
-            <Label>Images <span class="text-destructive">*</span></Label>
+    <motion.div
+      v-else
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :exit="{ opacity: 0 }"
+      :transition="{ type: 'tween', duration: 0.2, ease: 'easeOut' }"
+    >
+      <Card>
+        <CardContent>
+          <form class="space-y-5" @submit.prevent="handleSubmit">
+            <!-- Image Upload -->
+            <div class="space-y-2">
+              <Label>Images <span class="text-destructive">*</span></Label>
 
-            <div v-if="images.length > 0" :class="['image-grid', gridClass]">
-              <div
-                v-for="(image, index) in images"
-                :key="image.kind === 'existing' ? image.id : image.preview"
-                class="image-cell transition"
-                :class="{
-                  'image-cell--large': gridClass === 'grid-three' && index === 0,
-                  'opacity-50 cursor-not-allowed!': isUploading || isSubmitting,
-                  group: !isUploading && !isSubmitting,
-                }"
-                :draggable="!isUploading && !isSubmitting"
-                @dragstart="!isUploading && !isSubmitting && onDragStart(index)"
-                @dragover="!isUploading && !isSubmitting && onDragOver($event, index)"
-                @dragend="!isUploading && !isSubmitting && onDragEnd()"
-              >
-                <img :src="previewUrl(image)" class="size-full object-cover" />
-
+              <div v-if="images.length > 0" :class="['image-grid', gridClass]">
                 <div
-                  class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
+                  v-for="(image, index) in images"
+                  :key="image.kind === 'existing' ? image.id : image.preview"
+                  class="image-cell transition"
+                  :class="{
+                    'image-cell--large': gridClass === 'grid-three' && index === 0,
+                    'opacity-50 cursor-not-allowed!': isUploading || isSubmitting,
+                    group: !isUploading && !isSubmitting,
+                  }"
+                  :draggable="!isUploading && !isSubmitting"
+                  @dragstart="!isUploading && !isSubmitting && onDragStart(index)"
+                  @dragover="!isUploading && !isSubmitting && onDragOver($event, index)"
+                  @dragend="!isUploading && !isSubmitting && onDragEnd()"
                 >
-                  <Icon
-                    icon="ph:arrows-out-cardinal"
-                    class="text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                  />
-                </div>
+                  <img :src="previewUrl(image)" class="size-full object-cover" />
 
-                <!-- Remove button -->
-                <button
-                  type="button"
-                  class="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 rounded-full p-1 transition z-10 disabled:pointer-events-none"
-                  :disabled="isUploading || isSubmitting"
-                  @click.stop="removeImage(index)"
-                >
-                  <Icon icon="ph:x-bold" class="text-white text-lg" />
-                </button>
+                  <div
+                    class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
+                  >
+                    <Icon
+                      icon="ph:arrows-out-cardinal"
+                      class="text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+
+                  <!-- Remove button -->
+                  <button
+                    type="button"
+                    class="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 rounded-full p-1 transition z-10 disabled:pointer-events-none"
+                    :disabled="isUploading || isSubmitting"
+                    @click.stop="removeImage(index)"
+                  >
+                    <Icon icon="ph:x-bold" class="text-white text-lg" />
+                  </button>
+                </div>
               </div>
+
+              <!-- Drop zone (always visible, compact when images exist) -->
+              <div
+                :class="[
+                  'border-2 border-dashed rounded-lg text-center transition',
+                  isUploading || isSubmitting
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'cursor-default hover:border-muted-foreground',
+                  images.length > 0 ? 'py-3' : 'py-24 sm:py-14',
+                ]"
+                @drop="!isUploading && !isSubmitting && handleDrop($event)"
+                @dragover.prevent
+                @click="
+                  !isUploading && !isSubmitting && ($refs.fileInput as HTMLInputElement).click()
+                "
+              >
+                <Icon
+                  icon="ph:image-square-duotone"
+                  :class="[
+                    'mx-auto text-muted-foreground mb-1',
+                    images.length > 0 ? 'text-2xl' : 'text-4xl',
+                  ]"
+                />
+                <p class="text-sm text-muted-foreground">
+                  {{ images.length > 0 ? "Add more images" : "Drag and drop or click to upload" }}
+                </p>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  class="hidden"
+                  @change="handleFileChange"
+                />
+              </div>
+
+              <p
+                v-if="uploadError"
+                role="alert"
+                class="text-sm text-destructive flex items-center gap-1.5"
+              >
+                <Icon icon="ph:warning-circle" />
+                {{ uploadError }}
+              </p>
             </div>
 
-            <!-- Drop zone (always visible, compact when images exist) -->
-            <div
-              :class="[
-                'border-2 border-dashed rounded-lg text-center transition',
-                isUploading || isSubmitting
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'cursor-default hover:border-muted-foreground',
-                images.length > 0 ? 'py-3' : 'py-24 sm:py-14',
-              ]"
-              @drop="!isUploading && !isSubmitting && handleDrop($event)"
-              @dragover.prevent
-              @click="
-                !isUploading && !isSubmitting && ($refs.fileInput as HTMLInputElement).click()
-              "
-            >
-              <Icon
-                icon="ph:image-square-duotone"
-                :class="[
-                  'mx-auto text-muted-foreground mb-1',
-                  images.length > 0 ? 'text-2xl' : 'text-4xl',
-                ]"
+            <!-- Description -->
+            <div class="space-y-1.5">
+              <Label for="description">Description</Label>
+              <Textarea
+                class="text-sm"
+                id="description"
+                v-model="description"
+                placeholder="Tell people about this work..."
+                :disabled="isUploading || isSubmitting"
+                rows="4"
               />
-              <p class="text-sm text-muted-foreground">
-                {{ images.length > 0 ? "Add more images" : "Drag and drop or click to upload" }}
+              <p class="text-xs text-muted-foreground text-right">
+                {{ description.length }} / 2000
               </p>
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/*"
-                multiple
-                class="hidden"
-                @change="handleFileChange"
-              />
+            </div>
+
+            <!-- Category -->
+            <div class="space-y-1.5">
+              <Label for="category">Category <span class="text-destructive">*</span></Label>
+              <Select v-model="categoryId" :disabled="isUploading || isSubmitting">
+                <SelectTrigger id="category" class="w-full">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
+                    {{ cat.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <!-- Tags -->
+            <div class="space-y-1.5">
+              <Label>Tags</Label>
+              <TagsInput v-model="tags" :disabled="isUploading || isSubmitting">
+                <TagsInputItem v-for="tag in tags" :key="tag" :value="tag">
+                  <TagsInputItemText />
+                  <TagsInputItemDelete />
+                </TagsInputItem>
+                <TagsInputInput
+                  placeholder="Add a tag..."
+                  @keydown="
+                    (e: KeyboardEvent) => {
+                      if (tags.length >= 5) e.preventDefault();
+                    }
+                  "
+                />
+              </TagsInput>
+              <p class="text-xs text-muted-foreground">
+                Press Enter or comma to add · {{ tags.length }}/5
+              </p>
             </div>
 
             <p
-              v-if="uploadError"
+              v-if="submitError"
               role="alert"
               class="text-sm text-destructive flex items-center gap-1.5"
             >
               <Icon icon="ph:warning-circle" />
-              {{ uploadError }}
+              {{ submitError }}
             </p>
-          </div>
 
-          <!-- Description -->
-          <div class="space-y-1.5">
-            <Label for="description">Description</Label>
-            <Textarea
-              class="text-sm"
-              id="description"
-              v-model="description"
-              placeholder="Tell people about this work..."
-              :disabled="isUploading || isSubmitting"
-              rows="4"
-            />
-            <p class="text-xs text-muted-foreground text-right">{{ description.length }} / 2000</p>
-          </div>
-
-          <!-- Category -->
-          <div class="space-y-1.5">
-            <Label for="category">Category <span class="text-destructive">*</span></Label>
-            <Select v-model="categoryId" :disabled="isUploading || isSubmitting">
-              <SelectTrigger id="category" class="w-full">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
-                  {{ cat.name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <!-- Tags -->
-          <div class="space-y-1.5">
-            <Label>Tags</Label>
-            <TagsInput v-model="tags" :disabled="isUploading || isSubmitting">
-              <TagsInputItem v-for="tag in tags" :key="tag" :value="tag">
-                <TagsInputItemText />
-                <TagsInputItemDelete />
-              </TagsInputItem>
-              <TagsInputInput
-                placeholder="Add a tag..."
-                @keydown="
-                  (e: KeyboardEvent) => {
-                    if (tags.length >= 5) e.preventDefault();
-                  }
-                "
-              />
-            </TagsInput>
-            <p class="text-xs text-muted-foreground">
-              Press Enter or comma to add · {{ tags.length }}/5
-            </p>
-          </div>
-
-          <p
-            v-if="submitError"
-            role="alert"
-            class="text-sm text-destructive flex items-center gap-1.5"
-          >
-            <Icon icon="ph:warning-circle" />
-            {{ submitError }}
-          </p>
-
-          <div class="flex gap-2 pt-1">
-            <Button
-              type="button"
-              variant="outline"
-              class="flex-1"
-              :disabled="isUploading || isSubmitting"
-              @click="router.back()"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" class="flex-1 shadow-none" :disabled="!canSubmit">
-              <Icon v-if="isSubmitting" icon="ph:spinner" class="animate-spin mr-2" />
-              {{ isSubmitting ? "Saving..." : "Save changes" }}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            <div class="flex gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                class="flex-1"
+                :disabled="isUploading || isSubmitting"
+                @click="router.back()"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" class="flex-1 shadow-none" :disabled="!canSubmit">
+                <Icon v-if="isSubmitting" icon="ph:spinner" class="animate-spin mr-2" />
+                {{ isSubmitting ? "Saving..." : "Save changes" }}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </motion.div>
   </div>
 </template>
 

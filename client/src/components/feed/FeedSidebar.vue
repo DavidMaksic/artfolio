@@ -5,10 +5,11 @@ import { cloudinaryUrl } from "@/lib/cloudinary";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
 import { computed } from "vue";
-import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
-import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const router = useRouter();
 const auth = useAuthStore();

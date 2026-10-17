@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { Button } from "@/components/ui/button";
+import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
@@ -83,7 +84,7 @@ const profileReady = computed(
       </button>
 
       <!-- Right side -->
-      <div class="flex items-center gap-2 sm:hidden md:justify-self-end">
+      <div class="flex items-center gap-1 sm:hidden md:justify-self-end">
         <template v-if="auth.isAuthenticated">
           <Button
             v-if="profileReady"
@@ -92,19 +93,33 @@ const profileReady = computed(
             size="sm"
             @click="router.push({ name: 'post-create' })"
           >
-            <Icon icon="ph:plus" class="mr-0.5 size-5" aria-label="New post" />
-            <span class="md:hidden">New post</span>
+            <motion.div
+              class="flex items-center gap-1.5"
+              :initial="{ opacity: 0 }"
+              :animate="{ opacity: 1 }"
+              :transition="{ type: 'tween', duration: 0.3, ease: 'easeOut' }"
+            >
+              <Icon icon="ph:plus" class="mr-0.5 size-5" aria-label="New post" />
+              <span class="md:hidden">New post</span>
+            </motion.div>
           </Button>
 
           <Button
             v-if="profileReady"
-            class="hover:bg-neutral-400/12"
+            class="hover:bg-neutral-400/12 mr-0.5"
             variant="ghost"
             size="sm"
             @click="router.push({ name: 'profile', params: { username: me!.username } })"
           >
-            <Icon icon="ph:user" class="mr-0.5 size-5" />
-            <span class="md:hidden">{{ me!.username }}</span>
+            <motion.div
+              class="flex items-center gap-1.5"
+              :initial="{ opacity: 0 }"
+              :animate="{ opacity: 1 }"
+              :transition="{ type: 'tween', duration: 0.3, ease: 'easeOut' }"
+            >
+              <Icon icon="ph:user" class="mr-0.5 size-5" />
+              <span class="md:hidden">{{ me!.username }}</span></motion.div
+            >
           </Button>
 
           <Button class="hover:bg-neutral-400/12" variant="ghost" size="sm" @click="auth.signOut()">
@@ -113,7 +128,7 @@ const profileReady = computed(
           </Button>
         </template>
 
-        <template v-else>
+        <template v-else-if="!auth.isPending">
           <Button
             size="sm"
             class="bg-neutral-800/90 hover:bg-neutral-600/95 px-5 rounded-lg"
