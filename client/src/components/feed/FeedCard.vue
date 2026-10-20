@@ -11,12 +11,12 @@ import { formatDistanceToNow } from "date-fns";
 import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { useQueryClient } from "@tanstack/vue-query";
 import { useEngagement } from "@/composables/useEngagement";
+import { useMediaQuery } from "@vueuse/core";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/vue";
-import { useMediaQuery } from "@vueuse/core";
 
 const props = defineProps<{
   post: FeedItem;
