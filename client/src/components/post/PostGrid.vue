@@ -53,7 +53,7 @@ const rowHeight = computed(() => {
   if (isTablet.value) return 280;
   if (isVerticalTablet.value) return 280;
   if (isPhone.value) return 240;
-  return 200;
+  return 230;
 });
 
 const minWidth = computed(() => {
@@ -62,7 +62,7 @@ const minWidth = computed(() => {
   if (isTablet.value) return 260;
   if (isVerticalTablet.value) return 280;
   if (isPhone.value) return 220;
-  return 200;
+  return 230;
 });
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -177,12 +177,11 @@ watch(
   { immediate: true },
 );
 
-const FADE_IN = 0.08; // 0 -> 1
-const HOLD = 0.08; // stays at 1 for 0.3s (the "after 0.3 secs" part)
-const FADE_OUT = 0.08; // 1 -> 0
+const FADE_IN = 0.08;
+const HOLD = 0.08;
+const FADE_OUT = 0.08;
 const CYCLE = FADE_IN + HOLD + FADE_OUT;
 
-// total skeletons in the loading grid (4 rows x columnsPerRow)
 const totalSkeletons = computed(() => 3 * columnsPerRow.value);
 
 // full loop length so the wave restarts cleanly if it keeps loading
