@@ -89,7 +89,7 @@ watch(
     <!-- Single image — centered -->
     <template v-else-if="post && post.images.length === 1">
       <div
-        class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0"
+        class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0 md:min-h-[45vh] xs:min-h-[55vh]"
         @click.self="emit('close')"
       >
         <motion.img
@@ -111,7 +111,7 @@ watch(
     <!-- Multiple images — scrollable column -->
     <template v-else-if="post">
       <div
-        class="flex flex-col items-center gap-6 md:gap-0 py-8 px-18 md:p-0"
+        class="flex flex-col items-center gap-6 md:gap-0 py-8 px-18 md:p-0 md:min-h-[45vh] xs:min-h-[55vh]"
         @click.self="emit('close')"
       >
         <div
