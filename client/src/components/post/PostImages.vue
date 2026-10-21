@@ -66,6 +66,8 @@ watch(
     loadedImages.value = new Set();
   },
 );
+
+const imageReady = computed(() => !props.isPending && imageLoaded.value);
 </script>
 
 <template>
@@ -80,7 +82,7 @@ watch(
   >
     <!-- Loading -->
     <div
-      v-if="isPending"
+      v-if="isPending || !imageLoaded"
       class="flex items-center justify-center h-full md:min-h-[45vh] xs:min-h-[55vh]"
     >
       <Icon icon="ph:spinner" class="animate-spin text-white text-5xl" />
@@ -97,11 +99,8 @@ watch(
           :alt="post.category.name"
           :width="post.images[0]!.width"
           :height="post.images[0]!.height"
-          :style="{
-            aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}`,
-            contentVisibility: 'auto',
-          }"
-          class="max-h-[90vh] md:min-h-[45vh] xs:min-h-[55vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+          :style="{ aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}` }"
+          class="max-h-[90vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
           :initial="{ opacity: 0 }"
           :animate="{ opacity: imageLoaded ? 1 : 0 }"
           :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
@@ -128,11 +127,8 @@ watch(
             :alt="post.category.name"
             :width="image.width"
             :height="image.height"
-            :style="{
-              aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}`,
-              contentVisibility: 'auto',
-            }"
-            class="max-h-[90vh] md:min-h-[45vh] xs:min-h-[55vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+            :style="{ aspectRatio: `${image.width} / ${image.height}` }"
+            class="max-h-[90vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
             :initial="{ opacity: 0 }"
             :animate="{ opacity: loadedImages.has(image.id) ? 1 : 0 }"
             :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"

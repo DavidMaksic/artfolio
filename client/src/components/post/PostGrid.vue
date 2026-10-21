@@ -209,7 +209,7 @@ function skeletonTransition(index: number) {
           <motion.div
             v-for="col in columnsPerRow"
             :key="col"
-            class="min-w-0 bg-neutral-300 rounded-xl sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
+            class="min-w-0 bg-neutral-300 rounded-xl sm:rounded-[8px] sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
             :style="{
               height: `${TARGET_ROW_HEIGHT || 200}px`,
               flexGrow: getSkeletonGrow(rowIndex, col - 1),
