@@ -171,6 +171,30 @@ watch(
   },
   { immediate: true },
 );
+
+const FADE_IN = 0.08; // 0 -> 1
+const HOLD = 0.08; // stays at 1 for 0.3s (the "after 0.3 secs" part)
+const FADE_OUT = 0.08; // 1 -> 0
+const CYCLE = FADE_IN + HOLD + FADE_OUT;
+
+// total skeletons in the loading grid (4 rows x columnsPerRow)
+const totalSkeletons = computed(() => 3 * columnsPerRow.value);
+
+// full loop length so the wave restarts cleanly if it keeps loading
+const loopPeriod = computed(() => (totalSkeletons.value - 1) * FADE_IN + CYCLE);
+
+function skeletonTransition(index: number) {
+  const delay = index * FADE_IN; // next one starts exactly when prev hits opacity 1
+  const repeatDelay = Math.max(loopPeriod.value - delay - CYCLE, 0);
+  return {
+    duration: CYCLE,
+    times: [0, FADE_IN / CYCLE, 1], // keyframe timing within the cycle
+    delay,
+    repeat: Infinity,
+    repeatDelay,
+    ease: "easeInOut",
+  };
+}
 </script>
 
 <template>
@@ -182,15 +206,18 @@ watch(
           :key="rowIndex"
           class="flex gap-1 sm:gap-0.5 mb-1 sm:mb-0.5"
         >
-          <Skeleton
+          <motion.div
             v-for="col in columnsPerRow"
             :key="col"
-            class="min-w-0 bg-neutral-200 rounded-xl sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
+            class="min-w-0 bg-neutral-300 rounded-xl sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
             :style="{
               height: `${TARGET_ROW_HEIGHT || 200}px`,
               flexGrow: getSkeletonGrow(rowIndex, col - 1),
               flexBasis: 0,
             }"
+            :initial="{ opacity: 0 }"
+            :animate="{ opacity: [0, 1, 0] }"
+            :transition="skeletonTransition(rowIndex * columnsPerRow + (col - 1))"
           />
         </div>
       </template>
