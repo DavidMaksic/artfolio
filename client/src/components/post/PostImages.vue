@@ -89,7 +89,7 @@ watch(
     <!-- Single image — centered -->
     <template v-else-if="post && post.images.length === 1">
       <div
-        class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0 md:min-h-[45vh] xs:min-h-[55vh]"
+        class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0"
         @click.self="emit('close')"
       >
         <motion.img
@@ -97,8 +97,11 @@ watch(
           :alt="post.category.name"
           :width="post.images[0]!.width"
           :height="post.images[0]!.height"
-          :style="{ aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}` }"
-          class="max-h-[90vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+          :style="{
+            aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}`,
+            contentVisibility: 'auto',
+          }"
+          class="max-h-[90vh] md:min-h-[45vh] xs:min-h-[55vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
           :initial="{ opacity: 0 }"
           :animate="{ opacity: imageLoaded ? 1 : 0 }"
           :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
@@ -111,7 +114,7 @@ watch(
     <!-- Multiple images — scrollable column -->
     <template v-else-if="post">
       <div
-        class="flex flex-col items-center gap-6 md:gap-0 py-8 px-18 md:p-0 md:min-h-[45vh] xs:min-h-[55vh]"
+        class="flex flex-col items-center gap-6 md:gap-0 py-8 px-18 md:p-0"
         @click.self="emit('close')"
       >
         <div
@@ -125,8 +128,11 @@ watch(
             :alt="post.category.name"
             :width="image.width"
             :height="image.height"
-            :style="{ aspectRatio: `${image.width} / ${image.height}` }"
-            class="max-h-[90vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+            :style="{
+              aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}`,
+              contentVisibility: 'auto',
+            }"
+            class="max-h-[90vh] md:min-h-[45vh] xs:min-h-[55vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
             :initial="{ opacity: 0 }"
             :animate="{ opacity: loadedImages.has(image.id) ? 1 : 0 }"
             :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
