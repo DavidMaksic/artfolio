@@ -79,7 +79,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
 
     <!-- Follow counts -->
     <div
-      class="grid grid-cols-3 items-center justify-between gap-4 text-md md:justify-self-start md:gap-6 md:self-start md:w-full md:text-lg sm:pr-8"
+      class="grid grid-cols-3 items-center justify-between gap-4 text-md md:justify-self-start md:gap-6 md:self-start md:w-full md:text-lg sm:pr-6"
     >
       <div
         v-for="{ label, value } in [

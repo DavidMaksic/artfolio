@@ -36,7 +36,7 @@ function go(name: string) {
 
 <template>
   <nav
-    class="hidden sm:flex fixed bottom-0 left-0 right-0 z-40 bg-white/88 backdrop-blur-md border-t border-neutral-200/80 items-center justify-around"
+    class="hidden sm:flex fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-neutral-200/80 items-center justify-around"
     style="padding-bottom: env(safe-area-inset-bottom, 0px)"
   >
     <button
