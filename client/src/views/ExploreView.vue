@@ -28,7 +28,11 @@ import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
 import FilterPanelContent from "@/components/FilterPanelContent.vue";
+import DrawerContent from "@/components/ui/drawer/DrawerContent.vue";
+import DrawerHeader from "@/components/ui/drawer/DrawerHeader.vue";
+import DrawerTitle from "@/components/ui/drawer/DrawerTitle.vue";
 import PostGrid from "@/components/post/PostGrid.vue";
+import Drawer from "@/components/ui/drawer/Drawer.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -347,20 +351,41 @@ function clearAllFilters() {
         </Button>
       </div>
 
-      <Sheet v-model:open="filtersOpen">
-        <SheetContent
-          :side="isVerticalTablet ? 'right' : 'bottom'"
-          class="flex flex-col gap-2"
-          :class="
-            isVerticalTablet
-              ? 'w-84 rounded-l-2xl bg-neutral-100'
-              : 'px-5 sm:px-8 sm:pt-4 pb-8 rounded-t-2xl'
-          "
-        >
-          <div
-            v-if="!isVerticalTablet"
-            class="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-2 rounded-full bg-neutral-300/80"
+      <Drawer v-if="!isVerticalTablet" v-model:open="filtersOpen">
+        <DrawerContent class="px-5 sm:px-8 pb-8">
+          <DrawerHeader class="text-center">
+            <DrawerTitle>Filters</DrawerTitle>
+          </DrawerHeader>
+
+          <FilterPanelContent
+            :categories
+            :selected-category
+            :sort
+            :trending-tags
+            :debounced-query
+            @select-category="selectCategory"
+            @set-sort="setSort"
+            @select-tag="selectTag"
           />
+
+          <div class="mt-auto flex gap-3 pt-6 border-t border-neutral-200/80">
+            <Button
+              variant="outline"
+              class="flex-1 h-10 rounded-xl"
+              :disabled="activeFilterCount === 0"
+              @click="clearAllFilters"
+            >
+              Clear all
+            </Button>
+            <Button class="flex-1 h-10 rounded-xl shadow-none" @click="filtersOpen = false">
+              Done
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Sheet v-else v-model:open="filtersOpen">
+        <SheetContent side="right" class="flex flex-col gap-2 w-84 rounded-l-2xl bg-neutral-100">
           <SheetHeader
             class="flex-row sm:justify-center sm:text-lg items-center justify-between px-6 sm:px-0"
           >

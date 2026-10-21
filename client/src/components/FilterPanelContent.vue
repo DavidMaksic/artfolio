@@ -37,7 +37,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 px-6 sm:pb-4 sm:px-0">
+  <div class="flex flex-col gap-6 px-6 sm:pb-6 sm:px-0">
     <!-- Trending tags -->
     <div v-if="trendingTags.length" class="flex flex-col gap-2.5">
       <p class="text-sm font-medium">Trending</p>
