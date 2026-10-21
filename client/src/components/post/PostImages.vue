@@ -66,8 +66,6 @@ watch(
     loadedImages.value = new Set();
   },
 );
-
-const imageReady = computed(() => !props.isPending && imageLoaded.value);
 </script>
 
 <template>
@@ -82,7 +80,7 @@ const imageReady = computed(() => !props.isPending && imageLoaded.value);
   >
     <!-- Loading -->
     <div
-      v-if="isPending || !imageLoaded"
+      v-if="isPending"
       class="flex items-center justify-center h-full md:min-h-[45vh] xs:min-h-[55vh]"
     >
       <Icon icon="ph:spinner" class="animate-spin text-white text-5xl" />
