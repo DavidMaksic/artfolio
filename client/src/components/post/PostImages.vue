@@ -88,51 +88,58 @@ watch(
 
     <!-- Single image — centered -->
     <template v-else-if="post && post.images.length === 1">
-      <div
-        class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0"
-        @click.self="emit('close')"
-      >
-        <motion.img
-          :src="post.images[0]!.imageUrl"
-          :alt="post.category.name"
-          :width="post.images[0]!.width"
-          :height="post.images[0]!.height"
-          :style="{ aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}` }"
-          class="max-h-[90vh] md:max-h-full w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
-          :initial="{ opacity: 0 }"
-          :animate="{ opacity: imageLoaded ? 1 : 0 }"
-          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
-          @load="imageLoaded = true"
-          @click.stop
-        />
+      <div class="w-full h-full flex items-center justify-center px-18 py-6 md:p-0">
+        <div
+          class="max-w-full"
+          :style="{
+            aspectRatio: `${post.images[0]!.width} / ${post.images[0]!.height}`,
+            maxHeight: '90vh',
+          }"
+        >
+          <motion.img
+            :src="post.images[0]!.imageUrl"
+            :alt="post.category.name"
+            class="w-full h-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+            :initial="{ opacity: 0 }"
+            :animate="{ opacity: imageLoaded ? 1 : 0 }"
+            :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
+            @load="imageLoaded = true"
+            @click.stop
+          />
+        </div>
       </div>
     </template>
 
     <!-- Multiple images — scrollable column -->
     <template v-else-if="post">
       <div
-        class="flex flex-col items-center gap-6 md:gap-0 py-8 px-18 md:p-0"
+        class="flex flex-col items-center gap-6 md:gap-4 py-8 px-18 md:p-0"
         @click.self="emit('close')"
       >
         <div
           v-for="image in post.images"
           :key="image.id"
-          class="w-full flex justify-center md:border-t md:border-t-neutral-400/70 md:first:border-t-0"
+          class="w-full flex justify-center"
           @click.self="emit('close')"
         >
-          <motion.img
-            :src="image.imageUrl"
-            :alt="post.category.name"
-            :width="image.width"
-            :height="image.height"
-            :style="{ aspectRatio: `${image.width} / ${image.height}` }"
-            class="max-h-[90vh] w-auto max-w-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
-            :initial="{ opacity: 0 }"
-            :animate="{ opacity: loadedImages.has(image.id) ? 1 : 0 }"
-            :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
-            @click.stop
-            @load="markLoaded(image.id)"
-          />
+          <div
+            class="max-w-full"
+            :style="{
+              aspectRatio: `${image.width} / ${image.height}`,
+              maxHeight: '90vh',
+            }"
+          >
+            <motion.img
+              :src="image.imageUrl"
+              :alt="post.category.name"
+              class="w-full h-full object-contain rounded-md md:rounded-none shadow-2xl md:shadow-none"
+              :initial="{ opacity: 0 }"
+              :animate="{ opacity: loadedImages.has(image.id) ? 1 : 0 }"
+              :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
+              @click.stop
+              @load="markLoaded(image.id)"
+            />
+          </div>
         </div>
       </div>
     </template>

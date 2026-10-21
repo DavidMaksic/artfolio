@@ -35,7 +35,7 @@ const { data: post, isPending } = useQuery({
       <motion.div
         v-if="postId"
         key="post-detail-modal"
-        class="fixed inset-0 z-50 grid grid-cols-[3.76fr_1fr] 2xl:grid-cols-[3fr_1fr] xl:grid-cols-[2fr_1fr] md:flex md:flex-col md:overflow-y-auto backdrop-blur-2xl bg-neutral-100/40 sm:bg-neutral-200/90"
+        class="fixed inset-0 z-50 grid grid-cols-[3.76fr_1fr] 2xl:grid-cols-[3fr_1fr] xl:grid-cols-[2fr_1fr] md:flex md:flex-col md:overflow-y-auto backdrop-blur-2xl bg-neutral-100/40 sm:bg-neutral-200/60"
         data-testid="post-modal"
         :initial="{ opacity: 0 }"
         :animate="{ opacity: 1 }"
