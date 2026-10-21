@@ -16,7 +16,7 @@ const delegatedProps = reactiveOmit(props, "class");
     v-bind="delegatedProps"
     :class="
       cn(
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-neutral-100/10 backdrop-blur-2xl backdrop-contrast-60 duration-200',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-neutral-100/10 backdrop-blur-2xl backdrop-contrast-60 duration-500',
         props.class,
       )
     "
