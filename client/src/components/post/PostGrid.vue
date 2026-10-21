@@ -4,12 +4,15 @@ import { ref, computed, watch, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { useMediaQuery } from "@vueuse/core";
+import { reactive } from "vue";
+import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
-import { motion } from "motion-v";
-import { reactive } from "vue";
 
-type Row = { post: Post; width: number }[];
+type Row = {
+  items: { post: Post; width: number }[];
+  isFullRow: boolean;
+};
 
 const props = defineProps<{
   posts: Post[] | FeedItem[] | undefined;
@@ -109,24 +112,26 @@ const rows = computed<Row[]>(() => {
     if (currentRowWidth >= availableWidth) {
       const scale = availableWidth / currentRowWidth;
       const rowHeight = TARGET_ROW_HEIGHT * scale;
-      rows.push(
-        currentRow.map(({ post, aspectRatio }) => ({
+      rows.push({
+        items: currentRow.map(({ post, aspectRatio }) => ({
           post,
           width: aspectRatio * rowHeight,
         })),
-      );
+        isFullRow: true,
+      });
       currentRow = [];
       currentRowWidth = 0;
     }
   }
 
   if (currentRow.length > 0) {
-    rows.push(
-      currentRow.map(({ post, aspectRatio }) => ({
+    rows.push({
+      items: currentRow.map(({ post, aspectRatio }) => ({
         post,
         width: aspectRatio * TARGET_ROW_HEIGHT,
       })),
-    );
+      isFullRow: false,
+    });
   }
 
   return rows;
@@ -164,7 +169,7 @@ watch(
   rows,
   (newRows) => {
     for (const row of newRows) {
-      for (const { post, width } of row) {
+      for (const { post, width } of row.items) {
         preloadImage(post.id, thumb(post.coverImage?.imageUrl, width, TARGET_ROW_HEIGHT));
       }
     }
@@ -229,10 +234,15 @@ function skeletonTransition(index: number) {
           class="flex gap-1 sm:gap-0.5 mb-1 sm:mb-0.5"
         >
           <div
-            v-for="{ post, width } in row"
+            v-for="({ post, width }, itemIndex) in row.items"
             :key="post.id"
             :data-post-id="post.id"
-            class="relative overflow-hidden rounded-xl border border-neutral-300/80 sm:border-neutral-300/70 sm:first:border-l-0 sm:last:border-r-0 group select-none sm:rounded-lg sm:first:rounded-tl-none sm:first:rounded-bl-none sm:last:rounded-tr-none sm:last:rounded-br-none"
+            class="relative overflow-hidden rounded-xl border border-neutral-300/80 sm:border-neutral-300/70 group select-none sm:rounded-lg"
+            :class="{
+              'sm:rounded-tl-none sm:rounded-bl-none sm:border-l-0': itemIndex === 0,
+              'sm:rounded-tr-none sm:rounded-br-none sm:border-r-0':
+                row.isFullRow && itemIndex === row.items.length - 1,
+            }"
             :style="{ width: `${width}px`, height: `${TARGET_ROW_HEIGHT}px` }"
             @click="openPost(post.id)"
           >
