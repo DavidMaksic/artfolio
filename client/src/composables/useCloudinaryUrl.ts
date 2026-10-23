@@ -4,6 +4,7 @@ import { useMediaQuery } from "@vueuse/core";
 export function useCloudinaryUrl() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const dpr = Math.min(window.devicePixelRatio ?? 1, isMobile.value ? 3 : 2);
+  const THUMB_PADDING_FACTOR = isMobile.value ? 1.2 : 1;
 
   return {
     dpr,
@@ -12,7 +13,7 @@ export function useCloudinaryUrl() {
         width: Math.round(width * dpr),
         height: Math.round(height * dpr),
         crop: "fill",
-        paddingFactor: 1.2,
+        paddingFactor: THUMB_PADDING_FACTOR,
       }),
     detail: (url: string | null | undefined, width: number) =>
       cloudinaryUrl(url, {

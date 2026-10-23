@@ -38,7 +38,7 @@ const isPhone = useMediaQuery("(max-width: 768px)");
 const feedImageWidth = computed(() => {
   const { width, height } = props.post.coverImage;
   const displayedHeight = COLUMN_WIDTH * (height / width);
-  return displayedHeight < 400 ? (isPhone.value ? 550 : 750) : 900;
+  return displayedHeight < 400 ? (isPhone.value ? 550 : 750) : isPhone.value ? 600 : 900;
 });
 
 // Seed the follow state cache from the feed item on mount
