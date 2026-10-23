@@ -2,8 +2,8 @@ import { cloudinaryUrl } from "@/lib/cloudinary";
 import { useMediaQuery } from "@vueuse/core";
 
 export function useCloudinaryUrl() {
-  const isPhone = useMediaQuery("(max-width: 768px)");
-  const dpr = Math.min(window.devicePixelRatio ?? 1, isPhone.value ? 3 : 2);
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const dpr = Math.min(window.devicePixelRatio ?? 1, isMobile.value ? 4 : 2);
 
   return {
     dpr,
