@@ -15,7 +15,7 @@ export function cloudinaryUrl(
 
   const { width, height, quality = "auto:best", crop = "fill", format = "auto", dpr } = options;
 
-  const PADDING_FACTOR = 1;
+  const PADDING_FACTOR = 1.2;
   const innerWidth = width ? Math.round(width * PADDING_FACTOR - 2) : undefined;
   const innerHeight = height ? Math.round(height * PADDING_FACTOR - 2) : undefined;
 
