@@ -5,6 +5,7 @@ interface CloudinaryOptions {
   crop?: "fill" | "fit" | "limit" | "scale" | "thumb";
   format?: "auto" | "webp" | "avif";
   dpr?: number;
+  paddingFactor?: number;
 }
 
 export function cloudinaryUrl(
@@ -13,11 +14,18 @@ export function cloudinaryUrl(
 ): string {
   if (!url) return "";
 
-  const { width, height, quality = "auto:best", crop = "fill", format = "auto", dpr } = options;
+  const {
+    width,
+    height,
+    quality = "auto:best",
+    crop = "fill",
+    format = "auto",
+    dpr,
+    paddingFactor = 1,
+  } = options;
 
-  const PADDING_FACTOR = 1.2;
-  const innerWidth = width ? Math.round(width * PADDING_FACTOR - 2) : undefined;
-  const innerHeight = height ? Math.round(height * PADDING_FACTOR - 2) : undefined;
+  const innerWidth = width ? Math.round(width * paddingFactor - 2) : undefined;
+  const innerHeight = height ? Math.round(height * paddingFactor - 2) : undefined;
 
   const transforms = [
     width && `w_${innerWidth}`,
