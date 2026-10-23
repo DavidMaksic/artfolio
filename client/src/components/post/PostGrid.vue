@@ -53,7 +53,7 @@ const rowHeight = computed(() => {
   if (isTablet.value) return 280;
   if (isVerticalTablet.value) return 280;
   if (isPhone.value) return 240;
-  return 330;
+  return 230;
 });
 
 const minWidth = computed(() => {
@@ -62,7 +62,7 @@ const minWidth = computed(() => {
   if (isTablet.value) return 260;
   if (isVerticalTablet.value) return 280;
   if (isPhone.value) return 220;
-  return 330;
+  return 230;
 });
 
 const containerRef = ref<HTMLElement | null>(null);
