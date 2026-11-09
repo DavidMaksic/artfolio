@@ -391,23 +391,18 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Add better form validation
 - Add toasts
 
+## Refactoring
+
+- Refactor client view files that are too big
+- Abstract skeletons into separate files
+
 ## Things to fix
 
-- Last visible image on the grid on mobile has no border radius applied
-- Remove some padding-bottom from 'New Post', 'Edit profile' and other headers
-- Add gap between text and delete button in danger zone on profile edit
-- Make categories dropdown width dynamic (imitate sorting dropdown)
+- getMe is called on every route unnecessarily (throwing 401 error)
 - Liking a post should not invalidate postGrid query (posts update in the background now), but only the like count on postGrid, not post position
 - When logging in for the first time, user can see main feed for a moment, before being redirected to profile setup view
 - Right chevron should not appear on post detail modal when opened from discussions tab
 - 'View more' on discussions tab does not load any comments in some cases
-- When navigating from detail view (while in the scrolled main feed) to someone's profile, scroll does not reset
-- Fix all skeletons
-- Focus on comment edit textarea not working
-- Refactor client view files that are too big
 - Newly created post does not always appear on main feed
-- getMe is called on every route unnecessarily (throwing 401 error)
-- Number indicator on filters button needs better background color
 - Limit image size upload, individually and in batch
 - When navigating through posts using chevrons, if two posts in a row have multiple images, scroll does not reset on navigation
-- Make Drizzle DB calls either use select or query

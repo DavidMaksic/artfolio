@@ -79,7 +79,7 @@ const emit = defineEmits<{
             </Button>
           </ComboboxTrigger>
         </ComboboxAnchor>
-        <ComboboxList class="rounded-lg xl:w-68 sm:w-96.5">
+        <ComboboxList class="rounded-lg">
           <ComboboxInput class="text-[0.92rem]" placeholder="Search category..." />
           <ComboboxEmpty class="text-[0.92rem]">No category found</ComboboxEmpty>
           <ComboboxGroup>

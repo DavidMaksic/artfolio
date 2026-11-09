@@ -24,6 +24,7 @@ const SUGGEST_EVERY = 3; // inject a suggested post every N following posts
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const me = computed(() => auth.me);
 const commentBodies = ref<Record<string, string>>({});
 
 onMounted(() => {
@@ -34,11 +35,6 @@ onMounted(() => {
   } else if (postId) {
     openPost(postId);
   }
-});
-
-const { data: me } = useQuery({
-  queryKey: ["me"],
-  queryFn: () => trpc.profile.getMe.query(),
 });
 
 watch(me, (profile) => {

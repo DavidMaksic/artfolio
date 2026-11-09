@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DiscussionItem } from "@artfolio/shared";
-import { useQuery, useInfiniteQuery } from "@tanstack/vue-query";
+import { useInfiniteQuery } from "@tanstack/vue-query";
 import { cloudinaryUrl } from "@/lib/cloudinary";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
@@ -12,19 +12,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 const router = useRouter();
+const isLoadingMe = computed(() => auth.isAuthenticated && !auth.me);
 const auth = useAuthStore();
+const me = computed(() => auth.me);
 
 const emit = defineEmits<{
   openPost: [postId: string, commentId: string];
 }>();
-
-// ── Profile card ───────────────────────────────────────────────
-
-const { data: me, isPending: isLoadingMe } = useQuery({
-  queryKey: ["me"],
-  queryFn: () => trpc.profile.getMe.query(),
-  enabled: computed(() => auth.isAuthenticated),
-});
 
 // ── Latest discussions ─────────────────────────────────────────
 

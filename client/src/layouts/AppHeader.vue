@@ -2,22 +2,15 @@
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { computed } from "vue";
-import { useQuery } from "@tanstack/vue-query";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
-import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 
 const auth = useAuthStore();
+const me = computed(() => auth.me);
 const router = useRouter();
 const route = useRoute();
-
-const { data: me } = useQuery({
-  queryKey: ["me"],
-  queryFn: () => trpc.profile.getMe.query(),
-  enabled: computed(() => auth.isAuthenticated),
-});
 
 const isProfile = computed(() => route.name === "profile");
 

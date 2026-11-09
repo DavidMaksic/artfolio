@@ -79,7 +79,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
 
     <!-- Follow counts -->
     <div
-      class="grid grid-cols-[0.8fr_1fr_0.8fr] items-center justify-between gap-4 text-md md:justify-self-start md:gap-6 md:self-start md:w-full md:text-lg"
+      class="grid grid-cols-3 md:grid-cols-[0.8fr_1fr_0.8fr] items-center justify-between gap-4 text-md md:justify-self-start md:gap-6 md:self-start md:w-full md:text-lg"
     >
       <div
         v-for="{ label, value } in [
@@ -88,7 +88,7 @@ const { following, toggleFollow, isFollowPending } = useFollow(
           { label: 'Following', value: profile.followingCount },
         ]"
         :key="label"
-        class="text-center flex-1"
+        class="text-center"
       >
         <p class="font-semibold md:text-start">
           {{ value }}

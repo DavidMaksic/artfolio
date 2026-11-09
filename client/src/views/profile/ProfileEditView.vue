@@ -5,6 +5,7 @@ import { extractTrpcError } from "@/lib/trpc-error";
 import { useAuthStore } from "@/stores/auth.store";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
@@ -31,6 +32,7 @@ import { Label } from "@/components/ui/label";
 const router = useRouter();
 const queryClient = useQueryClient();
 const auth = useAuthStore();
+const me = computed(() => auth.me);
 
 const error = ref<string | null>(null);
 
@@ -340,7 +342,7 @@ function onSubmit(e: SubmitEvent) {
               Danger zone
             </p>
             <div class="flex items-center gap-2 justify-between">
-              <div class="xs:space-y-1">
+              <div class="space-y-0.5 xs:space-y-1">
                 <p class="text-sm font-medium">Delete account</p>
                 <p class="text-xs text-muted-foreground">
                   Permanently removes your profile and all posts.

@@ -344,7 +344,7 @@ function clearAllFilters() {
           Filters
           <span
             v-if="activeFilterCount > 0"
-            class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-foreground text-background text-xs flex items-center justify-center font-medium"
+            class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-linear-to-r from-blue-accent-600/90 to-red-accent-500/90 text-background text-xs flex items-center justify-center font-medium"
           >
             {{ activeFilterCount }}
           </span>

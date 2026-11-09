@@ -165,7 +165,7 @@ async function handleSubmit() {
 
 <template>
   <div
-    class="min-h-screen pt-4 sm:pt-0 pb-20 flex flex-col bg-neutral-100 gap-4 px-8 xs:px-5 max-w-xl mx-auto"
+    class="min-h-screen pt-4 sm:pt-0 pb-20 flex flex-col bg-neutral-100 gap-4 sm:gap-2 px-8 xs:px-5 max-w-xl mx-auto"
   >
     <div class="flex items-center gap-2">
       <Button variant="ghost" size="icon" @click="router.back()">

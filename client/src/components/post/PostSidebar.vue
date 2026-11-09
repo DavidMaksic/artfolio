@@ -49,15 +49,8 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const auth = useAuthStore();
+const me = computed(() => auth.me);
 const queryClient = useQueryClient();
-
-// ── Auth ───────────────────────────────────────────
-
-const { data: me } = useQuery({
-  queryKey: ["me"],
-  queryFn: () => trpc.profile.getMe.query(),
-  enabled: computed(() => !!auth.user),
-});
 
 const isPostOwner = computed(
   () => !!me.value && !!props.post && me.value.username === props.post.profile.username,
