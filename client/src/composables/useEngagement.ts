@@ -1,5 +1,5 @@
 import { ref, watch, type Ref } from "vue";
-import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useMutation, useQueryClient, type InfiniteData } from "@tanstack/vue-query";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
 import { trpc } from "@/lib/trpc";
@@ -38,6 +38,31 @@ export function useEngagement(source: Ref<EngagementSource>) {
     return true;
   }
 
+  // Update query cache when liking a post
+  type PostLike = { id: string; userHasLiked: boolean; likeCount: number };
+  type Cache = InfiniteData<{ items: PostLike[] }> | { items: PostLike[] } | PostLike[];
+
+  function setLikeInCache(liked: boolean, likeCount: number) {
+    const id = source.value.id;
+    const patch = <T extends PostLike>(p: T): T =>
+      p.id === id ? { ...p, userHasLiked: liked, likeCount } : p;
+
+    queryClient.setQueriesData<Cache>(
+      { predicate: (q) => ["feed", "explore", "posts"].includes(q.queryKey[0] as string) },
+      (old) => {
+        if (!old) return old;
+        if (Array.isArray(old)) return old.map(patch);
+        if ("pages" in old) {
+          return {
+            ...old,
+            pages: old.pages.map((pg) => ({ ...pg, items: pg.items.map(patch) })),
+          };
+        }
+        return { ...old, items: old.items.map(patch) };
+      },
+    );
+  }
+
   const likeMutation = useMutation({
     mutationFn: () => trpc.engagement.toggleLike.mutate({ postId: source.value.id }),
     onMutate: () => {
@@ -45,16 +70,17 @@ export function useEngagement(source: Ref<EngagementSource>) {
       const previousLikeCount = likeCount.value;
       liked.value = !liked.value;
       likeCount.value += liked.value ? 1 : -1;
+      setLikeInCache(liked.value, likeCount.value);
       return { previousLiked, previousLikeCount };
     },
     onError: (_, __, context) => {
       if (context) {
         liked.value = context.previousLiked;
         likeCount.value = context.previousLikeCount;
+        setLikeInCache(context.previousLiked, context.previousLikeCount);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["post", source.value.id] });
     },
   });

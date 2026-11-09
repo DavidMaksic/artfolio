@@ -384,12 +384,10 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to add
 
-- Make follow/unfollow state on detail modal and feed card to be optimistic
+- Add toasts
 - Tags should be suggested in post create/edit
 - Add accent colors to remade email templates
 - Bookmark page not yet implemented
-- Add better form validation
-- Add toasts
 
 ## Refactoring
 
@@ -398,11 +396,8 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
-- getMe is called on every route unnecessarily (throwing 401 error)
-- Liking a post should not invalidate postGrid query (posts update in the background now), but only the like count on postGrid, not post position
-- When logging in for the first time, user can see main feed for a moment, before being redirected to profile setup view
-- Right chevron should not appear on post detail modal when opened from discussions tab
-- 'View more' on discussions tab does not load any comments in some cases
-- Newly created post does not always appear on main feed
 - Limit image size upload, individually and in batch
-- When navigating through posts using chevrons, if two posts in a row have multiple images, scroll does not reset on navigation
+- When logging in for the first time, user can see main feed for a moment, before being redirected to profile setup view
+- 'View more' on discussions tab does not load any comments in some cases
+- Make follow/unfollow state on detail modal and feed card to be optimistic
+- Focus added to comment input only works after the second opening of the post detail modal

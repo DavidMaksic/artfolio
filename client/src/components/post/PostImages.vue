@@ -9,6 +9,7 @@ const props = defineProps<{
   isPending: boolean;
   postId: string;
   postIds: string[];
+  showNav?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -18,8 +19,10 @@ const emit = defineEmits<{
 
 // Navigation logic
 const currentIndex = computed(() => props.postIds.indexOf(props.postId));
-const hasPrev = computed(() => currentIndex.value > 0);
-const hasNext = computed(() => currentIndex.value < props.postIds.length - 1);
+const hasPrev = computed(() => props.showNav !== false && currentIndex.value > 0);
+const hasNext = computed(
+  () => props.showNav !== false && currentIndex.value < props.postIds.length - 1,
+);
 
 function navigatePrev() {
   if (!hasPrev.value) return;
@@ -77,6 +80,7 @@ watch(
         : 'overflow-hidden flex items-center justify-center'
     "
     @click.self="emit('close')"
+    :key="postId"
   >
     <!-- Loading -->
     <div

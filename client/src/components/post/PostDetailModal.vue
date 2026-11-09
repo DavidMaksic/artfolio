@@ -48,6 +48,7 @@ const { data: post, isPending } = useQuery({
           :isPending
           :postId
           :postIds
+          :show-nav="!focusCommentId"
           @close="emit('close')"
           @navigate="emit('navigate', $event)"
         />

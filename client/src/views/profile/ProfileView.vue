@@ -18,6 +18,7 @@ import PostGrid from "@/components/post/PostGrid.vue";
 const route = useRoute();
 const router = useRouter();
 const username = computed(() => route.params.username as string);
+const title = useTitle();
 
 const {
   data: profile,
@@ -33,7 +34,6 @@ const { data: posts, isPending: isLoadingPosts } = useQuery({
   queryFn: () => trpc.post.getByUsername.query({ username: username.value }),
 });
 
-const title = useTitle();
 watch(
   profile,
   (p) => {
