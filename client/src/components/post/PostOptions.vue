@@ -33,7 +33,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  close?: [];
+  close: [];
 }>();
 
 const router = useRouter();
