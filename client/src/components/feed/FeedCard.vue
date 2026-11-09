@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-} from "@/components/ui/dropdown-menu";
 import { computed, onMounted, ref, watch } from "vue";
 import { formatDistanceToNow } from "date-fns";
 import { useCloudinaryUrl } from "@/composables/useCloudinaryUrl";
 import { useQueryClient } from "@tanstack/vue-query";
 import { useEngagement } from "@/composables/useEngagement";
 import { useMediaQuery } from "@vueuse/core";
+import { useAuthStore } from "@/stores/auth.store";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/vue";
+import PostOptions from "@/components/post/PostOptions.vue";
 
 const props = defineProps<{
   post: FeedItem;
@@ -30,6 +26,13 @@ defineEmits<{
 
 const router = useRouter();
 const queryClient = useQueryClient();
+
+const auth = useAuthStore();
+const me = computed(() => auth.me);
+
+const isPostOwner = computed(
+  () => !!me.value && !!props.post && me.value.username === props.post.profile.username,
+);
 
 const { detail } = useCloudinaryUrl();
 const COLUMN_WIDTH = 600;
@@ -72,10 +75,6 @@ const { following, toggleFollow, isFollowPending } = useFollow(
     userIsFollowing: props.post.profile.userIsFollowing,
   })),
 );
-
-function copyPostLink() {
-  navigator.clipboard.writeText(`${window.location.origin}/?post=${props.post.id}`);
-}
 
 const imageRef = ref<HTMLImageElement | null>(null);
 const imageLoaded = ref(false);
@@ -138,20 +137,7 @@ watch(
             {{ following ? "Following" : "Follow" }}
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Icon
-                icon="ph:dots-three"
-                class="text-3xl text-neutral-700 hover:bg-white transition-colors p-1 rounded-md"
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" class="rounded-lg w-36">
-              <DropdownMenuItem class="text-[0.92rem]" @click="copyPostLink">
-                <Icon icon="ph:link" class="mr-2 text-sm" />
-                Copy link
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <PostOptions :postId="post.id" :isPostOwner iconStyle="text-3xl hover:bg-white p-1" />
         </div>
       </div>
     </div>
