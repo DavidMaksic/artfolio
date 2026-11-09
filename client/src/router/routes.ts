@@ -7,7 +7,7 @@ const router = createRouter({
   history: createWebHistory(),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition;
-    if (to.query.post || from.query.post) return false;
+    if ((to.query.post || from.query.post) && to.path === from.path) return false;
     return { top: 0 };
   },
   routes: [
