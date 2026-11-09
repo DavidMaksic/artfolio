@@ -40,6 +40,11 @@ export const auth = betterAuth({
          const value = await redis.getdel(key);
          return value ?? null;
       },
+      increment: async (key, ttl) => {
+         const count = await redis.incr(key);
+         if (count === 1 && ttl) await redis.expire(key, ttl);
+         return count;
+      },
    },
 
    plugins: [
