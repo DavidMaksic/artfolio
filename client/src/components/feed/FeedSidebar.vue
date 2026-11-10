@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/vue-query";
 import { cloudinaryUrl } from "@/lib/cloudinary";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 

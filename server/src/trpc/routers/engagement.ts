@@ -236,8 +236,8 @@ export const engagementRouter = t.router({
 
          let nextCursor: string | null = null;
          if (comments.length > limit) {
-            const nextItem = comments.pop()!;
-            nextCursor = nextItem.createdAt.toISOString();
+            comments.pop();
+            nextCursor = comments[comments.length - 1]!.createdAt.toISOString();
          }
 
          return {
