@@ -47,7 +47,7 @@ async function redirect() {
   await trpc.profile.update.mutate({
     username: username.value,
     displayName: displayName.value,
-    profileSetupSkipped: true,
+    profileSetupCompleted: true,
   });
   queryClient.invalidateQueries({ queryKey: ["me"] });
   router.push({ name: "home" });
@@ -63,6 +63,7 @@ function onSubmit() {
     location: location.value || undefined,
     website: website.value || undefined,
     availableForCommissions: availableForCommissions.value,
+    profileSetupCompleted: true,
   });
 }
 </script>

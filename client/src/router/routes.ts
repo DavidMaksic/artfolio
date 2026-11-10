@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { registerAuthGuards } from "./guards";
 import { trpc } from "@/lib/trpc";
 import FeedView from "@/views/FeedView.vue";
+import { useAuthStore } from "@/stores/auth.store";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -87,6 +88,30 @@ registerAuthGuards(router);
 
 const APP_NAME = "Artfolio";
 const DEFAULT_TITLE = `${APP_NAME} · Social platform for artists`;
+
+router.beforeEach(async (to) => {
+  const auth = useAuthStore();
+  const user = await auth.ensureUser();
+
+  if (!user) {
+    if (to.meta.requiresAuth) {
+      return { name: "sign-in", query: { redirect: to.fullPath } };
+    }
+    return;
+  }
+
+  const me = await auth.ensureMe();
+  if (!me) return;
+
+  const needsSetup = !me.profileSetupCompleted;
+
+  if (needsSetup && to.name !== "profile-setup") {
+    return { name: "profile-setup" };
+  }
+  if (!needsSetup && to.name === "profile-setup") {
+    return { name: "home" };
+  }
+});
 
 router.afterEach((to) => {
   const title = to.meta.title;

@@ -24,7 +24,7 @@ export function mockProfile(overrides = {}) {
       location: null,
       website: null,
       availableForCommissions: false,
-      profileSetupSkipped: false,
+      profileSetupCompleted: false,
       createdAt: new Date(),
       updatedAt: new Date(),
       ...overrides,

@@ -44,7 +44,7 @@ export const updateProfileSchema = z.object({
       .union([z.url({ error: 'Must be a valid URL' }), z.literal('')])
       .optional(),
    availableForCommissions: z.boolean().optional(),
-   profileSetupSkipped: z.boolean().optional(),
+   profileSetupCompleted: z.boolean().optional(),
    profileImageUrl: z.url().optional(),
 });
 
@@ -58,7 +58,7 @@ export const profileSchema = z.object({
    location: z.string().nullable(),
    website: z.string().nullable(),
    availableForCommissions: z.boolean(),
-   profileSetupSkipped: z.boolean(),
+   profileSetupCompleted: z.boolean(),
    createdAt: z.date(),
    updatedAt: z.date(),
 });

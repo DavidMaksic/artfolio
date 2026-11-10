@@ -1,0 +1,1 @@
+ALTER TABLE "profile" RENAME COLUMN "profile_setup_skipped" TO "profile_setup_completed";

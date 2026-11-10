@@ -15,7 +15,7 @@ const route = useRoute();
 const isProfile = computed(() => route.name === "profile");
 
 const profileReady = computed(
-  () => !!me.value && (me.value.profileSetupSkipped || !!me.value.displayName),
+  () => !!me.value && (me.value.profileSetupCompleted || !!me.value.displayName),
 );
 </script>
 

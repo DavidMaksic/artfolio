@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
-import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/vue-query";
-import { computed, onMounted, ref, watch } from "vue";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/vue-query";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
@@ -24,7 +24,6 @@ const SUGGEST_EVERY = 3; // inject a suggested post every N following posts
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
-const me = computed(() => auth.me);
 const commentBodies = ref<Record<string, string>>({});
 
 onMounted(() => {
@@ -34,12 +33,6 @@ onMounted(() => {
     openPostFromDiscussion(postId, commentId);
   } else if (postId) {
     openPost(postId);
-  }
-});
-
-watch(me, (profile) => {
-  if (profile && !profile.profileSetupSkipped && !profile.displayName) {
-    router.push({ name: "profile-setup" });
   }
 });
 
@@ -152,7 +145,9 @@ const isFetchingNextPage = computed(
 );
 
 const isPending = computed(() =>
-  auth.isAuthenticated ? isFollowingPending.value : isExplorePending.value,
+  auth.isAuthenticated
+    ? isFollowingPending.value || isExplorePending.value
+    : isExplorePending.value,
 );
 
 const activePostId = computed(() => (route.query.post as string | null) ?? null);
@@ -234,17 +229,6 @@ function closePost() {
                 @open="openPost($event)"
                 @open-with-comment="openPost($event, true)"
               />
-            </div>
-
-            <div
-              v-else-if="auth.isAuthenticated"
-              class="flex flex-col items-center gap-3 py-24 text-center"
-            >
-              <Icon icon="ph:users-duotone" class="text-6xl text-muted-foreground" />
-              <p class="text-muted-foreground">Follow some artists to see their work here.</p>
-              <Button variant="outline" @click="router.push({ name: 'explore' })">
-                Explore artists
-              </Button>
             </div>
 
             <div v-else class="flex flex-col items-center gap-3 py-24 text-center">

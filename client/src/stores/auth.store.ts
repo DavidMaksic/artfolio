@@ -5,26 +5,43 @@ import { useRouter } from "vue-router";
 import { computed } from "vue";
 import { trpc } from "@/lib/trpc";
 
+const STALE_TIME = 1000 * 60 * 5;
+
+const sessionQuery = {
+  queryKey: ["session"],
+  queryFn: () => authClient.getSession(),
+  staleTime: STALE_TIME,
+} as const;
+
+const meQuery = {
+  queryKey: ["me"],
+  queryFn: () => trpc.profile.getMe.query(),
+  staleTime: STALE_TIME,
+} as const;
+
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: session, isPending } = useQuery({
-    queryKey: ["session"],
-    queryFn: () => authClient.getSession(),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  const { data: session, isPending } = useQuery(sessionQuery);
 
   const user = computed(() => session.value?.data?.user ?? null);
   const isAuthenticated = computed(() => !!user.value);
   const error = computed(() => session.value?.error ?? null);
 
+  async function ensureUser() {
+    const result = await queryClient.fetchQuery(sessionQuery);
+    return result.data?.user ?? null;
+  }
+
+  async function ensureMe() {
+    return queryClient.fetchQuery(meQuery);
+  }
+
   // ── Profile (username, display name, etc.) ──────────────
   const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: () => trpc.profile.getMe.query(),
+    ...meQuery,
     enabled: isAuthenticated,
-    staleTime: 1000 * 60 * 5,
   });
 
   const username = computed(() => me.value?.username ?? null);
@@ -43,6 +60,7 @@ export const useAuthStore = defineStore("auth", () => {
     const result = await authClient.signIn.emailOtp({ email, otp });
     if (result.error) throw new Error(result.error.message);
     await queryClient.invalidateQueries({ queryKey: ["session"] });
+    await queryClient.invalidateQueries({ queryKey: ["me"] });
     return result;
   }
 
@@ -94,5 +112,7 @@ export const useAuthStore = defineStore("auth", () => {
     signInWithDiscord,
     signOut,
     deleteAccount,
+    ensureMe,
+    ensureUser,
   };
 });

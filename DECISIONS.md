@@ -396,8 +396,8 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
+- 'No more posts' flashes for auth users in feed view
 - Limit image size upload, individually and in batch
-- When logging in for the first time, user can see main feed for a moment, before being redirected to profile setup view
 - 'View more' on discussions tab does not load any comments in some cases
 - Make follow/unfollow state on detail modal and feed card to be optimistic
 - Focus added to comment input only works after the second opening of the post detail modal
