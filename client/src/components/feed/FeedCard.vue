@@ -107,6 +107,7 @@ watch(
               v-if="post.profile.profileImageUrl"
               :src="post.profile.profileImageUrl"
               class="size-9 rounded-full object-cover border group-hover:opacity-80 transition-opacity"
+              fetchPriority="high"
             />
             <div
               v-else

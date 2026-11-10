@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useMutation } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
 import { motion } from "motion-v";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icon } from "@iconify/vue";
+
+import blurred from "/sign-in-image-blurred.webp";
 import image from "/sign-in-image.webp";
 
 const router = useRouter();
@@ -41,18 +43,38 @@ function handleEmailSubmit() {
   error.value = null;
   submitEmail(parsed.data.email);
 }
+
+const imageRef = ref<HTMLImageElement | null>(null);
+const loaded = ref(false);
+
+onMounted(() => {
+  if (imageRef.value?.complete) loaded.value = true;
+});
 </script>
 
 <template>
   <div class="grid grid-cols-[1.5fr_2fr] sm:grid-cols-1 items-start">
-    <motion.img
-      :src="image"
-      class="h-screen w-full object-cover object-center sm:hidden"
-      :initial="{ opacity: 0 }"
-      :animate="{ opacity: 1 }"
-      :exit="{ opacity: 0 }"
-      :transition="{ type: 'tween', duration: 0.15, ease: 'easeOut' }"
-    />
+    <div class="relative h-screen w-full overflow-hidden sm:hidden">
+      <!-- Placeholder -->
+      <img
+        :src="blurred"
+        alt=""
+        class="absolute inset-0 h-full w-full object-cover object-center"
+      />
+
+      <!-- Real image -->
+      <motion.img
+        ref="imageRef"
+        :src="image"
+        alt=""
+        class="absolute inset-0 h-full w-full object-cover object-center"
+        :initial="{ opacity: 0 }"
+        :animate="{ opacity: loaded ? 1 : 0 }"
+        :transition="{ type: 'tween', duration: 0.3, ease: 'easeOut' }"
+        @load="loaded = true"
+      />
+    </div>
+
     <span class="absolute left-0 bottom-0 px-3 py-2 text-sm text-neutral-400"
       >Art by Lane Brown</span
     >
