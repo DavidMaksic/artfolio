@@ -95,24 +95,31 @@ const { following, toggleFollow, isFollowPending } = useFollow(followSource);
 // ── Comments ───────────────────────────────────────────
 
 const commentBody = defineModel<string>("commentBody", { default: "" });
-const textarea = useTemplateRef<HTMLTextAreaElement>("textarea");
+const commentInput = useTemplateRef<HTMLTextAreaElement>("commentInput");
 
 const editingBody = defineModel<string>("editingBody", { default: "" });
 const editingCommentId = ref<string | null>(null);
 
+useTextareaAutosize({ element: commentInput, input: commentBody, maxHeight: 345 });
+
 watch(
-  () => props.focusComment,
-  (val) => {
-    if (val) nextTick(() => textarea.value?.focus());
+  [() => props.focusComment, commentInput],
+  ([focus, el]) => {
+    if (focus && el) el.focus();
   },
-  { immediate: true },
+  { immediate: true, flush: "post" },
 );
 
-useTextareaAutosize({
-  element: textarea,
-  input: commentBody,
-  maxHeight: 345,
-});
+const vFocus = {
+  mounted: (el: HTMLTextAreaElement) => {
+    el.focus();
+    el.setSelectionRange(el.value.length, el.value.length);
+  },
+};
+
+function onMenuCloseAutoFocus(e: Event) {
+  if (editingCommentId.value) e.preventDefault();
+}
 
 const {
   data: commentsData,
@@ -425,7 +432,11 @@ function filterByCategory(slug: string) {
                     />
                   </DropdownMenuTrigger>
                   <AlertDialog>
-                    <DropdownMenuContent align="end" class="rounded-lg w-36">
+                    <DropdownMenuContent
+                      align="end"
+                      class="rounded-lg w-36"
+                      @close-auto-focus="onMenuCloseAutoFocus"
+                    >
                       <DropdownMenuItem class="text-[0.92rem]" @click="copyCommentLink(comment.id)">
                         <Icon icon="ph:link" class="mr-2 text-sm" />
                         Copy link
@@ -475,6 +486,7 @@ function filterByCategory(slug: string) {
                 <!-- Editing state -->
                 <div v-if="editingCommentId === comment.id" class="flex flex-col gap-1.5">
                   <textarea
+                    v-focus
                     ref="editTextarea"
                     v-model="editingBody"
                     maxlength="1000"
@@ -546,7 +558,7 @@ function filterByCategory(slug: string) {
             <Icon icon="ph:user" class="text-muted-foreground text-sm" />
           </div>
           <textarea
-            ref="textarea"
+            ref="commentInput"
             v-model="commentBody"
             placeholder="Add a comment…"
             maxlength="1000"

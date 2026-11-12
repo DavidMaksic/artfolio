@@ -29,10 +29,12 @@ const commentBodies = ref<Record<string, string>>({});
 onMounted(() => {
   const postId = route.query.post as string | undefined;
   const commentId = route.query.comment as string | undefined;
+  const focus = route.query.focus === "true";
+
   if (postId && commentId) {
     openPostFromDiscussion(postId, commentId);
   } else if (postId) {
-    openPost(postId);
+    openPost(postId, focus);
   }
 });
 

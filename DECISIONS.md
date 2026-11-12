@@ -396,6 +396,5 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
-- Focus added to comment input does not work
 - Limit image size upload, individually and in batch
 - Make follow/unfollow state on detail modal and feed card to be optimistic
