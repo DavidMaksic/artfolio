@@ -22,22 +22,6 @@ export function useEngagement(source: Ref<EngagementSource>) {
   const likeCount = ref(source.value.likeCount);
   const bookmarkCount = ref(source.value.bookmarkCount);
 
-  // Sync local state when server data refreshes after invalidation
-  watch(source, (post) => {
-    liked.value = post.userHasLiked;
-    bookmarked.value = post.userHasBookmarked;
-    likeCount.value = post.likeCount;
-    bookmarkCount.value = post.bookmarkCount;
-  });
-
-  function requireAuth(): boolean {
-    if (!auth.isAuthenticated) {
-      router.push({ name: "sign-in" });
-      return false;
-    }
-    return true;
-  }
-
   // Update query cache when liking a post
   type PostLike = { id: string; userHasLiked: boolean; likeCount: number };
   type Cache = InfiniteData<{ items: PostLike[] }> | { items: PostLike[] } | PostLike[];
@@ -101,19 +85,38 @@ export function useEngagement(source: Ref<EngagementSource>) {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
       queryClient.invalidateQueries({ queryKey: ["post", source.value.id] });
     },
   });
 
   function toggleLike() {
     if (!requireAuth()) return;
+    if (likeMutation.isPending.value) return;
     likeMutation.mutate();
   }
 
   function toggleBookmark() {
     if (!requireAuth()) return;
+    if (bookmarkMutation.isPending.value) return;
     bookmarkMutation.mutate();
+  }
+
+  // Sync local state when server data refreshes after invalidation
+  watch(source, (post) => {
+    if (likeMutation.isPending.value || bookmarkMutation.isPending.value) return;
+
+    liked.value = post.userHasLiked;
+    bookmarked.value = post.userHasBookmarked;
+    likeCount.value = post.likeCount;
+    bookmarkCount.value = post.bookmarkCount;
+  });
+
+  function requireAuth(): boolean {
+    if (!auth.isAuthenticated) {
+      router.push({ name: "sign-in" });
+      return false;
+    }
+    return true;
   }
 
   return {
@@ -123,7 +126,5 @@ export function useEngagement(source: Ref<EngagementSource>) {
     bookmarkCount,
     toggleLike,
     toggleBookmark,
-    isLikePending: likeMutation.isPending,
-    isBookmarkPending: bookmarkMutation.isPending,
   };
 }

@@ -7,7 +7,6 @@ import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
-import { nextTick } from "vue";
 import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
@@ -67,8 +66,7 @@ const engagementSource = computed(() => ({
   userHasBookmarked: props.post?.userHasBookmarked ?? false,
 }));
 
-const { liked, bookmarked, toggleLike, toggleBookmark, isLikePending, isBookmarkPending } =
-  useEngagement(engagementSource);
+const { liked, bookmarked, toggleLike, toggleBookmark } = useEngagement(engagementSource);
 
 // Seed follow state from post detail on mount
 watch(
@@ -276,7 +274,6 @@ function filterByCategory(slug: string) {
           <Button
             v-if="!isPostOwner"
             class="flex-1 transition-colors shadow-[0_2px_15px_0_var(--color-neutral-300)]"
-            :disabled="isFollowPending"
             @click="toggleFollow"
           >
             <Icon class="size-5" :icon="following ? 'ph:user-check' : 'ph:user-plus'" />
@@ -289,7 +286,6 @@ function filterByCategory(slug: string) {
             :class="!liked ? 'bg-white' : 'bg-red-100/70'"
             data-testid="like-button"
             :data-liked="liked"
-            :disabled="isLikePending"
             @click="toggleLike"
           >
             <Icon
@@ -305,7 +301,6 @@ function filterByCategory(slug: string) {
             :class="!bookmarked ? 'bg-white' : 'bg-blue-100/70'"
             data-testid="bookmark-button"
             :data-bookmarked="bookmarked"
-            :disabled="isBookmarkPending"
             @click="toggleBookmark"
           >
             <Icon

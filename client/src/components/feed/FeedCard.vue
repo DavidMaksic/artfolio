@@ -58,18 +58,11 @@ watch(
   { immediate: true },
 );
 
-const {
-  liked,
-  bookmarked,
-  likeCount,
-  bookmarkCount,
-  toggleLike,
-  toggleBookmark,
-  isLikePending,
-  isBookmarkPending,
-} = useEngagement(computed(() => props.post));
+const { liked, bookmarked, likeCount, bookmarkCount, toggleLike, toggleBookmark } = useEngagement(
+  computed(() => props.post),
+);
 
-const { following, toggleFollow, isFollowPending } = useFollow(
+const { following, toggleFollow } = useFollow(
   computed(() => ({
     profileId: props.post.profileId,
     userIsFollowing: props.post.profile.userIsFollowing,
@@ -130,7 +123,6 @@ watch(
           <Button
             v-if="suggested"
             class="h-7 px-4 rounded-lg transition-colors from-blue-accent-500 to-red-accent-300 shadow-none"
-            :disabled="isFollowPending"
             data-testid="follow-button"
             :data-following="following"
             @click="toggleFollow"
@@ -187,7 +179,6 @@ watch(
             data-testid="like-button"
             :data-liked="liked"
             class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-red-400 sm:pl-0!"
-            :disabled="isLikePending"
             @click="toggleLike"
           >
             <Icon
@@ -217,7 +208,6 @@ watch(
             data-testid="bookmark-button"
             :data-bookmarked="bookmarked"
             class="flex items-center justify-center gap-2 hover:bg-transparent hover:text-blue-400"
-            :disabled="isBookmarkPending"
             @click="toggleBookmark"
           >
             <Icon
