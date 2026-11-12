@@ -14,15 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger,
-} from "@/components/ui/select";
-
-import TagSuggestInput from "@/components/ui/TagSuggestInput.vue";
+import CategoryCombobox from "@/components/CategoryCombobox.vue";
+import TagSuggestInput from "@/components/TagSuggestInput.vue";
 
 const router = useRouter();
 const queryClient = useQueryClient();
@@ -270,7 +263,7 @@ async function handleSubmit() {
           </div>
 
           <!-- Description -->
-          <div class="space-y-1.5">
+          <div class="relative space-y-1.5">
             <Label for="description">Description</Label>
             <Textarea
               class="text-sm"
@@ -280,23 +273,20 @@ async function handleSubmit() {
               :disabled="isUploading || isSubmitting"
               rows="4"
             />
-            <p class="text-xs text-muted-foreground text-right">{{ description.length }} / 2000</p>
+            <p class="absolute right-0 text-xs text-muted-foreground text-right">
+              {{ description.length }} / 2000
+            </p>
           </div>
 
           <!-- Category -->
           <div class="space-y-1.5">
             <Label for="category">Category <span class="text-destructive">*</span></Label>
-            <Select v-model="categoryId" :disabled="isUploading || isSubmitting">
-              <SelectTrigger id="category" class="w-full">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
-                  {{ cat.name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <CategoryCombobox
+              id="category"
+              v-model="categoryId"
+              :categories="categories"
+              :disabled="isUploading || isSubmitting"
+            />
           </div>
 
           <!-- Tags -->

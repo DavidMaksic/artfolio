@@ -14,15 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-import {
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-  SelectItem,
-  Select,
-} from "@/components/ui/select";
-
-import TagSuggestInput from "@/components/ui/TagSuggestInput.vue";
+import CategoryCombobox from "@/components/CategoryCombobox.vue";
+import TagSuggestInput from "@/components/TagSuggestInput.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -324,16 +317,12 @@ async function handleSubmit() {
             <!-- Category -->
             <div class="space-y-1.5">
               <Label for="category">Category <span class="text-destructive">*</span></Label>
-              <Select v-model="categoryId" :disabled="isUploading || isSubmitting">
-                <SelectTrigger id="category" class="w-full">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
-                    {{ cat.name }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <CategoryCombobox
+                id="category"
+                v-model="categoryId"
+                :categories="categories"
+                :disabled="isUploading || isSubmitting"
+              />
             </div>
 
             <!-- Tags -->
