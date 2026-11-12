@@ -232,34 +232,39 @@ async function handleSubmit() {
                 >
                   <img :src="previewUrl(image)" class="size-full object-cover" />
 
+                  <!-- Hover overlay -->
                   <div
-                    class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center"
+                    class="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    :style="{
+                      background:
+                        'radial-gradient(ellipse at top right, hsl(0 0% 40% / 0.1) 0%, hsl(0 0% 0% / 0.25) 100%)',
+                    }"
                   >
-                    <Icon
-                      icon="ph:arrows-out-cardinal"
-                      class="text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
+                    <Icon icon="ph:arrows-out-cardinal" class="text-white text-2xl" />
                   </div>
 
                   <!-- Remove button -->
                   <button
                     type="button"
-                    class="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 rounded-full p-1 transition z-10 disabled:pointer-events-none"
+                    class="absolute top-1.5 right-1.5 bg-neutral-400/50 hover:bg-neutral-400/80 rounded-full p-1 transition z-10 disabled:pointer-events-none backdrop-blur-2xl"
                     :disabled="isUploading || isSubmitting"
                     @click.stop="removeImage(index)"
                   >
-                    <Icon icon="ph:x-bold" class="text-white text-lg" />
+                    <Icon
+                      icon="ph:x-bold"
+                      :class="['text-white', images.length > 1 ? 'text-lg' : 'text-xl']"
+                    />
                   </button>
                 </div>
               </div>
 
-              <!-- Drop zone (always visible, compact when images exist) -->
+              <!-- Drop zone -->
               <div
                 :class="[
                   'border-2 border-dashed rounded-lg text-center transition',
                   isUploading || isSubmitting
                     ? 'opacity-50 cursor-not-allowed'
-                    : 'cursor-default hover:border-muted-foreground',
+                    : 'cursor-default hover:border-neutral-400/60 hover:bg-neutral-100',
                   images.length > 0 ? 'py-3' : 'py-24 sm:py-14',
                 ]"
                 @drop="!isUploading && !isSubmitting && handleDrop($event)"
@@ -299,7 +304,7 @@ async function handleSubmit() {
             </div>
 
             <!-- Description -->
-            <div class="space-y-1.5">
+            <div class="relative space-y-1.5">
               <Label for="description">Description</Label>
               <Textarea
                 class="text-sm"
@@ -309,7 +314,7 @@ async function handleSubmit() {
                 :disabled="isUploading || isSubmitting"
                 rows="4"
               />
-              <p class="text-xs text-muted-foreground text-right">
+              <p class="absolute right-0 text-xs text-muted-foreground text-right">
                 {{ description.length }} / 2000
               </p>
             </div>
