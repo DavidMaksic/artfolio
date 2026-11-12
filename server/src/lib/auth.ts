@@ -1,7 +1,7 @@
-import { buildSignInEmail, buildWelcomeEmail } from './emails/auth-email.js';
 import { betterAuth, generateId } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { sendEmail } from '@/lib/mailer.js';
+import { vueEmail } from '@/lib/emails/index.js';
 import { emailOTP } from 'better-auth/plugins';
 import { redis } from './redis.js';
 import { db } from '../db/index.js';
@@ -57,10 +57,14 @@ export const auth = betterAuth({
             const params = new URLSearchParams({ email, code: otp });
             const magicLinkUrl = `${CLIENT_URL}/auth/verify?${params}`;
 
+            const { html } = await vueEmail.render('SignInEmail.vue', {
+               props: { otp, magicLinkUrl },
+            });
+
             await sendEmail({
                to: email,
                subject: 'Your Artfolio sign-in code',
-               html: buildSignInEmail({ otp, magicLinkUrl }),
+               html,
             });
          },
       }),
@@ -92,12 +96,14 @@ export const auth = betterAuth({
                });
 
                // Fire-and-forget: send welcome email
-               sendEmail({
+               const { html } = await vueEmail.render('WelcomeEmail.vue', {
+                  props: { name: user.name, url: CLIENT_URL },
+               });
+
+               await sendEmail({
                   to: user.email,
-                  subject: 'Welcome to Artfolio 🎨',
-                  html: buildWelcomeEmail(user.name),
-               }).catch((err) => {
-                  console.error('[auth] Failed to send welcome email:', err);
+                  subject: 'Welcome to Artfolio',
+                  html,
                });
             },
          },

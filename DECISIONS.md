@@ -391,6 +391,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
-- Add accent colors to remade email templates
+- Remake email templates
+- Make guest feed posts appear in a random order
+- Improve validation
+
 - Refactor client view files that are too big
 - Abstract skeletons into separate files
