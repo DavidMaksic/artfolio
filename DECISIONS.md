@@ -384,12 +384,12 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to add
 
-- Add toasts
-- Tags should be suggested in post create/edit
-- Add accent colors to remade email templates
-- Bookmark page not yet implemented
+- Toasts
+- Bookmark page
 
 ## Things to fix
 
+- Add accent colors to remade email templates
+- Tags should be suggested in post create/edit
 - Refactor client view files that are too big
 - Abstract skeletons into separate files

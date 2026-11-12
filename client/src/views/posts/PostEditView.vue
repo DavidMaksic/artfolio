@@ -128,63 +128,9 @@ watch(tags, (val) => {
   }
 });
 
-const initial = ref<{
-  description: string;
-  categoryId: string;
-  tags: string[];
-  imageIds: string[];
-} | null>(null);
-
-const normalizeTag = (t: string) => t.toLowerCase().replace(/\s+/g, "-");
-
-watch(
-  post,
-  (p) => {
-    if (!p) return;
-    description.value = p.description ?? "";
-    categoryId.value = p.categoryId;
-    tags.value = p.tags.map((t) => t.name);
-    initFromExisting(p.images);
-
-    initial.value = {
-      description: (p.description ?? "").trim(),
-      categoryId: p.categoryId,
-      tags: p.tags.map((t) => normalizeTag(t.name)),
-      imageIds: p.images.map((i) => i.id),
-    };
-  },
-  { immediate: true },
-);
-
-const isDirty = computed(() => {
-  const init = initial.value;
-  if (!init) return false;
-
-  // New uploads never match an existing id, so they count as a change.
-  // Removals and reordering show up as a length or position difference.
-  const imageKeys = images.value.map((i) => (i.kind === "existing" ? i.id : "pending"));
-  const imagesChanged =
-    imageKeys.length !== init.imageIds.length ||
-    imageKeys.some((key, i) => key !== init.imageIds[i]);
-
-  const tagsChanged =
-    [...tags.value].sort().join("\u0000") !== [...init.tags].sort().join("\u0000");
-
-  return (
-    imagesChanged ||
-    tagsChanged ||
-    description.value.trim() !== init.description ||
-    categoryId.value !== init.categoryId
-  );
-});
-
 const canSubmit = computed(
   () =>
-    isDirty.value &&
-    images.value.length > 0 &&
-    categoryId.value !== "" &&
-    !isUploading.value &&
-    !isSubmitting.value,
+    images.value.length > 0 && categoryId.value !== "" && !isUploading.value && !isSubmitting.value,
 );
 
 async function handleSubmit() {
@@ -441,11 +387,7 @@ async function handleSubmit() {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                class="flex-1 shadow-none transition duration-200"
-                :disabled="!canSubmit"
-              >
+              <Button type="submit" class="flex-1 shadow-none" :disabled="!canSubmit">
                 <Icon v-if="isSubmitting" icon="ph:spinner" class="animate-spin mr-2" />
                 {{ isSubmitting ? "Saving..." : "Save changes" }}
               </Button>
