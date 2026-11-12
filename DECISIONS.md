@@ -338,9 +338,10 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Two gradient accent colors applied to interactive elements and logo only, keeping artworks visually primary
 - Cloudinary image transformation pipeline — thumbnails and card images are resized
 - Font stack corrected — Inter variable font applied for text globally, while Oldernburg is used for logo
-- Unit tests for `updateComment` procedure
+- Unit tests for `updateComment` and tag `search` procedures
 - E2E test for comment edit flow
 - Added favicon + routes metadata
+- Tag input in post create/edit forms shows tag suggestions now
 
 **Decisions:**
 
@@ -351,6 +352,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Use an HTTP email API, because Render's free tier blocks outbound SMTP ports
 - Run migrations manually against Neon, and keep CI on its own Postgres and Redis containers instead of production
 - `EMAIL_DISABLED=true` in CI and E2E. Tests read the OTP from Redis, so no real email is needed
+- Limited image file upload to 10MB
 
 **Issues resolved:**
 
@@ -390,6 +392,5 @@ Purpose of this file is to track progress and decisions of each sprint.
 ## Things to fix
 
 - Add accent colors to remade email templates
-- Tags should be suggested in post create/edit
 - Refactor client view files that are too big
 - Abstract skeletons into separate files

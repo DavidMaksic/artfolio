@@ -27,10 +27,10 @@ test.describe('post creation', () => {
       await auth.page.getByRole('option').first().click();
 
       // Add a tag
-      const tagInput = auth.page.getByPlaceholder(/tag/i);
+      const tagInput = auth.page.getByPlaceholder('Add a tag...');
       await tagInput.fill('e2e');
       await tagInput.press('Enter');
-      await expect(auth.page.getByText('e2e')).toBeVisible();
+      await expect(auth.page.getByText('e2e', { exact: true })).toBeVisible();
 
       // Submit
       await auth.page.getByRole('button', { name: 'Publish' }).click();

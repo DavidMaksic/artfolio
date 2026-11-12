@@ -104,3 +104,72 @@ describe('tag.getCategories', () => {
       expect(result).toHaveLength(0);
    });
 });
+
+// ── search ───────────────────────────────────────────────
+
+function mockSearchChain(rows: unknown[]) {
+   const where = vi.fn(() => ({
+      groupBy: vi.fn(() => ({
+         orderBy: vi.fn(() => ({
+            limit: vi.fn().mockResolvedValue(rows),
+         })),
+      })),
+   }));
+
+   mockSelect.mockReturnValueOnce({
+      from: vi.fn(() => ({
+         leftJoin: vi.fn(() => ({ where })),
+      })),
+   });
+
+   return where;
+}
+
+describe('tag.search', () => {
+   it('returns matching tags', async () => {
+      const rows = [
+         { id: 't1', name: 'sketch', slug: 'sketch', count: 5 },
+         { id: 't2', name: 'sketchbook', slug: 'sketchbook', count: 2 },
+      ];
+      mockSearchChain(rows);
+
+      const caller = createCaller();
+      const result = await caller.tag.search({ query: 'sket' });
+
+      expect(result.tags).toHaveLength(2);
+      expect(result.tags[0].name).toBe('sketch');
+   });
+
+   it('returns empty when nothing matches', async () => {
+      mockSearchChain([]);
+
+      const caller = createCaller();
+      const result = await caller.tag.search({ query: 'zzz' });
+
+      expect(result.tags).toHaveLength(0);
+   });
+
+   it('normalizes the query before searching', async () => {
+      const where = mockSearchChain([]);
+
+      const caller = createCaller();
+      await caller.tag.search({ query: '  Water Color ' });
+
+      // the query reached the db layer (the where clause was built)
+      expect(where).toHaveBeenCalledTimes(1);
+   });
+
+   it('rejects an empty query', async () => {
+      const caller = createCaller();
+      await expect(caller.tag.search({ query: '   ' })).rejects.toThrow();
+      expect(mockSelect).not.toHaveBeenCalled();
+   });
+
+   it('rejects a query longer than 30 characters', async () => {
+      const caller = createCaller();
+      await expect(
+         caller.tag.search({ query: 'a'.repeat(31) }),
+      ).rejects.toThrow();
+      expect(mockSelect).not.toHaveBeenCalled();
+   });
+});

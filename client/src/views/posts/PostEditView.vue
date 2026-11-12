@@ -4,8 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { useRoute, useRouter } from "vue-router";
 import { usePostImageEdit } from "@/composables/usePostImageEdit";
 import { extractTrpcError } from "@/lib/trpc-error";
+import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 import {
   SelectContent,
@@ -14,19 +21,8 @@ import {
   SelectItem,
   Select,
 } from "@/components/ui/select";
-import {
-  TagsInput,
-  TagsInputItem,
-  TagsInputInput,
-  TagsInputItemText,
-  TagsInputItemDelete,
-} from "@/components/ui/tags-input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { motion } from "motion-v";
-import { Label } from "@/components/ui/label";
+
+import TagSuggestInput from "@/components/ui/TagSuggestInput.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -60,6 +56,8 @@ const {
 } = useQuery({
   queryKey: computed(() => ["post", postId.value]),
   queryFn: () => trpc.post.getById.query({ id: postId.value }),
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
 });
 
 // Pre-populate form once post loads
@@ -119,14 +117,6 @@ const gridClass = computed(() => {
 function previewUrl(img: (typeof images.value)[number]) {
   return img.kind === "existing" ? img.imageUrl : img.preview;
 }
-
-// Do not allow lowercase nor space for tags
-watch(tags, (val) => {
-  const normalized = val.map((t) => t.toLowerCase().replace(/\s+/g, "-"));
-  if (normalized.some((t, i) => t !== val[i])) {
-    tags.value = normalized;
-  }
-});
 
 const canSubmit = computed(
   () =>
@@ -349,23 +339,7 @@ async function handleSubmit() {
             <!-- Tags -->
             <div class="space-y-1.5">
               <Label>Tags</Label>
-              <TagsInput v-model="tags" :disabled="isUploading || isSubmitting">
-                <TagsInputItem v-for="tag in tags" :key="tag" :value="tag">
-                  <TagsInputItemText />
-                  <TagsInputItemDelete />
-                </TagsInputItem>
-                <TagsInputInput
-                  placeholder="Add a tag..."
-                  @keydown="
-                    (e: KeyboardEvent) => {
-                      if (tags.length >= 5) e.preventDefault();
-                    }
-                  "
-                />
-              </TagsInput>
-              <p class="text-xs text-muted-foreground">
-                Press Enter or comma to add · {{ tags.length }}/5
-              </p>
+              <TagSuggestInput v-model="tags" :disabled="isUploading || isSubmitting" />
             </div>
 
             <p

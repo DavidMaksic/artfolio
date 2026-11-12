@@ -9,24 +9,20 @@ import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  TagsInput,
-  TagsInputItem,
-  TagsInputInput,
-  TagsInputItemText,
-  TagsInputItemDelete,
-} from "@/components/ui/tags-input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger,
+} from "@/components/ui/select";
+
+import TagSuggestInput from "@/components/ui/TagSuggestInput.vue";
 
 const router = useRouter();
 const queryClient = useQueryClient();
@@ -306,23 +302,7 @@ async function handleSubmit() {
           <!-- Tags -->
           <div class="space-y-1.5">
             <Label>Tags</Label>
-            <TagsInput v-model="tags" :disabled="isUploading || isSubmitting">
-              <TagsInputItem v-for="tag in tags" :key="tag" :value="tag">
-                <TagsInputItemText />
-                <TagsInputItemDelete />
-              </TagsInputItem>
-              <TagsInputInput
-                placeholder="Add a tag..."
-                @keydown="
-                  (e: KeyboardEvent) => {
-                    if (tags.length >= 5) e.preventDefault();
-                  }
-                "
-              />
-            </TagsInput>
-            <p class="text-xs text-muted-foreground">
-              Press Enter or comma to add · {{ tags.length }}/5
-            </p>
+            <TagSuggestInput v-model="tags" :disabled="isUploading || isSubmitting" />
           </div>
 
           <p

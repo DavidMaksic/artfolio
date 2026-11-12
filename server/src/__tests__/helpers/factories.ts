@@ -52,6 +52,7 @@ export function mockImage(overrides = {}) {
       order: 0,
       width: 1200,
       height: 800,
+      bytes: 245_000,
       createdAt: new Date(),
       ...overrides,
    };

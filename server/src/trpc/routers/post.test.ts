@@ -55,10 +55,15 @@ vi.mock('@/db/index.js', () => ({
    },
 }));
 
+const mockResourcesByIds = vi.hoisted(() => vi.fn());
+
 vi.mock('@/lib/cloudinary.js', () => ({
    cloudinary: {
       utils: {
          api_sign_request: vi.fn(() => 'mock-signature'),
+      },
+      api: {
+         resources_by_ids: mockResourcesByIds,
       },
    },
    generateUploadSignature: vi.fn(() => ({
@@ -120,6 +125,9 @@ const profile = mockProfile();
 
 beforeEach(() => {
    vi.clearAllMocks();
+   mockResourcesByIds.mockImplementation(async (ids: string[]) => ({
+      resources: ids.map((public_id) => ({ public_id })),
+   }));
 });
 
 // ── create ───────────────────────
