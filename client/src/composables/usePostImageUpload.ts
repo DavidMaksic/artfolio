@@ -1,3 +1,4 @@
+import { MAX_IMAGE_BYTES, MAX_IMAGES_PER_POST } from "@artfolio/shared";
 import { trpc } from "@/lib/trpc";
 import { ref } from "vue";
 
@@ -13,6 +14,7 @@ export interface UploadedImage {
   order: number;
   width: number;
   height: number;
+  bytes: number;
 }
 
 export function usePostImageUpload() {
@@ -22,12 +24,28 @@ export function usePostImageUpload() {
 
   function addImages(files: File[]) {
     if (files.length === 0) return;
-    if (images.value.length + files.length > 10) {
-      error.value = "You can upload a maximum of 10 images per post";
+
+    const valid: File[] = [];
+    const rejected: string[] = [];
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        rejected.push(`${file.name} is not an image`);
+      } else if (file.size > MAX_IMAGE_BYTES) {
+        rejected.push(`${file.name} is larger than 10MB`);
+      } else {
+        valid.push(file);
+      }
+    }
+
+    if (images.value.length + valid.length > MAX_IMAGES_PER_POST) {
+      error.value = `You can upload a maximum of ${MAX_IMAGES_PER_POST} images per post`;
       return;
     }
-    error.value = null;
-    const incoming = files.map((file, i) => ({
+
+    error.value = rejected.length > 0 ? rejected.join(". ") : null;
+
+    const incoming = valid.map((file, i) => ({
       file,
       preview: URL.createObjectURL(file),
       order: images.value.length + i,
@@ -82,6 +100,7 @@ export function usePostImageUpload() {
             order: img.order,
             width: data.width as number,
             height: data.height as number,
+            bytes: data.bytes as number,
           };
         }),
       );
@@ -89,7 +108,7 @@ export function usePostImageUpload() {
       return results;
     } catch {
       error.value = "Something went wrong during upload. Please try again.";
-      throw error;
+      throw new Error(error.value);
     } finally {
       isUploading.value = false;
     }

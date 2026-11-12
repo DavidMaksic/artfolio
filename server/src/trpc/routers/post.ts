@@ -9,6 +9,7 @@ import {
    searchInputSchema,
    createPostSchema,
    updatePostSchema,
+   MAX_IMAGE_BYTES,
 } from '@artfolio/shared';
 import {
    postImage,
@@ -19,7 +20,11 @@ import {
    tag,
 } from '@/db/schema/post.js';
 import { and, asc, count, desc, eq, ilike, inArray, lt, or } from 'drizzle-orm';
-import { deleteImage, generateUploadSignature } from '@/lib/cloudinary.js';
+import {
+   cloudinary,
+   deleteImage,
+   generateUploadSignature,
+} from '@/lib/cloudinary.js';
 import { protectedProcedure } from '@/trpc/middleware.js';
 import { follow, profile } from '@/db/schema/profile.js';
 import { TRPCError } from '@trpc/server';
@@ -76,6 +81,25 @@ export const postRouter = t.router({
    create: protectedProcedure
       .input(createPostSchema)
       .mutation(async ({ ctx, input }) => {
+         const publicIds = input.images.map((img) => img.publicId);
+
+         const { resources } = await cloudinary.api.resources_by_ids(publicIds);
+
+         const missing = resources.length !== publicIds.length;
+         const oversized = resources.some((r) => r.bytes > MAX_IMAGE_BYTES);
+
+         if (missing || oversized) {
+            // The post is rejected, so remove everything this request uploaded
+            await cloudinary.api.delete_resources(publicIds).catch(() => {});
+
+            throw new TRPCError({
+               code: 'BAD_REQUEST',
+               message: oversized
+                  ? 'Images must be 10MB or smaller'
+                  : 'One or more images could not be verified',
+            });
+         }
+
          const userProfile = await getProfileByUserId(ctx.user.id);
          const postId = crypto.randomUUID();
          const now = new Date();
@@ -117,17 +141,44 @@ export const postRouter = t.router({
          const userProfile = await getProfileByUserId(ctx.user.id);
          await assertPostOwner(input.id, userProfile.id);
 
-         const now = new Date();
+         // What's currently on this post
+         const currentImages = await db.query.postImage.findMany({
+            where: (pi, { eq }) => eq(pi.postId, input.id),
+         });
+         const currentPublicIds = new Set(currentImages.map((i) => i.publicId));
 
-         // Fetch publicIds of removed images before the transaction
-         // so we can clean up Cloudinary after
-         const removedImages =
-            input.removedImageIds.length > 0
-               ? await db.query.postImage.findMany({
-                    where: (pi, { inArray }) =>
-                       inArray(pi.id, input.removedImageIds),
-                 })
-               : [];
+         // Anything not already on the post is new and must be verified
+         const newPublicIds = input.images
+            .map((img) => img.publicId)
+            .filter((id) => !currentPublicIds.has(id));
+
+         if (newPublicIds.length > 0) {
+            const { resources } =
+               await cloudinary.api.resources_by_ids(newPublicIds);
+
+            const missing = resources.length !== newPublicIds.length;
+            const oversized = resources.some((r) => r.bytes > MAX_IMAGE_BYTES);
+
+            if (missing || oversized) {
+               // only delete the new uploads, never the post's existing images
+               await cloudinary.api
+                  .delete_resources(newPublicIds)
+                  .catch(() => {});
+
+               throw new TRPCError({
+                  code: 'BAD_REQUEST',
+                  message: oversized
+                     ? 'Images must be 10MB or smaller'
+                     : 'One or more images could not be verified',
+               });
+            }
+         }
+
+         const now = new Date();
+         const removedIds = new Set(input.removedImageIds);
+         const removedImages = currentImages.filter((i) =>
+            removedIds.has(i.id),
+         );
 
          await db.transaction(async (tx) => {
             await tx

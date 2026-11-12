@@ -12,12 +12,20 @@ export const postImageSchema = z.object({
    createdAt: z.date(),
 });
 
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
+export const MAX_IMAGES_PER_POST = 10;
+
 const imageInputSchema = z.object({
    imageUrl: z.string({ error: 'Image URL is required' }),
    publicId: z.string({ error: 'Public ID is required' }),
    order: z.number().int().min(0),
    width: z.number().int().positive(),
    height: z.number().int().positive(),
+   bytes: z
+      .number()
+      .int()
+      .positive()
+      .max(MAX_IMAGE_BYTES, 'Images must be 10MB or smaller'),
 });
 
 const categorySchema = z.object({
@@ -63,8 +71,13 @@ export const createPostSchema = z.object({
       .max(10),
 });
 
+const editImageInputSchema = imageInputSchema.extend({
+   bytes: imageInputSchema.shape.bytes.optional(),
+});
+
 export const updatePostSchema = createPostSchema.extend({
    id: z.string(),
+   images: z.array(editImageInputSchema).min(1).max(MAX_IMAGES_PER_POST),
    removedImageIds: z.array(z.string()).default([]),
 });
 

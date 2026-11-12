@@ -1,4 +1,5 @@
 import type { UploadedImage } from "./usePostImageUpload";
+import { MAX_IMAGE_BYTES, MAX_IMAGES_PER_POST } from "@artfolio/shared";
 import { trpc } from "@/lib/trpc";
 import { ref } from "vue";
 
@@ -19,6 +20,7 @@ export interface PendingImage {
   order: number;
 }
 
+export type EditedImage = Omit<UploadedImage, "bytes"> & { bytes?: number };
 export type EditImage = ExistingImage | PendingImage;
 
 export function usePostImageEdit() {
@@ -34,12 +36,28 @@ export function usePostImageEdit() {
 
   function addImages(files: File[]) {
     if (files.length === 0) return;
-    if (images.value.length + files.length > 10) {
-      error.value = "You can upload a maximum of 10 images per post";
+
+    const valid: File[] = [];
+    const rejected: string[] = [];
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        rejected.push(`${file.name} is not an image`);
+      } else if (file.size > MAX_IMAGE_BYTES) {
+        rejected.push(`${file.name} is larger than 10MB`);
+      } else {
+        valid.push(file);
+      }
+    }
+
+    if (images.value.length + valid.length > MAX_IMAGES_PER_POST) {
+      error.value = `You can upload a maximum of ${MAX_IMAGES_PER_POST} images per post`;
       return;
     }
-    error.value = null;
-    const incoming: PendingImage[] = files.map((file, i) => ({
+
+    error.value = rejected.length > 0 ? rejected.join(". ") : null;
+
+    const incoming: PendingImage[] = valid.map((file, i) => ({
       kind: "pending" as const,
       file,
       preview: URL.createObjectURL(file),
@@ -72,7 +90,7 @@ export function usePostImageEdit() {
     images.value.forEach((img, i) => (img.order = i));
   }
 
-  async function uploadAndCollect(): Promise<UploadedImage[]> {
+  async function uploadAndCollect(): Promise<EditedImage[]> {
     isUploading.value = true;
     error.value = null;
 
@@ -107,6 +125,7 @@ export function usePostImageEdit() {
               order: img.order,
               width: data.width as number,
               height: data.height as number,
+              bytes: data.bytes as number,
             };
           }),
         );
@@ -114,7 +133,7 @@ export function usePostImageEdit() {
 
       // Merge existing + uploaded pending in current order
       let pendingIdx = 0;
-      const merged: UploadedImage[] = images.value.map((img) => {
+      const merged: EditedImage[] = images.value.map((img) => {
         if (img.kind === "existing") {
           return {
             imageUrl: img.imageUrl,
@@ -132,7 +151,7 @@ export function usePostImageEdit() {
       return merged.map((img, i) => ({ ...img, order: i }));
     } catch {
       error.value = "Something went wrong during upload. Please try again.";
-      throw error;
+      throw new Error(error.value);
     } finally {
       isUploading.value = false;
     }

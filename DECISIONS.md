@@ -389,12 +389,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Add accent colors to remade email templates
 - Bookmark page not yet implemented
 
-## Refactoring
+## Things to fix
 
 - Refactor client view files that are too big
 - Abstract skeletons into separate files
-
-## Things to fix
-
-- Limit image size upload, individually and in batch
-- Make follow/unfollow state on detail modal and feed card to be optimistic
