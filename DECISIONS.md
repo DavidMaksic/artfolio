@@ -394,6 +394,7 @@ Purpose of this file is to track progress and decisions of each sprint.
 - Remake email templates
 - Improve validation
 - Followed posts should kick in only after user has followed at least one person
+- Guest main feed should show new randomized posts only after reload, not after browser back/forth navigation
 
 - Refactor client view files that are too big
 - Abstract skeletons into separate files

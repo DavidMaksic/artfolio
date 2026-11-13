@@ -10,6 +10,8 @@ import {
    Text,
    Button,
    Img,
+   Row,
+   Column,
 } from '@vue-email/components';
 
 const props = defineProps<{ name?: string; url: string; logoUrl: string }>();
@@ -28,23 +30,23 @@ const firstName = computed(() => props.name?.split(' ')[0]);
             padding: '40px 0',
          }"
       >
-         <Container
-            :style="{
-               maxWidth: '480px',
-               textAlign: 'center',
-               margin: '0 auto 24px',
-            }"
-         >
-            <Img
-               :src="logoUrl"
-               alt="Artfolio"
-               :width="95"
-               :height="26"
-               :style="{
-                  display: 'block',
-                  width: 'fit-content',
-               }"
-         /></Container>
+         <Section :style="{ maxWidth: '480px', margin: '0 auto 24px' }">
+            <Row>
+               <Column align="center" :style="{ textAlign: 'center' }">
+                  <Img
+                     :src="logoUrl"
+                     alt="Artfolio"
+                     :width="95"
+                     :height="26"
+                     :style="{
+                        display: 'block',
+                        width: 'fit-content',
+                        margin: '0 auto',
+                     }"
+                  />
+               </Column>
+            </Row>
+         </Section>
 
          <Container
             :style="{
