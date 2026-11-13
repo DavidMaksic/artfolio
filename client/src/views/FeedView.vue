@@ -53,6 +53,8 @@ const {
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   enabled: computed(() => auth.isAuthenticated),
   placeholderData: keepPreviousData,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
 });
 
 // ── Explore / guest feed ────────────────────────────────────────
@@ -78,6 +80,8 @@ const {
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   // Guests use explore as the primary feed; authenticated users use it for suggestions
   enabled: computed(() => !auth.isAuthenticated || !!followingData.value),
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
 });
 
 // ── Interleaved feed ────────────────────────────────────────────

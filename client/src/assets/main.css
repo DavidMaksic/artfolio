@@ -214,8 +214,12 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* .scrollbar {
+  .scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+
     &::-webkit-scrollbar {
+      display: block;
       width: 2px;
     }
 
@@ -224,19 +228,19 @@
       border-radius: 15px;
     }
 
-    &::-webkit-scrollbar-track {
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-
-    @media (max-width: 768px) {
-      scrollbar-width: auto;
-      scrollbar-color: auto;
+    /* Firefox has no ::-webkit-scrollbar, so use the standard properties there */
+    @supports not selector(::-webkit-scrollbar) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-neutral-300) transparent;
     }
   }
 
   .textarea-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+
     &::-webkit-scrollbar {
+      display: block;
       width: 2px;
     }
 
@@ -245,11 +249,11 @@
       border-radius: 15px;
     }
 
-    @media (max-width: 768px) {
-      scrollbar-width: auto;
-      scrollbar-color: auto;
+    @supports not selector(::-webkit-scrollbar) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-neutral-200) transparent;
     }
-  } */
+  }
 }
 
 @layer base {

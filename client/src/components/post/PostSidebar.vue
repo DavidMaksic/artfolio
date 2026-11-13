@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { PostDetail } from "@artfolio/shared";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/vue-query";
+import { useEventListener, useTextareaAutosize } from "@vueuse/core";
 import { computed, ref, useTemplateRef, watch } from "vue";
-import { useTextareaAutosize } from "@vueuse/core";
 import { formatDistanceToNow } from "date-fns";
 import { useEngagement } from "@/composables/useEngagement";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "vue-router";
+import { nextTick } from "vue";
 import { motion } from "motion-v";
 import { Icon } from "@iconify/vue";
 import { trpc } from "@/lib/trpc";
@@ -88,7 +89,7 @@ const followSource = computed(() => ({
   userIsFollowing: props.post?.profile.userIsFollowing ?? false,
 }));
 
-const { following, toggleFollow, isFollowPending } = useFollow(followSource);
+const { following, toggleFollow } = useFollow(followSource);
 
 // ── Comments ───────────────────────────────────────────
 
@@ -121,7 +122,7 @@ function onMenuCloseAutoFocus(e: Event) {
 
 const {
   data: commentsData,
-  isPending: isCommentsPending,
+  isPending,
   fetchNextPage,
 } = useInfiniteQuery({
   queryKey: computed(() => ["comments", props.postId]),
@@ -219,11 +220,34 @@ function filterByTag(q: string) {
 function filterByCategory(slug: string) {
   router.push({ name: "explore", query: { category: slug } });
 }
+
+// Add white overlay to comment list container
+const listRef = ref<any>(null);
+const listEl = computed<HTMLElement | null>(() => listRef.value?.$el ?? listRef.value ?? null);
+const showFade = ref(false);
+const isScrollable = ref(false);
+
+function updateFade() {
+  const el = listEl.value;
+  if (!el) return;
+  isScrollable.value = el.scrollHeight > el.clientHeight + 1;
+  showFade.value = el.scrollHeight - el.scrollTop - el.clientHeight > 8;
+}
+
+// Scroll events don't bubble, so attach directly to the element
+useEventListener(listEl, "scroll", updateFade, { passive: true });
+
+// Recheck whenever the element appears or its content changes
+watch(
+  [listEl, () => comments.value.length, isPending, editingCommentId, () => props.post],
+  () => nextTick(updateFade),
+  { flush: "post" },
+);
 </script>
 
 <template>
   <aside
-    class="flex-1 md:flex-1 md:min-h-0 min-w-0 py-6 pr-6 md:p-0 flex flex-col justify-between gap-3 md:gap-0"
+    class="flex-1 md:flex-1 min-h-0 min-w-0 py-6 pr-6 md:p-0 flex flex-col justify-between gap-3 md:gap-0"
     @click="emit('close')"
   >
     <template v-if="post">
@@ -327,7 +351,7 @@ function filterByCategory(slug: string) {
 
       <!-- Comments -->
       <div
-        class="flex flex-1 md:min-h-46 md:m-4 flex-col bg-background rounded-2xl border border-border shadow-2xl md:shadow-none overflow-hidden z-10"
+        class="flex flex-1 min-h-0 md:min-h-46 md:m-4 flex-col bg-background rounded-2xl border border-border shadow-2xl md:shadow-none overflow-hidden z-10"
         :class="
           cn(
             comments.length === 1 && 'md:min-h-66',
@@ -337,200 +361,223 @@ function filterByCategory(slug: string) {
         "
         @click.stop
       >
-        <motion.div
-          class="flex flex-col flex-1 overflow-y-auto px-6 py-5 gap-4 scrollbar"
-          :initial="{ opacity: 0 }"
-          :animate="{ opacity: 1 }"
-          :exit="{ opacity: 0 }"
-          :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
-        >
-          <div class="font-semibold">
-            Comments
-            <span v-if="comments.length > 1" class="text-muted-foreground"
-              >({{ comments.length }})</span
-            >
-          </div>
+        <!-- List + fade -->
+        <div class="relative flex flex-col flex-1 min-h-0">
+          <motion.div
+            ref="listRef"
+            class="flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-5 gap-4"
+            :initial="{ opacity: 0 }"
+            :animate="{ opacity: 1 }"
+            :exit="{ opacity: 0 }"
+            :transition="{ type: 'tween', duration: 0.1, ease: 'easeOut' }"
+          >
+            <div class="font-semibold">
+              Comments
+              <span v-if="comments.length > 1" class="text-muted-foreground"
+                >({{ comments.length }})</span
+              >
+            </div>
 
-          <!-- Loading -->
-          <div v-if="isCommentsPending" class="flex flex-col gap-3">
-            <div v-for="i in 1" :key="i" class="space-y-2 py-2.5 first:pt-2.5">
-              <div class="flex items-center justify-between gap-1.5">
-                <div class="flex items-center gap-2">
-                  <Skeleton class="size-8 rounded-full shrink-0" />
-                  <Skeleton class="h-3.5 w-24" />
+            <!-- Loading -->
+            <div v-if="isPending" class="flex flex-col gap-3">
+              <div v-for="i in 1" :key="i" class="space-y-2 py-2.5 first:pt-2.5">
+                <div class="flex items-center justify-between gap-1.5">
+                  <div class="flex items-center gap-2">
+                    <Skeleton class="size-8 rounded-full shrink-0" />
+                    <Skeleton class="h-3.5 w-24" />
+                  </div>
+                  <Skeleton class="size-6 rounded-md shrink-0" />
                 </div>
-                <Skeleton class="size-6 rounded-md shrink-0" />
-              </div>
-              <div class="space-y-1.5">
-                <Skeleton class="h-3.5 w-full" />
-                <Skeleton class="h-3.5 w-2/3" />
+                <div class="space-y-1.5">
+                  <Skeleton class="h-3.5 w-full" />
+                  <Skeleton class="h-3.5 w-2/3" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Empty -->
-          <p v-else-if="comments.length === 0" class="text-sm text-muted-foreground">
-            No comments yet.
-          </p>
+            <!-- Empty -->
+            <p v-else-if="comments.length === 0" class="text-sm text-muted-foreground">
+              No comments yet.
+            </p>
 
-          <!-- Comment list -->
-          <div
-            v-else
-            class="flex flex-col divide-y divide-neutral-200/60 last:border-b last:border-b-neutral-200/60 md:last:border-b-0"
-          >
+            <!-- Comment list -->
             <div
-              v-for="comment in comments"
-              :key="comment.id"
-              :data-comment-id="comment.id"
-              class="space-y-2 py-4 first:pt-1.5"
+              v-else
+              :class="[
+                'flex flex-col divide-y divide-neutral-200/60',
+                !isScrollable && 'last:border-b last:border-b-neutral-200/60 md:last:border-b-0',
+              ]"
             >
-              <div class="flex items-center justify-between gap-1.5">
-                <div class="flex items-center gap-1.5 cursor-default">
-                  <div
-                    class="flex items-center gap-2 group"
-                    @click="
-                      router.push({
-                        name: 'profile',
-                        params: { username: comment.profile.username },
-                      })
-                    "
-                  >
-                    <img
-                      v-if="comment.profile.profileImageUrl"
-                      :src="comment.profile.profileImageUrl"
-                      class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity border"
-                    />
+              <div
+                v-for="comment in comments"
+                :key="comment.id"
+                :data-comment-id="comment.id"
+                class="space-y-2 py-4 first:pt-1.5"
+              >
+                <div class="flex items-center justify-between gap-1.5">
+                  <div class="flex items-center gap-1.5 cursor-default">
                     <div
-                      v-else
-                      class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
-                    >
-                      <Icon icon="ph:user" class="text-muted-foreground text-sm" />
-                    </div>
-
-                    <span class="text-sm font-semibold">
-                      {{ comment.profile.displayName ?? comment.profile.username }}
-                    </span>
-                  </div>
-
-                  <p class="text-xs text-muted-foreground">
-                    <span class="mr-0.5">•</span>
-                    {{ formatDistanceToNow(comment.createdAt, { addSuffix: false }) }}
-                  </p>
-                </div>
-
-                <!-- Comment options -->
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Icon
-                      icon="ph:dots-three"
-                      class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
-                    />
-                  </DropdownMenuTrigger>
-                  <AlertDialog>
-                    <DropdownMenuContent
-                      align="end"
-                      class="rounded-lg w-36"
-                      @close-auto-focus="onMenuCloseAutoFocus"
-                    >
-                      <DropdownMenuItem class="text-[0.92rem]" @click="copyCommentLink(comment.id)">
-                        <Icon icon="ph:link" class="mr-2 text-sm" />
-                        Copy link
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        v-if="me?.username === comment.profile.username"
-                        class="text-[0.92rem]"
-                        @click="startEdit(comment)"
-                      >
-                        <Icon icon="ph:pencil-simple-line" class="mr-2 text-sm text-neutral-600" />
-                        Edit
-                      </DropdownMenuItem>
-                      <AlertDialogTrigger
-                        as-child
-                        v-if="canDeleteComment(comment.profile.username)"
-                      >
-                        <DropdownMenuItem
-                          class="text-destructive hover:text-destructive! hover:bg-red-50! text-[0.92rem]"
-                        >
-                          <Icon icon="ph:x" class="mr-2 text-sm" />
-                          Delete
-                        </DropdownMenuItem>
-                      </AlertDialogTrigger>
-                    </DropdownMenuContent>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete this comment?</AlertDialogTitle>
-                        <AlertDialogDescription
-                          >This action cannot be undone.</AlertDialogDescription
-                        >
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          class="from-red-700/70 to-red-700/70 hover:from-red-700/80 hover:to-red-700/80"
-                          @click="deleteCommentMutation.mutate(comment.id)"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </DropdownMenu>
-              </div>
-
-              <div class="flex flex-col flex-1 min-w-0">
-                <!-- Editing state -->
-                <div v-if="editingCommentId === comment.id" class="flex flex-col gap-1.5">
-                  <textarea
-                    v-focus
-                    ref="editTextarea"
-                    v-model="editingBody"
-                    maxlength="1000"
-                    data-testid="comment-edit-input"
-                    rows="1"
-                    class="flex-1 min-h-33 resize-none text-sm bg-muted rounded-md px-3 py-2 outline-none w-full scrollbar"
-                    @keydown.enter.exact.prevent="
-                      updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
-                    "
-                    @keydown.shift.enter.exact="() => {}"
-                    @keydown.escape="cancelEdit"
-                  />
-                  <div class="flex gap-2 mt-1 justify-end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      class="text-[0.8rem] h-7 rounded-lg"
-                      @click="cancelEdit"
-                      >Cancel</Button
-                    >
-                    <Button
-                      size="sm"
-                      class="text-[0.8rem] px-4 h-7 rounded-lg from-blue-accent-600 to-red-accent-400 hover:from-blue-accent-700 hover:to-red-accent-500 shadow-none"
-                      data-testid="save-comment-button"
-                      :disabled="!editingBody.trim() || updateCommentMutation.isPending.value"
+                      class="flex items-center gap-2 group"
                       @click="
-                        updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
+                        router.push({
+                          name: 'profile',
+                          params: { username: comment.profile.username },
+                        })
                       "
                     >
-                      Save
-                    </Button>
+                      <img
+                        v-if="comment.profile.profileImageUrl"
+                        :src="comment.profile.profileImageUrl"
+                        class="size-8 rounded-full object-cover shrink-0 group-hover:opacity-80 transition-opacity border"
+                      />
+                      <div
+                        v-else
+                        class="size-8 rounded-full bg-muted flex items-center justify-center shrink-0"
+                      >
+                        <Icon icon="ph:user" class="text-muted-foreground text-sm" />
+                      </div>
+
+                      <span class="text-sm font-semibold">
+                        {{ comment.profile.displayName ?? comment.profile.username }}
+                      </span>
+                    </div>
+
+                    <p class="text-xs text-muted-foreground">
+                      <span class="mr-0.5">•</span>
+                      {{ formatDistanceToNow(comment.createdAt, { addSuffix: false }) }}
+                    </p>
                   </div>
+
+                  <!-- Comment options -->
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Icon
+                        icon="ph:dots-three"
+                        class="text-3xl text-neutral-700 hover:bg-neutral-100 transition-colors p-1 rounded-md"
+                      />
+                    </DropdownMenuTrigger>
+                    <AlertDialog>
+                      <DropdownMenuContent
+                        align="end"
+                        class="rounded-lg w-36"
+                        @close-auto-focus="onMenuCloseAutoFocus"
+                      >
+                        <DropdownMenuItem
+                          class="text-[0.92rem]"
+                          @click="copyCommentLink(comment.id)"
+                        >
+                          <Icon icon="ph:link" class="mr-2 text-sm" />
+                          Copy link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          v-if="me?.username === comment.profile.username"
+                          class="text-[0.92rem]"
+                          @click="startEdit(comment)"
+                        >
+                          <Icon
+                            icon="ph:pencil-simple-line"
+                            class="mr-2 text-sm text-neutral-600"
+                          />
+                          Edit
+                        </DropdownMenuItem>
+                        <AlertDialogTrigger
+                          as-child
+                          v-if="canDeleteComment(comment.profile.username)"
+                        >
+                          <DropdownMenuItem
+                            class="text-destructive hover:text-destructive! hover:bg-red-50! text-[0.92rem]"
+                          >
+                            <Icon icon="ph:x" class="mr-2 text-sm" />
+                            Delete
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                      </DropdownMenuContent>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this comment?</AlertDialogTitle>
+                          <AlertDialogDescription
+                            >This action cannot be undone.</AlertDialogDescription
+                          >
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            class="from-red-700/70 to-red-700/70 hover:from-red-700/80 hover:to-red-700/80"
+                            @click="deleteCommentMutation.mutate(comment.id)"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenu>
                 </div>
 
-                <!-- Normal state -->
-                <p v-else class="text-sm wrap-break-word whitespace-pre-wrap">{{ comment.body }}</p>
-              </div>
-            </div>
+                <div class="flex flex-col flex-1 min-w-0">
+                  <!-- Editing state -->
+                  <div v-if="editingCommentId === comment.id" class="flex flex-col gap-1.5">
+                    <div class="bg-muted overflow-hidden rounded-md">
+                      <textarea
+                        v-focus
+                        v-model="editingBody"
+                        maxlength="1000"
+                        data-testid="comment-edit-input"
+                        rows="1"
+                        class="block w-full min-h-33 resize-none text-sm bg-transparent px-3 py-2 outline-none textarea-scrollbar"
+                        @keydown.enter.exact.prevent="
+                          updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
+                        "
+                        @keydown.shift.enter.exact="() => {}"
+                        @keydown.escape="cancelEdit"
+                      />
+                    </div>
+                    <div class="flex gap-2 mt-1 justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        class="text-[0.8rem] h-7 rounded-lg"
+                        @click="cancelEdit"
+                        >Cancel</Button
+                      >
+                      <Button
+                        size="sm"
+                        class="text-[0.8rem] px-4 h-7 rounded-lg from-blue-accent-600 to-red-accent-400 hover:from-blue-accent-700 hover:to-red-accent-500 shadow-none transition"
+                        data-testid="save-comment-button"
+                        :disabled="!editingBody.trim() || updateCommentMutation.isPending.value"
+                        @click="
+                          updateCommentMutation.mutate({ commentId: comment.id, body: editingBody })
+                        "
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  </div>
 
-            <!-- Load more -->
-            <button
-              v-if="nextCursor"
-              class="text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
-              @click="() => fetchNextPage()"
-            >
-              Load more comments
-            </button>
-          </div>
-        </motion.div>
+                  <!-- Normal state -->
+                  <p v-else class="text-sm wrap-break-word whitespace-pre-wrap">
+                    {{ comment.body }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Load more -->
+              <button
+                v-if="nextCursor"
+                class="text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
+                @click="() => fetchNextPage()"
+              >
+                Load more comments
+              </button>
+            </div>
+          </motion.div>
+
+          <!-- Bottom fade -->
+          <div
+            class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-white to-transparent transition-opacity duration-300"
+            :class="showFade && !editingCommentId ? 'opacity-100' : 'opacity-0'"
+            aria-hidden="true"
+          />
+        </div>
 
         <!-- Comment input -->
         <motion.div
@@ -563,14 +610,14 @@ function filterByCategory(slug: string) {
           />
           <Button
             variant="ghost"
-            class="self-start text-sm font-semibold text-neutral-800 transition-colors disabled:opacity-40 px-3"
+            class="self-start text-sm font-semibold text-neutral-800 transition-colors disabled:opacity-70 px-3"
             :disabled="!commentBody.trim() || createCommentMutation.isPending.value"
             @click="submitComment"
           >
             <Icon
               v-if="createCommentMutation.isPending.value"
               icon="ph:spinner"
-              class="animate-spin"
+              class="animate-spin size-5"
             />
             <span v-else>Post</span>
           </Button>

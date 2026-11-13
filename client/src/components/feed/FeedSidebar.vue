@@ -89,12 +89,14 @@ const canLoadMore = computed(() => (hasNextPage.value && totalLoaded.value < 10)
     </div>
 
     <!-- Latest discussions -->
-    <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-      <div class="px-4 py-3 border-b border-neutral-100">
+    <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden flex flex-col">
+      <div class="px-4 py-3 border-b border-neutral-100 shrink-0">
         <p class="font-semibold text-sm">Latest Discussions</p>
       </div>
 
-      <div class="divide-y divide-neutral-100">
+      <div
+        class="min-h-96 max-h-[60vh] overflow-y-auto textarea-scrollbar divide-y divide-neutral-100"
+      >
         <!-- Loading -->
         <template v-if="isPending">
           <div class="divide-y divide-neutral-100">
@@ -159,7 +161,7 @@ const canLoadMore = computed(() => (hasNextPage.value && totalLoaded.value < 10)
       </div>
 
       <!-- View more -->
-      <div v-if="canLoadMore" class="p-2 border-t border-neutral-100">
+      <div v-if="canLoadMore" class="p-2 border-t border-neutral-100 shrink-0">
         <Button
           variant="ghost"
           size="sm"

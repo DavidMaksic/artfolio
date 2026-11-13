@@ -82,9 +82,7 @@ export const useAuthStore = defineStore("auth", () => {
   // ── Sign out ──────────────
   async function signOut() {
     await authClient.signOut();
-    await queryClient.invalidateQueries({ queryKey: ["session"] });
-    queryClient.removeQueries({ queryKey: ["feed"] });
-    await router.replace({ name: "home" });
+    window.location.href = "/";
     window.scrollTo(0, 0);
   }
 
@@ -96,8 +94,9 @@ export const useAuthStore = defineStore("auth", () => {
     // Then delete the user via Better Auth
     const result = await authClient.deleteUser();
     if (result.error) throw new Error(result.error.message);
-
     await queryClient.invalidateQueries({ queryKey: ["session"] });
+    await queryClient.invalidateQueries({ queryKey: ["feed"] });
+    await queryClient.invalidateQueries({ queryKey: ["discussions"] });
     await router.push({ name: "home" });
   }
 
