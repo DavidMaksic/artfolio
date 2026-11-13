@@ -27,7 +27,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
             backgroundColor: '#f4f4f5',
             fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif',
             margin: 0,
-            padding: '40px 0',
+            padding: '60px 0',
          }"
       >
          <Section :style="{ maxWidth: '480px', margin: '0 auto 24px' }">
@@ -58,7 +58,12 @@ const firstName = computed(() => props.name?.split(' ')[0]);
          >
             <Heading
                as="h1"
-               :style="{ fontSize: '24px', color: '#111', margin: '0 0 8px' }"
+               :style="{
+                  fontSize: '24px',
+                  color: '#404040',
+                  margin: '0 0 8px',
+                  textAlign: 'center',
+               }"
             >
                Welcome{{ firstName ? `, ${firstName}` : '' }} 🎨
             </Heading>
@@ -68,6 +73,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                   color: '#52525b',
                   lineHeight: '24px',
                   margin: '0 0 28px',
+                  textAlign: 'center',
                }"
             >
                Your portfolio is ready. Upload your first piece and start
@@ -82,7 +88,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: '17px',
-                  padding: '13px 14px',
+                  padding: '12px 14px',
                   borderRadius: '10px',
                   textAlign: 'center',
                   width: '100%',
@@ -97,6 +103,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                   fontSize: '13px',
                   color: '#a1a1aa',
                   margin: '20px 0 0',
+                  textAlign: 'center',
                }"
             >
                Questions? Just reply to this email and we'll help out.

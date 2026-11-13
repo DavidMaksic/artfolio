@@ -26,7 +26,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
             backgroundColor: '#f4f4f5',
             fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif',
             margin: 0,
-            padding: '40px 0',
+            padding: '60px 0',
          }"
       >
          <Section :style="{ maxWidth: '480px', margin: '0 auto 24px' }">
@@ -57,7 +57,12 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
          >
             <Heading
                as="h1"
-               :style="{ fontSize: '24px', color: '#111', margin: '0 0 8px' }"
+               :style="{
+                  fontSize: '24px',
+                  color: '#404040',
+                  margin: '0 0 8px',
+                  textAlign: 'center',
+               }"
                >Sign in to your account</Heading
             >
             <Text
@@ -79,7 +84,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: '17px',
-                  padding: '13px 14px',
+                  padding: '12px 14px',
                   borderRadius: '10px',
                   textAlign: 'center',
                   width: '100%',
