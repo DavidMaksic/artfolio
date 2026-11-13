@@ -31,22 +31,29 @@ const firstName = computed(() => props.name?.split(' ')[0]);
          <Container
             :style="{
                maxWidth: '480px',
-               backgroundColor: '#fff',
-               borderRadius: '16px',
-               padding: '40px',
+               textAlign: 'center',
+               margin: '0 auto 24px',
             }"
          >
             <Img
                :src="logoUrl"
                alt="Artfolio"
-               :width="120"
-               :height="32"
+               :width="95"
+               :height="26"
                :style="{
                   display: 'block',
-                  margin: '0 0 24px',
-                  textAlign: 'center',
+                  width: 'fit-content',
                }"
-            />
+         /></Container>
+
+         <Container
+            :style="{
+               maxWidth: '480px',
+               backgroundColor: '#fff',
+               borderRadius: '16px',
+               padding: '40px',
+            }"
+         >
             <Heading
                as="h1"
                :style="{ fontSize: '24px', color: '#111', margin: '0 0 8px' }"
@@ -73,7 +80,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: '17px',
-                  padding: '14px',
+                  padding: '13px 14px',
                   borderRadius: '10px',
                   textAlign: 'center',
                   width: '100%',
@@ -87,7 +94,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                :style="{
                   fontSize: '13px',
                   color: '#a1a1aa',
-                  margin: '14px 0 0',
+                  margin: '20px 0 0',
                }"
             >
                Questions? Just reply to this email and we'll help out.

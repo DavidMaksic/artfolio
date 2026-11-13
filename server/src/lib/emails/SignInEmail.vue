@@ -30,22 +30,29 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
          <Container
             :style="{
                maxWidth: '480px',
-               backgroundColor: '#fff',
-               borderRadius: '16px',
-               padding: '40px',
+               textAlign: 'center',
+               margin: '0 auto 24px',
             }"
          >
             <Img
                :src="logoUrl"
                alt="Artfolio"
-               :width="120"
-               :height="32"
+               :width="95"
+               :height="26"
                :style="{
                   display: 'block',
-                  margin: '0 0 24px',
-                  textAlign: 'center',
+                  width: 'fit-content',
                }"
-            />
+         /></Container>
+
+         <Container
+            :style="{
+               maxWidth: '480px',
+               backgroundColor: '#fff',
+               borderRadius: '16px',
+               padding: '40px',
+            }"
+         >
             <Heading
                as="h1"
                :style="{ fontSize: '24px', color: '#111', margin: '0 0 8px' }"
@@ -69,8 +76,8 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                      'linear-gradient(to right, #3e5a7a, #a06a74)',
                   color: '#fff',
                   fontWeight: 600,
-                  fontSize: '20px',
-                  padding: '14px',
+                  fontSize: '17px',
+                  padding: '13px 14px',
                   borderRadius: '10px',
                   textAlign: 'center',
                   width: '100%',
@@ -92,7 +99,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                <Text
                   :style="{
                      margin: 0,
-                     fontSize: '32px',
+                     fontSize: '28px',
                      fontWeight: 700,
                      letterSpacing: '10px',
                      color: '#111',
