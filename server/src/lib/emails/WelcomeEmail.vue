@@ -9,9 +9,10 @@ import {
    Heading,
    Text,
    Button,
+   Img,
 } from '@vue-email/components';
 
-const props = defineProps<{ name?: string; url: string }>();
+const props = defineProps<{ name?: string; url: string; logoUrl: string }>();
 const firstName = computed(() => props.name?.split(' ')[0]);
 </script>
 
@@ -35,16 +36,17 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                padding: '40px',
             }"
          >
-            <Text
+            <Img
+               :src="logoUrl"
+               alt="Artfolio"
+               :width="120"
+               :height="32"
                :style="{
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  color: '#111',
+                  display: 'block',
                   margin: '0 0 24px',
+                  textAlign: 'center',
                }"
-               >ARTFOLIO</Text
-            >
+            />
             <Heading
                as="h1"
                :style="{ fontSize: '24px', color: '#111', margin: '0 0 8px' }"
@@ -65,12 +67,18 @@ const firstName = computed(() => props.name?.split(' ')[0]);
             <Button
                :href="url"
                :style="{
-                  backgroundColor: '#111',
+                  backgroundColor: '#3e5a7a',
+                  backgroundImage:
+                     'linear-gradient(to right, #3e5a7a, #a06a74)',
                   color: '#fff',
                   fontWeight: 600,
-                  fontSize: '15px',
-                  padding: '14px 28px',
+                  fontSize: '18px',
+                  padding: '14px',
                   borderRadius: '10px',
+                  textAlign: 'center',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  display: 'block',
                }"
             >
                Open your portfolio
@@ -79,7 +87,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                :style="{
                   fontSize: '13px',
                   color: '#a1a1aa',
-                  margin: '32px 0 0',
+                  margin: '14px 0 0',
                }"
             >
                Questions? Just reply to this email and we'll help out.

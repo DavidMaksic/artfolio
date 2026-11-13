@@ -391,9 +391,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
-- Latest discussions needs max-h, make it scrollable
 - Remake email templates
 - Improve validation
+- Followed posts should kick in only after user has followed at least one person
 
 - Refactor client view files that are too big
 - Abstract skeletons into separate files

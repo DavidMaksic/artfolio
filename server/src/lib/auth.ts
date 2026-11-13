@@ -58,7 +58,11 @@ export const auth = betterAuth({
             const magicLinkUrl = `${CLIENT_URL}/auth/verify?${params}`;
 
             const { html } = await vueEmail.render('SignInEmail.vue', {
-               props: { otp, magicLinkUrl },
+               props: {
+                  otp,
+                  magicLinkUrl,
+                  logoUrl: `${CLIENT_URL}/email-logo.png`,
+               },
             });
 
             await sendEmail({
@@ -97,7 +101,11 @@ export const auth = betterAuth({
 
                // Fire-and-forget: send welcome email
                const { html } = await vueEmail.render('WelcomeEmail.vue', {
-                  props: { name: user.name, url: CLIENT_URL },
+                  props: {
+                     name: user.name,
+                     url: CLIENT_URL,
+                     logoUrl: `${CLIENT_URL}/email-logo.png`,
+                  },
                });
 
                await sendEmail({
