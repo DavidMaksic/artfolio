@@ -82,7 +82,10 @@ export const useAuthStore = defineStore("auth", () => {
   // ── Sign out ──────────────
   async function signOut() {
     await authClient.signOut();
-    window.location.href = "/";
+    await queryClient.invalidateQueries({ queryKey: ["session"] });
+    queryClient.removeQueries({ queryKey: ["feed"] });
+    await router.replace({ name: "home" });
+    window.scrollTo(0, 0);
   }
 
   // ── Delete profile ──────────────

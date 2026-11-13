@@ -48,7 +48,7 @@ const {
   isPending: isFollowingPending,
 } = useInfiniteQuery({
   queryKey: ["feed", "following"],
-  queryFn: ({ pageParam }) => trpc.feed.getFollowingFeed.query({ limit: 10, cursor: pageParam }),
+  queryFn: ({ pageParam }) => trpc.feed.getFollowingFeed.query({ limit: 15, cursor: pageParam }),
   initialPageParam: undefined as string | undefined,
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   enabled: computed(() => auth.isAuthenticated),
@@ -69,7 +69,7 @@ const {
   queryKey: computed(() => ["feed", "explore", auth.isAuthenticated ? "suggestions" : guestSeed]),
   queryFn: ({ pageParam }) =>
     trpc.feed.getExplorePosts.query({
-      limit: 20,
+      limit: 15,
       cursor: pageParam,
       excludeOwn: true,
       shuffleSeed: auth.isAuthenticated ? undefined : guestSeed,
