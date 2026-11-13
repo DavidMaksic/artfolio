@@ -82,18 +82,19 @@ export const updatePostSchema = createPostSchema.extend({
 });
 
 export const feedInputSchema = z.object({
-   limit: z.number().int().min(1).max(50).default(20),
+   limit: z.number().int().min(1).max(60).default(20),
    cursor: z.string().optional(),
 });
 
 export const sortSchema = z.enum(['new', 'popular']);
 
 export const exploreInputSchema = z.object({
-   limit: z.number().int().min(1).max(50).default(20),
+   limit: z.number().int().min(1).max(60).default(20),
    cursor: z.string().optional(),
    sort: sortSchema.default('new'),
    category: z.string().optional(),
    excludeOwn: z.boolean().default(false),
+   shuffleSeed: z.string().max(60).optional(),
 });
 
 export const searchInputSchema = feedInputSchema.extend({

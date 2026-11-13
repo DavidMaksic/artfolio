@@ -3,6 +3,7 @@ import {
    eq,
    and,
    asc,
+   sql,
    desc,
    count,
    inArray,
@@ -138,6 +139,7 @@ export const feedRouter = t.router({
             sort,
             category: categorySlug,
             excludeOwn,
+            shuffleSeed,
          } = input;
 
          const categoryId = categorySlug
@@ -159,6 +161,42 @@ export const feedRouter = t.router({
             excludeOwn && viewerProfileId
                ? notInArray(post.profileId, [viewerProfileId])
                : undefined;
+
+         if (!ctx.user && shuffleSeed && sort !== 'popular') {
+            const offset = cursor ? parseInt(cursor) : 0;
+
+            const rows = await db
+               .select({ postId: post.id })
+               .from(post)
+               .where(and(categoryFilter, excludeOwnFilter))
+               .orderBy(sql`md5(${post.id}::text || ${shuffleSeed})`, post.id)
+               .limit(limit + 1)
+               .offset(offset);
+
+            const hasMore = rows.length > limit;
+            const postIds = (hasMore ? rows.slice(0, limit) : rows).map(
+               (r) => r.postId,
+            );
+
+            const posts =
+               postIds.length > 0
+                  ? await db.query.post.findMany({
+                       where: inArray(post.id, postIds),
+                       with: postWith,
+                    })
+                  : [];
+
+            // restore shuffled order
+            const byId = new Map(posts.map((p) => [p.id, p]));
+            const ordered = postIds
+               .map((id) => byId.get(id))
+               .filter((p) => !!p);
+
+            return {
+               items: ordered.map((p) => mapPost(p, viewerProfileId, false)),
+               nextCursor: hasMore ? String(offset + limit) : null,
+            };
+         }
 
          // popular sort — separate query path
          if (sort === 'popular') {
