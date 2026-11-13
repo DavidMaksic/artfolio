@@ -72,7 +72,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                      'linear-gradient(to right, #3e5a7a, #a06a74)',
                   color: '#fff',
                   fontWeight: 600,
-                  fontSize: '18px',
+                  fontSize: '17px',
                   padding: '14px',
                   borderRadius: '10px',
                   textAlign: 'center',

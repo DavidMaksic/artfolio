@@ -82,9 +82,9 @@ const { mutate: resendCode, isPending } = useMutation({
     <Card v-if="!autoCode" class="w-full max-w-sm shadow-2xl">
       <CardHeader class="space-y-1">
         <CardTitle class="text-xl">Check your email</CardTitle>
-        <CardDescription>
-          We sent a sign-in code to
-          <span class="font-medium text-foreground">{{ email }}</span>
+        <CardDescription class="flex-col">
+          <p>We sent a sign-in code to:</p>
+          <p class="font-medium text-foreground">{{ email }}</p>
         </CardDescription>
       </CardHeader>
 
@@ -118,7 +118,7 @@ const { mutate: resendCode, isPending } = useMutation({
 
         <!-- Resend -->
         <div class="text-sm text-muted-foreground">
-          <p class="text-sm text-muted-foreground mb-1">
+          <p class="text-sm text-muted-foreground mb-0.5">
             <span class="font-medium text-red-700/70">Important:</span> Email will be sent to your
             spam folder.
           </p>

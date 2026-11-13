@@ -69,7 +69,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                      'linear-gradient(to right, #3e5a7a, #a06a74)',
                   color: '#fff',
                   fontWeight: 600,
-                  fontSize: '18px',
+                  fontSize: '20px',
                   padding: '14px',
                   borderRadius: '10px',
                   textAlign: 'center',
