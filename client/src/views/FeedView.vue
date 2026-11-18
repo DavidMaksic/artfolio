@@ -57,6 +57,11 @@ const {
   refetchOnReconnect: false,
 });
 
+const followingItems = computed(() => followingData.value?.pages.flatMap((p) => p.items) ?? []);
+
+// Following feed takes over once it has content
+const showFollowingFeed = computed(() => auth.isAuthenticated && followingItems.value.length > 0);
+
 // ── Explore / guest feed ────────────────────────────────────────
 
 const {
@@ -66,67 +71,59 @@ const {
   isFetchingNextPage: isFetchingNextExplore,
   isPending: isExplorePending,
 } = useInfiniteQuery({
-  queryKey: computed(() => [
-    "feed",
-    "explore",
-    auth.isAuthenticated ? "suggestions" : feedStore.guestSeed,
-  ]),
+  queryKey: computed(() => ["feed", "explore", feedStore.guestSeed]),
   queryFn: ({ pageParam }) =>
     trpc.feed.getExplorePosts.query({
       limit: 15,
       cursor: pageParam,
       excludeOwn: true,
-      shuffleSeed: auth.isAuthenticated ? undefined : feedStore.guestSeed,
+      excludeFollowing: true,
+      shuffleSeed: feedStore.guestSeed,
     }),
   initialPageParam: undefined as string | undefined,
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-  // Guests use explore as the primary feed; authenticated users use it for suggestions
   enabled: computed(() => !auth.isAuthenticated || !!followingData.value),
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
 });
-
 // ── Interleaved feed ────────────────────────────────────────────
 
-const followingProfileIds = computed(() => {
-  const ids = new Set<string>();
-  followingData.value?.pages.flatMap((p) => p.items).forEach((item) => ids.add(item.profileId));
-  return ids;
-});
+const exploreItems = computed(() => exploreData.value?.pages.flatMap((p) => p.items) ?? []);
+
+const followingProfileIds = computed(
+  () => new Set(followingItems.value.map((item) => item.profileId)),
+);
 
 const posts = computed<FeedItemWithMeta[]>(() => {
   if (!auth.isAuthenticated) {
-    return (
-      exploreData.value?.pages.flatMap((p) =>
-        p.items.map((item) => ({ ...item, suggested: false })),
-      ) ?? []
-    );
+    return exploreItems.value.map((item) => ({ ...item, suggested: false }));
   }
 
-  const following = followingData.value?.pages.flatMap((p) => p.items) ?? [];
+  let result: FeedItemWithMeta[];
 
-  // New user with no follows yet — show explore posts with follow buttons
-  if (following.length === 0) {
-    return (
-      exploreData.value?.pages.flatMap((p) =>
-        p.items.map((item) => ({ ...item, suggested: true })),
-      ) ?? []
+  if (!showFollowingFeed.value) {
+    result = exploreItems.value.map((item) => ({ ...item, suggested: true }));
+  } else {
+    const suggestions = exploreItems.value.filter(
+      (item) => !item.profile.userIsFollowing && !followingProfileIds.value.has(item.profileId),
     );
-  }
+    result = [];
+    let exploreIndex = 0;
 
-  const explore = (exploreData.value?.pages.flatMap((p) => p.items) ?? []).filter(
-    (item) => !followingProfileIds.value.has(item.profileId),
-  );
+    followingItems.value.forEach((item, i) => {
+      result.push({ ...item, suggested: false });
+      if ((i + 1) % SUGGEST_EVERY === 0 && exploreIndex < suggestions.length) {
+        result.push({ ...suggestions[exploreIndex++]!, suggested: true });
+      }
+    });
 
-  const result: FeedItemWithMeta[] = [];
-  let exploreIndex = 0;
-
-  following.forEach((item, i) => {
-    result.push({ ...item, suggested: false });
-    if ((i + 1) % SUGGEST_EVERY === 0 && exploreIndex < explore.length) {
-      result.push({ ...explore[exploreIndex++]!, suggested: true } as FeedItemWithMeta);
+    // Following feed exhausted: continue with the remaining suggestions
+    if (!hasNextFollowing.value) {
+      while (exploreIndex < suggestions.length) {
+        result.push({ ...suggestions[exploreIndex++]!, suggested: true });
+      }
     }
-  });
+  }
 
   return feedStore.justCreatedPost ? [feedStore.justCreatedPost, ...result] : result;
 });
@@ -145,9 +142,8 @@ function loadMore() {
 }
 
 const hasNextPage = computed(() => {
-  if (auth.isAuthenticated) {
-    return hasNextFollowing.value;
-  }
+  if (!auth.isAuthenticated) return hasNextExplore.value;
+  if (!showFollowingFeed.value) return hasNextExplore.value;
   return hasNextFollowing.value || hasNextExplore.value;
 });
 

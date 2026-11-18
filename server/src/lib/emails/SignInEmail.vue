@@ -27,8 +27,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
             .email-text { font-size: 14px !important; line-height: 20px
             !important; } .email-otp { font-size: 26px !important;
             letter-spacing: 8px !important; } .email-footer { line-height: 20px
-            !important; font-size: 8px !imporant } .email-container { padding:
-            40px 30px !important; } }
+            !important; } .email-container { padding: 40px 30px !important; } }
          </component>
       </Head>
       <Preview>Your Artfolio sign-in code: {{ otp }}</Preview>

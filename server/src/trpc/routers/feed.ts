@@ -140,6 +140,7 @@ export const feedRouter = t.router({
             category: categorySlug,
             excludeOwn,
             shuffleSeed,
+            excludeFollowing,
          } = input;
 
          const categoryId = categorySlug
@@ -162,13 +163,26 @@ export const feedRouter = t.router({
                ? notInArray(post.profileId, [viewerProfileId])
                : undefined;
 
-         if (!ctx.user && shuffleSeed && sort !== 'popular') {
+         const excludeFollowingFilter =
+            excludeFollowing && viewerProfileId
+               ? notInArray(
+                    post.profileId,
+                    db
+                       .select({ id: follow.followingId })
+                       .from(follow)
+                       .where(eq(follow.followerId, viewerProfileId)),
+                 )
+               : undefined;
+
+         if (shuffleSeed && sort !== 'popular') {
             const offset = cursor ? parseInt(cursor) : 0;
 
             const rows = await db
                .select({ postId: post.id })
                .from(post)
-               .where(and(categoryFilter, excludeOwnFilter))
+               .where(
+                  and(categoryFilter, excludeOwnFilter, excludeFollowingFilter),
+               )
                .orderBy(sql`md5(${post.id}::text || ${shuffleSeed})`, post.id)
                .limit(limit + 1)
                .offset(offset);
@@ -242,6 +256,7 @@ export const feedRouter = t.router({
                cursor ? lt(post.createdAt, new Date(cursor)) : undefined,
                categoryFilter,
                excludeOwnFilter,
+               excludeFollowingFilter,
             ),
             orderBy: [desc(post.createdAt)],
             limit: limit + 1,

@@ -95,6 +95,7 @@ export const exploreInputSchema = z.object({
    category: z.string().optional(),
    excludeOwn: z.boolean().default(false),
    shuffleSeed: z.string().max(60).optional(),
+   excludeFollowing: z.boolean().optional(),
 });
 
 export const searchInputSchema = feedInputSchema.extend({

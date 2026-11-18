@@ -2,6 +2,7 @@
 import type { ProfileWithFollow } from "@artfolio/shared";
 import { computed, ref, watch } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
+import { useMediaQuery } from "@vueuse/core";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFollow } from "@/composables/useFollow";
 import { useRouter } from "vue-router";
@@ -10,7 +11,6 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useMediaQuery } from "@vueuse/core";
 
 const auth = useAuthStore();
 

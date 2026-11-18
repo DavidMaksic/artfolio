@@ -391,7 +391,6 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
-- Followed posts should kick in only after user has followed at least one person
 - Improve validation
 
 - Refactor client view files that are too big
