@@ -86,7 +86,6 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                   color: '#52525b',
                   lineHeight: '24px',
                   margin: '0 0 28px',
-                  textAlign: 'center',
                }"
             >
                Click the button to sign in instantly, or enter the code below.
