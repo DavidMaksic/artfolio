@@ -26,9 +26,9 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
             !important; } .email-heading { font-size: 20px !important; }
             .email-text { font-size: 14px !important; line-height: 20px
             !important; } .email-otp { font-size: 26px !important;
-            letter-spacing: 8px !important; } .email-footer { font-size: 10px
-            !imporant; line-height: 16px !important; } .email-container {
-            padding: 40px 30px !important; } }
+            letter-spacing: 8px !important; } .email-footer { font-size: 8px;
+            line-height: 16px !important; } .email-container { padding: 40px
+            30px !important; } }
          </component>
       </Head>
       <Preview>Your Artfolio sign-in code: {{ otp }}</Preview>
@@ -86,7 +86,6 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                   color: '#52525b',
                   lineHeight: '24px',
                   margin: '0 0 28px',
-                  textAlign: 'center',
                }"
             >
                Click the button to sign in instantly, or enter the code below.
