@@ -22,12 +22,12 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
       <Head>
          <component :is="'style'">
             @media only screen and (max-width: 480px) { .email-body {
-            background-color: transparent !important; padding-top: 2px
+            background-color: transparent !important; padding: 6px 0px
             !important; } .email-heading { font-size: 20px !important; }
             .email-text { font-size: 14px !important; line-height: 20px
             !important; } .email-otp { font-size: 26px !important;
-            letter-spacing: 8px !important; } .email-footer {font-size: 12px;
-            line-height: 20px !important; } .email-container {padding: 40px 20px
+            letter-spacing: 8px !important; } .email-footer {font-size: 10px;
+            line-height: 16px !important; } .email-container {padding: 40px 20px
             !important; } }
          </component>
       </Head>
