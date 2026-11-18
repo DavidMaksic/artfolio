@@ -21,13 +21,13 @@ defineProps<{ url: string; logoUrl: string }>();
       <Head>
          <component :is="'style'">
             @media only screen and (max-width: 480px) { .email-body {
-            background-color: transparent !important; padding-top: 6px 0px
+            background-color: transparent !important; padding: 6px 0px
             !important; } .email-heading { font-size: 20px !important; }
             .email-text { font-size: 14px !important; line-height: 20px
             !important; } .email-otp { font-size: 26px !important;
-            letter-spacing: 8px !important; } .email-footer {font-size: 10px;
-            line-height: 16px !important; } .email-container {padding: 40px 20px
-            !important; } }
+            letter-spacing: 8px !important; } .email-footer { font-size: 8px;
+            line-height: 16px !important; } .email-container { padding: 40px
+            30px !important; } }
          </component>
       </Head>
       <Preview>Your portfolio is ready. Start sharing your work.</Preview>
