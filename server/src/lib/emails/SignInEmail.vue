@@ -19,9 +19,15 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
 
 <template>
    <Html lang="en">
-      <Head />
+      <Head>
+         <component :is="'style'">
+            @media only screen and (max-width: 480px) { .email-body {
+            background-color: transparent !important; padding: 0 !important; } }
+         </component>
+      </Head>
       <Preview>Your Artfolio sign-in code: {{ otp }}</Preview>
       <Body
+         class="email-body"
          :style="{
             backgroundColor: '#f4f4f5',
             fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif',
@@ -60,7 +66,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                :style="{
                   fontSize: '24px',
                   color: '#404040',
-                  margin: '0 0 8px',
+                  margin: '0 0 12px',
                   textAlign: 'center',
                }"
                >Sign in to your account</Heading
@@ -84,7 +90,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: '17px',
-                  padding: '12px 14px',
+                  padding: '12px 15px 15px',
                   borderRadius: '10px',
                   textAlign: 'center',
                   width: '100%',
@@ -109,13 +115,20 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                      fontSize: '28px',
                      fontWeight: 700,
                      letterSpacing: '10px',
-                     color: '#111',
+                     color: '#404040',
                      fontFamily: 'ui-monospace,Menlo,monospace',
                   }"
                   >{{ otp }}</Text
                >
             </Section>
-            <Text :style="{ fontSize: '13px', color: '#a1a1aa', margin: 0 }">
+            <Text
+               :style="{
+                  fontSize: '13px',
+                  color: '#a1a1aa',
+                  margin: 0,
+                  textAlign: 'center',
+               }"
+            >
                This code expires in 10 minutes. If you didn't request it, you
                can safely ignore this email.
             </Text>

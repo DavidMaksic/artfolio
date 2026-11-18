@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import {
    Html,
    Head,
@@ -14,15 +13,20 @@ import {
    Column,
 } from '@vue-email/components';
 
-const props = defineProps<{ name?: string; url: string; logoUrl: string }>();
-const firstName = computed(() => props.name?.split(' ')[0]);
+defineProps<{ url: string; logoUrl: string }>();
 </script>
 
 <template>
    <Html lang="en">
-      <Head />
+      <Head>
+         <component :is="'style'">
+            @media only screen and (max-width: 480px) { .email-body {
+            background-color: transparent !important; padding: 0 !important; } }
+         </component>
+      </Head>
       <Preview>Your portfolio is ready. Start sharing your work.</Preview>
       <Body
+         class="email-body"
          :style="{
             backgroundColor: '#f4f4f5',
             fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif',
@@ -61,11 +65,11 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                :style="{
                   fontSize: '24px',
                   color: '#404040',
-                  margin: '0 0 8px',
+                  margin: '0 0 12px',
                   textAlign: 'center',
                }"
             >
-               Welcome{{ firstName ? `, ${firstName}` : '' }} 🎨
+               Welcome 🎨
             </Heading>
             <Text
                :style="{
@@ -76,7 +80,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                   textAlign: 'center',
                }"
             >
-               Your portfolio is ready. Upload your first piece and start
+               Your account is verified. Upload your first piece and start
                sharing your work with the world.
             </Text>
             <Button
@@ -88,7 +92,7 @@ const firstName = computed(() => props.name?.split(' ')[0]);
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: '17px',
-                  padding: '12px 14px',
+                  padding: '12px 15px 15px',
                   borderRadius: '10px',
                   textAlign: 'center',
                   width: '100%',

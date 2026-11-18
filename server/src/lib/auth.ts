@@ -102,7 +102,6 @@ export const auth = betterAuth({
                // Fire-and-forget: send welcome email
                const { html } = await vueEmail.render('WelcomeEmail.vue', {
                   props: {
-                     name: user.name,
                      url: CLIENT_URL,
                      logoUrl: `${CLIENT_URL}/email-logo.png`,
                   },
