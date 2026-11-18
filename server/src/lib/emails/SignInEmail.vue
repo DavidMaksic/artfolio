@@ -22,12 +22,12 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
       <Head>
          <component :is="'style'">
             @media only screen and (max-width: 480px) { .email-body {
-            background-color: transparent !important; padding-top: 6px; }
+            background-color: transparent !important; padding-top: 2px; }
             .email-heading { font-size: 20px !important; } .email-text {
             font-size: 14px !important; line-height: 20px !important; }
             .email-otp { font-size: 26px !important; letter-spacing: 8px
-            !important; } .email-footer {font-size: 12px; letter-spacing: 16px;
-            } }
+            !important; } .email-footer {font-size: 12px; line-height: 16px; }
+            .email-container {padding: 40px 20px; } }
          </component>
       </Head>
       <Preview>Your Artfolio sign-in code: {{ otp }}</Preview>
@@ -59,6 +59,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
          </Section>
 
          <Container
+            class="email-container"
             :style="{
                maxWidth: '480px',
                backgroundColor: '#fff',
