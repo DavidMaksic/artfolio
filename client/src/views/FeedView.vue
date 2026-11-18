@@ -59,8 +59,6 @@ const {
 
 // ── Explore / guest feed ────────────────────────────────────────
 
-const guestSeed = crypto.randomUUID();
-
 const {
   data: exploreData,
   fetchNextPage: fetchNextExplore,
@@ -68,13 +66,17 @@ const {
   isFetchingNextPage: isFetchingNextExplore,
   isPending: isExplorePending,
 } = useInfiniteQuery({
-  queryKey: computed(() => ["feed", "explore", auth.isAuthenticated ? "suggestions" : guestSeed]),
+  queryKey: computed(() => [
+    "feed",
+    "explore",
+    auth.isAuthenticated ? "suggestions" : feedStore.guestSeed,
+  ]),
   queryFn: ({ pageParam }) =>
     trpc.feed.getExplorePosts.query({
       limit: 15,
       cursor: pageParam,
       excludeOwn: true,
-      shuffleSeed: auth.isAuthenticated ? undefined : guestSeed,
+      shuffleSeed: auth.isAuthenticated ? undefined : feedStore.guestSeed,
     }),
   initialPageParam: undefined as string | undefined,
   getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,

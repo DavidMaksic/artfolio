@@ -26,7 +26,8 @@ defineProps<{ url: string; logoUrl: string }>();
             .email-text { font-size: 14px !important; line-height: 20px
             !important; } .email-otp { font-size: 26px !important;
             letter-spacing: 8px !important; } .email-footer { line-height: 20px
-            !important; } .email-container { padding: 40px 30px !important; } }
+            !important; font-size: 8px !imporant } .email-container { padding:
+            40px 30px !important; } }
          </component>
       </Head>
       <Preview>Your portfolio is ready. Start sharing your work.</Preview>

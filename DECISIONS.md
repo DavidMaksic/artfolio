@@ -391,7 +391,6 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to fix
 
-- Guest main feed should show new randomized posts only after reload, not after browser back/forth navigation
 - Followed posts should kick in only after user has followed at least one person
 - Improve validation
 
