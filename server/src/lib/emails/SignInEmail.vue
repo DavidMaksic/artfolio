@@ -22,7 +22,12 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
       <Head>
          <component :is="'style'">
             @media only screen and (max-width: 480px) { .email-body {
-            background-color: transparent !important; padding: 0 !important; } }
+            background-color: transparent !important; padding-top: 6px; }
+            .email-heading { font-size: 20px !important; } .email-text {
+            font-size: 14px !important; line-height: 20px !important; }
+            .email-otp { font-size: 26px !important; letter-spacing: 8px
+            !important; } .email-footer {font-size: 12px; letter-spacing: 16px;
+            } }
          </component>
       </Head>
       <Preview>Your Artfolio sign-in code: {{ otp }}</Preview>
@@ -63,6 +68,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
          >
             <Heading
                as="h1"
+               class="email-heading"
                :style="{
                   fontSize: '24px',
                   color: '#404040',
@@ -72,6 +78,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                >Sign in to your account</Heading
             >
             <Text
+               class="email-text"
                :style="{
                   fontSize: '15px',
                   color: '#52525b',
@@ -84,7 +91,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
             <Button
                :href="magicLinkUrl"
                :style="{
-                  backgroundColor: '#3e5a7a',
+                  backgroundColor: '#6f6277',
                   backgroundImage:
                      'linear-gradient(to right, #3e5a7a, #a06a74)',
                   color: '#fff',
@@ -110,6 +117,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                }"
             >
                <Text
+                  class="email-otp"
                   :style="{
                      margin: 0,
                      fontSize: '28px',
@@ -122,6 +130,7 @@ defineProps<{ otp: string; magicLinkUrl: string; logoUrl: string }>();
                >
             </Section>
             <Text
+               class="email-footer"
                :style="{
                   fontSize: '13px',
                   color: '#a1a1aa',
