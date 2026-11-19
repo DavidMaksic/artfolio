@@ -17,6 +17,46 @@ export interface UploadedImage {
   bytes: number;
 }
 
+export async function uploadImages(
+  items: { file: File; order: number }[],
+): Promise<UploadedImage[]> {
+  if (items.length === 0) return [];
+
+  try {
+    const { signature, timestamp, folder, apiKey, cloudName } =
+      await trpc.post.getPostImageUploadSignature.mutate();
+
+    return await Promise.all(
+      items.map(async ({ file, order }) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("signature", signature);
+        formData.append("timestamp", String(timestamp));
+        formData.append("folder", folder);
+        formData.append("api_key", apiKey);
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) throw new Error("Upload failed");
+        const data = await res.json();
+
+        return {
+          imageUrl: data.secure_url as string,
+          publicId: data.public_id as string,
+          order,
+          width: data.width as number,
+          height: data.height as number,
+          bytes: data.bytes as number,
+        };
+      }),
+    );
+  } catch {
+    throw new Error("Something went wrong during upload. Please try again.");
+  }
+}
+
 export function usePostImageUpload() {
   const images = ref<LocalImage[]>([]);
   const isUploading = ref(false);
@@ -69,46 +109,13 @@ export function usePostImageUpload() {
   }
 
   async function uploadAll(): Promise<UploadedImage[]> {
-    if (images.value.length === 0) return [];
     isUploading.value = true;
     error.value = null;
-
     try {
-      const { signature, timestamp, folder, apiKey, cloudName } =
-        await trpc.post.getPostImageUploadSignature.mutate();
-
-      const results = await Promise.all(
-        images.value.map(async (img) => {
-          const formData = new FormData();
-          formData.append("file", img.file);
-          formData.append("signature", signature);
-          formData.append("timestamp", String(timestamp));
-          formData.append("folder", folder);
-          formData.append("api_key", apiKey);
-
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!res.ok) throw new Error("Upload failed");
-          const data = await res.json();
-
-          return {
-            imageUrl: data.secure_url as string,
-            publicId: data.public_id as string,
-            order: img.order,
-            width: data.width as number,
-            height: data.height as number,
-            bytes: data.bytes as number,
-          };
-        }),
-      );
-
-      return results;
-    } catch {
-      error.value = "Something went wrong during upload. Please try again.";
-      throw new Error(error.value);
+      return await uploadImages(images.value);
+    } catch (e) {
+      error.value = (e as Error).message;
+      throw e;
     } finally {
       isUploading.value = false;
     }

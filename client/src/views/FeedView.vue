@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { FeedItem } from "@artfolio/shared";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/vue-query";
+import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useQueryClient } from "@tanstack/vue-query";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedStore } from "@/stores/feed.store";
 import { motion } from "motion-v";
@@ -13,11 +15,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 import PostDetailModal from "@/components/post/PostDetailModal.vue";
+import PostingMarker from "@/components/feed/PostingMarker.vue";
 import FeedSidebar from "@/components/feed/FeedSidebar.vue";
 import FeedCard from "@/components/feed/FeedCard.vue";
 
 type FeedItemWithMeta = FeedItem & { suggested: boolean };
 const feedStore = useFeedStore();
+const queryClient = useQueryClient();
 
 const SUGGEST_EVERY = 3; // inject a suggested post every N following posts
 
@@ -202,6 +206,30 @@ function closePost() {
       <div class="flex gap-8 items-start">
         <!-- Feed column -->
         <div class="flex-1 min-w-0 max-w-xl lg:max-w-full md:min-w-full mx-auto md:mx-0">
+          <PostingMarker v-if="feedStore.pendingPost?.status === 'uploading'" />
+
+          <Marker
+            v-else-if="feedStore.pendingPost?.status === 'error'"
+            variant="separator"
+            role="alert"
+            class="my-11 sm:px-3.5"
+          >
+            <MarkerIcon class="px-2">
+              <Icon icon="ph:warning-circle" />
+            </MarkerIcon>
+            <MarkerContent>{{ feedStore.pendingPost.error }}</MarkerContent>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="px-2"
+              @click="feedStore.retryPosting(queryClient)"
+              >Retry</Button
+            >
+            <Button variant="ghost" size="sm" class="px-2" @click="feedStore.discardPosting()"
+              >Discard</Button
+            >
+          </Marker>
+
           <!-- Loading -->
           <template v-if="isPending">
             <div class="grid grid-cols-1 gap-8">

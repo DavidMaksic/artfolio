@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { FeedItem } from "@artfolio/shared";
 import { ref, computed, onMounted } from "vue";
 import { usePostImageUpload } from "@/composables/usePostImageUpload";
-import { extractTrpcError } from "@/lib/trpc-error";
 import { useQueryClient } from "@tanstack/vue-query";
 import { useFeedStore } from "@/stores/feed.store";
 import { useRouter } from "vue-router";
@@ -23,18 +21,16 @@ const feedStore = useFeedStore();
 
 const {
   images,
-  isUploading,
   error: uploadError,
   addImages,
   removeImage,
   reorderImages,
-  uploadAll,
+  reset,
 } = usePostImageUpload();
 
 const description = ref("");
 const categoryId = ref("");
 const tags = ref<string[]>([]);
-const isSubmitting = ref(false);
 const submitError = ref<string | null>(null);
 const categories = ref<{ id: string; name: string; slug: string }[]>([]);
 
@@ -81,78 +77,31 @@ const gridClass = computed(() => {
   return "grid-many";
 });
 
+// A pending post (uploading, or failed and awaiting retry) locks the form
+const isSubmitting = computed(() => !!feedStore.pendingPost);
+
 const canSubmit = computed(
-  () =>
-    images.value.length > 0 && categoryId.value !== "" && !isUploading.value && !isSubmitting.value,
+  () => images.value.length > 0 && categoryId.value !== "" && !isSubmitting.value,
 );
 
-async function handleSubmit() {
+function handleSubmit() {
   if (!canSubmit.value) return;
-  isSubmitting.value = true;
-  submitError.value = null;
+  const category = categories.value.find((c) => c.id === categoryId.value);
+  if (!category) return;
 
-  try {
-    const uploaded = await uploadAll();
-
-    const { id } = await trpc.post.create.mutate({
-      description: description.value.trim() || undefined,
+  feedStore.startPosting(
+    {
+      files: images.value.map(({ file, order }) => ({ file, order })),
+      description: description.value.trim(),
       categoryId: categoryId.value,
-      tags: tags.value,
-      images: uploaded,
-    });
+      category,
+      tags: [...tags.value],
+    },
+    queryClient,
+  );
 
-    type FeedItemWithMeta = FeedItem & { suggested: boolean };
-    const me = await trpc.profile.getMe.query();
-
-    const selectedCategory = categories.value.find((c) => c.id === categoryId.value)!;
-    const selectedTags = tags.value.map((name) => ({
-      id: name,
-      name,
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
-    }));
-
-    const feedPost: FeedItemWithMeta = {
-      id,
-      profileId: me.id,
-      categoryId: categoryId.value,
-      createdAt: new Date(),
-      coverImage: {
-        id: crypto.randomUUID(),
-        imageUrl: uploaded[0]!.imageUrl,
-        publicId: uploaded[0]!.publicId,
-        order: 0,
-        width: uploaded[0]!.width,
-        height: uploaded[0]!.height,
-        createdAt: new Date(),
-      },
-      imageCount: uploaded.length,
-      description: description.value.trim() || null,
-      category: selectedCategory,
-      tags: selectedTags,
-      profile: {
-        username: me.username,
-        displayName: me.displayName,
-        profileImageUrl: me.profileImageUrl ?? null,
-        userIsFollowing: false,
-      },
-      likeCount: 0,
-      bookmarkCount: 0,
-      commentCount: 0,
-      userHasLiked: false,
-      userHasBookmarked: false,
-      suggested: false,
-    };
-
-    feedStore.setJustCreatedPost(feedPost);
-
-    queryClient.invalidateQueries({ queryKey: ["posts", me.username] });
-    queryClient.invalidateQueries({ queryKey: ["feed"] });
-    router.push({ name: "home" });
-  } catch (e) {
-    submitError.value = extractTrpcError(e);
-  } finally {
-    isSubmitting.value = false;
-  }
+  reset(); // revokes the preview URLs; the store holds the File objects
+  router.push({ name: "home" });
 }
 </script>
 
@@ -182,13 +131,13 @@ async function handleSubmit() {
                 class="image-cell transition duration"
                 :class="{
                   'image-cell--large': gridClass === 'grid-three' && index === 0,
-                  'opacity-50 cursor-not-allowed!': isUploading || isSubmitting,
-                  group: !isUploading && !isSubmitting,
+                  'opacity-50 cursor-not-allowed!': isSubmitting,
+                  group: !isSubmitting,
                 }"
-                :draggable="!isUploading && !isSubmitting"
-                @dragstart="!isUploading && !isSubmitting && onDragStart(index)"
-                @dragover="!isUploading && !isSubmitting && onDragOver($event, index)"
-                @dragend="!isUploading && !isSubmitting && onDragEnd()"
+                :draggable="!isSubmitting"
+                @dragstart="!isSubmitting && onDragStart(index)"
+                @dragover="!isSubmitting && onDragOver($event, index)"
+                @dragend="!isSubmitting && onDragEnd()"
               >
                 <img :src="image.preview" class="size-full object-cover" />
 
@@ -207,7 +156,7 @@ async function handleSubmit() {
                 <button
                   type="button"
                   class="absolute top-1.5 right-1.5 bg-neutral-400/50 hover:bg-neutral-400/80 rounded-full p-1 transition z-10 disabled:pointer-events-none backdrop-blur-2xl"
-                  :disabled="isUploading || isSubmitting"
+                  :disabled="isSubmitting"
                   @click.stop="removeImage(index)"
                 >
                   <Icon
@@ -222,16 +171,14 @@ async function handleSubmit() {
             <div
               :class="[
                 'border-2 border-dashed rounded-lg text-center transition duration-200',
-                isUploading || isSubmitting
+                isSubmitting
                   ? 'opacity-50 cursor-not-allowed'
                   : 'cursor-default hover:border-neutral-400/60 hover:bg-neutral-100',
                 images.length > 0 ? 'py-3' : 'py-24 sm:py-14',
               ]"
-              @drop="!isUploading && !isSubmitting && handleDrop($event)"
+              @drop="!isSubmitting && handleDrop($event)"
               @dragover.prevent
-              @click="
-                !isUploading && !isSubmitting && ($refs.fileInput as HTMLInputElement).click()
-              "
+              @click="!isSubmitting && ($refs.fileInput as HTMLInputElement).click()"
             >
               <Icon
                 icon="ph:image-square-duotone"
@@ -274,7 +221,7 @@ async function handleSubmit() {
               id="description"
               v-model="description"
               placeholder="Tell people about this work..."
-              :disabled="isUploading || isSubmitting"
+              :disabled="isSubmitting"
               rows="4"
             />
             <p class="absolute right-0 text-xs text-muted-foreground text-right">
@@ -289,14 +236,14 @@ async function handleSubmit() {
               id="category"
               v-model="categoryId"
               :categories="categories"
-              :disabled="isUploading || isSubmitting"
+              :disabled="isSubmitting"
             />
           </div>
 
           <!-- Tags -->
           <div class="space-y-1.5">
             <Label>Tags</Label>
-            <TagSuggestInput v-model="tags" :disabled="isUploading || isSubmitting" />
+            <TagSuggestInput v-model="tags" :disabled="isSubmitting" />
           </div>
 
           <p
@@ -313,7 +260,7 @@ async function handleSubmit() {
               type="button"
               variant="outline"
               class="flex-1"
-              :disabled="isUploading || isSubmitting"
+              :disabled="isSubmitting"
               @click="router.back()"
             >
               Cancel
