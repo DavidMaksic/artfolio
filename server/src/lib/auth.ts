@@ -8,6 +8,7 @@ import { db } from '../db/index.js';
 import * as schema from '../db/schema/index.js';
 
 const CLIENT_URL = process.env.CLIENT_URL ?? 'http://localhost:5173';
+const EMAILS_DISABLED = process.env.DISABLE_EMAILS === 'true';
 
 export const auth = betterAuth({
    database: drizzleAdapter(db, {
@@ -54,6 +55,8 @@ export const auth = betterAuth({
 
          // Single email carries both the OTP code and a "magic link"
          async sendVerificationOTP({ email, otp }) {
+            if (EMAILS_DISABLED) return;
+
             const params = new URLSearchParams({ email, code: otp });
             const magicLinkUrl = `${CLIENT_URL}/auth/verify?${params}`;
 
@@ -98,6 +101,8 @@ export const auth = betterAuth({
                   createdAt: new Date(),
                   updatedAt: new Date(),
                });
+
+               if (EMAILS_DISABLED) return;
 
                // Fire-and-forget: send welcome email
                const { html } = await vueEmail.render('WelcomeEmail.vue', {

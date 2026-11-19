@@ -386,12 +386,9 @@ Purpose of this file is to track progress and decisions of each sprint.
 
 ## Things to add
 
-- Toasts
 - Bookmark page
 
 ## Things to fix
-
-- Improve validation
 
 - Refactor client view files that are too big
 - Abstract skeletons into separate files

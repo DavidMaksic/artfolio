@@ -33,6 +33,9 @@ export default defineConfig({
          url: 'http://localhost:4000/health',
          reuseExistingServer: !process.env.CI,
          timeout: 120_000,
+         env: {
+            DISABLE_EMAILS: 'true',
+         },
       },
       {
          command: process.env.CI

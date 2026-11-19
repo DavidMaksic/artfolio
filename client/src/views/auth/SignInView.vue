@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { extractTrpcError } from "@/lib/trpc-error";
+import { onMounted, ref } from "vue";
 import { sendOtpSchema } from "@artfolio/shared";
 import { useAuthStore } from "@/stores/auth.store";
 import { useMutation } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
 import { motion } from "motion-v";
-import { onMounted, ref } from "vue";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
