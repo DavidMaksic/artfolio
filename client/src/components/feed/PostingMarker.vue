@@ -36,7 +36,7 @@ useIntervalFn(() => {
 </script>
 
 <template>
-  <Marker variant="separator" role="status" class="my-12.5 sm:px-3.5">
+  <Marker variant="separator" role="status" class="my-12.5 md:my-6 sm:px-4">
     <MarkerIcon>
       <motion.span
         class="flex"

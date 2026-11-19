@@ -209,23 +209,27 @@ function closePost() {
           <PostingMarker v-if="feedStore.pendingPost?.status === 'uploading'" />
 
           <Marker
-            v-else-if="feedStore.pendingPost?.status === 'error'"
+            v-if="feedStore.pendingPost?.status === 'error'"
             variant="separator"
             role="alert"
-            class="my-11 sm:px-3.5"
+            class="my-11 md:my-4.5 sm:px-4 gap-0"
           >
-            <MarkerIcon class="px-2">
+            <MarkerIcon class="pl-3 pr-6">
               <Icon icon="ph:warning-circle" />
             </MarkerIcon>
-            <MarkerContent>{{ feedStore.pendingPost.error }}</MarkerContent>
+            <MarkerContent>{{ feedStore.pendingPost?.error }}</MarkerContent>
             <Button
-              variant="ghost"
+              variant="secondary"
               size="sm"
-              class="px-2"
+              class="px-2.5 text-text hover:text-neutral-600 hover:bg-white"
               @click="feedStore.retryPosting(queryClient)"
               >Retry</Button
             >
-            <Button variant="ghost" size="sm" class="px-2" @click="feedStore.discardPosting()"
+            <Button
+              variant="secondary"
+              size="sm"
+              class="px-2.5 mr-1 text-text hover:text-neutral-600 hover:bg-white"
+              @click="feedStore.discardPosting()"
               >Discard</Button
             >
           </Marker>
