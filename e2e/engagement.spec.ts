@@ -1,4 +1,8 @@
-import { completeProfileSetup, createPost } from '@/test-helpers';
+import {
+   createPost,
+   openPostModal,
+   setupDiscussionScenario,
+} from '@/test-helpers';
 import { cleanupCloudinaryFolder } from '@/global-setup';
 import { test, expect } from './fixtures';
 
@@ -8,131 +12,75 @@ test.afterAll(async () => {
 
 test.describe('likes', () => {
    test('guest sees like count but is redirected to sign in on click', async ({
-      auth,
+      withPost: { auth, post },
    }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
       await auth.page.getByRole('button', { name: 'Sign out' }).click();
-
-      await auth.page.locator('[data-testid="like-button"]').first().click();
+      await post.locator.getByTestId('like-button').click();
       await expect(auth.page).toHaveURL(/\/auth\/sign-in/);
    });
 
-   test('signed in user can like and unlike a post', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+   test('signed in user can like and unlike a post', async ({
+      withPost: { auth, post },
+   }) => {
+      const modal = await openPostModal(auth, post);
+      const likeButton = modal.getByTestId('like-button');
 
-      const modal = auth.page.locator('[data-testid="post-modal"]');
-      await auth.page.locator('[data-post-id]').first().click();
-      await expect(modal).toBeVisible();
-
-      const likeButton = auth.page
-         .locator('[data-testid="like-button"]')
-         .first();
-
-      // Like
       await likeButton.click();
-      await expect(
-         auth.page
-            .locator('[data-testid="like-button"][data-liked="true"]')
-            .first(),
-      ).toBeVisible();
+      await expect(likeButton).toHaveAttribute('data-liked', 'true');
 
-      // Unlike
       await likeButton.click();
-      await expect(
-         auth.page
-            .locator('[data-testid="like-button"][data-liked="false"]')
-            .first(),
-      ).toBeVisible();
+      await expect(likeButton).toHaveAttribute('data-liked', 'false');
    });
 });
 
 test.describe('bookmarks', () => {
    test('guest is redirected to sign in on bookmark click', async ({
-      auth,
+      signedIn,
    }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
-      await auth.page.getByRole('button', { name: 'Sign out' }).click();
+      const post = await createPost(signedIn);
+      await signedIn.page.getByRole('button', { name: 'Sign out' }).click();
 
-      await auth.page
-         .locator('[data-testid="bookmark-button"]')
-         .first()
-         .click();
-      await expect(auth.page).toHaveURL(/\/auth\/sign-in/);
+      await post.locator.getByTestId('bookmark-button').click();
+      await expect(signedIn.page).toHaveURL(/\/auth\/sign-in/);
    });
 
    test('signed in user can bookmark and unbookmark a post', async ({
-      auth,
+      withPost: { auth, post },
    }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+      const modal = await openPostModal(auth, post);
+      const bookmarkButton = modal.getByTestId('bookmark-button');
 
-      const modal = auth.page.locator('[data-testid="post-modal"]');
-      await auth.page.locator('[data-post-id]').first().click();
-      await expect(modal).toBeVisible();
-
-      const bookmarkButton = auth.page
-         .locator('[data-testid="bookmark-button"]')
-         .first();
-
-      // Bookmark
       await bookmarkButton.click();
-      await expect(
-         auth.page
-            .locator('[data-testid="bookmark-button"][data-bookmarked="true"]')
-            .first(),
-      ).toBeVisible();
+      await expect(bookmarkButton).toHaveAttribute('data-bookmarked', 'true');
 
-      // Unbookmark
       await bookmarkButton.click();
-      await expect(
-         auth.page
-            .locator('[data-testid="bookmark-button"][data-bookmarked="false"]')
-            .first(),
-      ).toBeVisible();
+      await expect(bookmarkButton).toHaveAttribute('data-bookmarked', 'false');
    });
 });
 
 test.describe('comments', () => {
    test('guest sees sign in prompt instead of comment input', async ({
-      auth,
+      signedIn,
    }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+      const post = await createPost(signedIn);
 
-      await auth.page.getByRole('button', { name: 'Sign out' }).click();
-      await expect(auth.page).toHaveURL('/');
-      await auth.page.goto(`${auth.username}`);
-
-      await auth.page.locator('[data-post-id]').first().click();
-      const modal = auth.page.locator('[data-testid="post-modal"]');
-      await expect(modal).toBeVisible();
-
-      await expect(modal.getByText('Sign in to comment')).toBeVisible();
+      await signedIn.page.getByRole('button', { name: 'Sign out' }).click();
       await expect(
-         modal.locator('input[placeholder="Add a comment…"]'),
-      ).not.toBeVisible();
+         signedIn.page.getByRole('button', { name: 'Sign out' }),
+      ).toBeHidden();
+      await signedIn.page.goto(`/${signedIn.username}`);
+
+      const modal = await openPostModal(signedIn, post);
+      await expect(modal.getByText('Sign in to comment')).toBeVisible();
+      await expect(modal.getByTestId('comment-input')).not.toBeVisible();
    });
 
-   test('signed in user can submit a comment', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+   test('signed in user can submit a comment', async ({
+      withPost: { auth, post },
+   }) => {
+      const modal = await openPostModal(auth, post);
 
-      await auth.page.locator('[data-post-id]').first().click();
-      const modal = auth.page.locator('[data-testid="post-modal"]');
-      await expect(modal).toBeVisible();
-
-      await modal
-         .locator('textarea[placeholder="Add a comment…"]')
-         .fill('Great post!');
+      await modal.getByTestId('comment-input').fill('Great post!');
       await modal.getByRole('button', { name: 'Post', exact: true }).click();
 
       await expect(modal.getByText('Great post!')).toBeVisible({
@@ -140,19 +88,13 @@ test.describe('comments', () => {
       });
    });
 
-   test('comment author can edit their own comment', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
-
-      await auth.page.locator('[data-post-id]').first().click();
-      const modal = auth.page.locator('[data-testid="post-modal"]');
-      await expect(modal).toBeVisible();
+   test('comment author can edit their own comment', async ({
+      withPost: { auth, post },
+   }) => {
+      const modal = await openPostModal(auth, post);
 
       // Submit a comment
-      await modal
-         .locator('textarea[placeholder="Add a comment…"]')
-         .fill('Original comment');
+      await modal.getByTestId('comment-input').fill('Original comment');
       await modal.getByRole('button', { name: 'Post', exact: true }).click();
       await expect(modal.getByText('Original comment')).toBeVisible({
          timeout: 10_000,
@@ -162,10 +104,7 @@ test.describe('comments', () => {
       const comment = modal.locator('[data-comment-id]').first();
       await comment.hover();
       await comment.locator('[data-slot="dropdown-menu-trigger"]').click();
-      await auth.page
-         .locator('[role="menuitem"]')
-         .filter({ hasText: 'Edit' })
-         .click();
+      await auth.page.getByRole('menuitem', { name: 'Edit' }).click();
 
       // Edit the comment
       await modal.getByTestId('comment-edit-input').fill('Edited comment');
@@ -178,53 +117,31 @@ test.describe('comments', () => {
    });
 
    test('post owner can delete a comment left by another user', async ({
-      auth,
-      secondAuth,
+      signedIn,
+      secondSignedIn,
    }) => {
-      // User 1 creates post
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+      const post = await setupDiscussionScenario(
+         signedIn,
+         secondSignedIn,
+         'User 2 comment',
+      );
 
-      // User 2 comments — independent session, no sign out needed
-      await secondAuth.signInViaMagicLink();
-      await completeProfileSetup(secondAuth);
-      await secondAuth.page.goto(`/${auth.username}`);
-      await secondAuth.page.locator('[data-post-id]').first().click();
-      const modal2 = secondAuth.page.locator('[data-testid="post-modal"]');
-
-      await expect(modal2).toBeVisible();
-      await modal2
-         .locator('textarea[placeholder="Add a comment…"]')
-         .fill('User 2 comment');
-      await modal2.getByRole('button', { name: 'Post', exact: true }).click();
-      await expect(modal2.getByText('User 2 comment')).toBeVisible({
+      await signedIn.page.goto(`/${signedIn.username}`);
+      const modal = await openPostModal(signedIn, post);
+      await expect(modal.getByText('User 2 comment')).toBeVisible({
          timeout: 10_000,
       });
 
-      // User 1 deletes the comment — still signed in, no re-auth needed
-      await auth.page.goto(`/${auth.username}`);
-      await auth.page.locator('[data-post-id]').first().click();
-      const modal1 = auth.page.locator('[data-testid="post-modal"]');
-
-      await expect(modal1).toBeVisible();
-      await expect(modal1.getByText('User 2 comment')).toBeVisible({
-         timeout: 10_000,
-      });
-
-      const comment = modal1.locator('[data-comment-id]').first();
+      const comment = modal.locator('[data-comment-id]').first();
       await comment.hover();
       await comment.locator('[data-slot="dropdown-menu-trigger"]').click();
 
-      // Dropdown menu option opens confirm dialog
-      await auth.page
-         .locator('[role="menuitem"]')
-         .filter({ hasText: 'Delete' })
-         .click();
-      await expect(auth.page.getByRole('alertdialog')).toBeVisible();
-      await auth.page.getByRole('button', { name: 'Delete' }).click();
+      await signedIn.page.getByRole('menuitem', { name: 'Delete' }).click();
+      const dialog = signedIn.page.getByRole('alertdialog');
+      await expect(dialog).toBeVisible();
+      await dialog.getByRole('button', { name: 'Delete' }).click();
 
-      await expect(modal1.getByText('User 2 comment')).not.toBeVisible({
+      await expect(modal.getByText('User 2 comment')).not.toBeVisible({
          timeout: 10_000,
       });
    });

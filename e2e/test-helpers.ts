@@ -1,5 +1,5 @@
+import { expect, Locator } from '@playwright/test';
 import { AuthFixture } from '@/fixtures';
-import { expect } from '@playwright/test';
 import { redis } from '@artfolio/server/lib/redis.js';
 import path from 'path';
 
@@ -21,7 +21,7 @@ export async function completeProfileSetup(auth: AuthFixture) {
 
 export async function createPost(
    auth: AuthFixture,
-   options: { description?: string; redirectTo?: string; tags?: string[] } = {},
+   options: { description?: string; tags?: string[]; redirectTo?: string } = {},
 ) {
    await auth.page.getByLabel('New post').click();
    await expect(auth.page).toHaveURL('/posts/create');
@@ -30,7 +30,7 @@ export async function createPost(
    await auth.page.locator('input[type="file"]').setInputFiles(TEST_IMAGE);
    await expect(auth.page.locator("img[src^='blob:']").first()).toBeVisible();
 
-   // Fill describe input (if it exists) and select a category
+   // Fill description (optional) and select a category
    if (options.description) {
       await auth.page.getByLabel('description').fill(options.description);
    }
@@ -43,47 +43,65 @@ export async function createPost(
       for (const tag of options.tags) {
          await tagInput.fill(tag);
          await tagInput.press('Enter');
-         await expect(auth.page.getByText(tag)).toBeVisible();
+         await expect(
+            auth.page
+               .getByText(tag, { exact: true })
+               .and(auth.page.locator('span')),
+         ).toBeVisible();
       }
    }
 
-   // Submit — this triggers the Cloudinary upload, then the tRPC mutation. Allow generous timeout for the network round-trips.
-   await auth.page.getByRole('button', { name: 'Publish' }).click();
-   await expect(auth.page).toHaveURL('/', { timeout: 30_000 });
+   // Upload and create now run in the background after an immediate redirect, so wait for the tRPC mutation to finish before the test moves on
+   const created = auth.page.waitForResponse(
+      (res) =>
+         res.url().includes('post.create') && res.request().method() === 'POST',
+      { timeout: 30_000 },
+   );
 
-   await auth.page.goto(`/${auth.username}`);
-   await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
-      timeout: 15_000,
-   });
+   await auth.page.getByRole('button', { name: 'Publish' }).click();
+   await expect(auth.page).toHaveURL('/');
+
+   const response = await created;
+   expect(response.ok(), 'post.create should succeed').toBe(true);
+
+   const body = await response.json();
+   const item = Array.isArray(body) ? body[0] : body; // batched or not
+   const data = item.result.data;
+   const id = (data.json ?? data).id as string;
 
    if (options.redirectTo) {
       await auth.page.goto(options.redirectTo);
-      await auth.page.waitForLoadState('networkidle');
    }
+
+   return { id, locator: auth.page.locator(`[data-post-id="${id}"]`) };
 }
 
 export async function setupDiscussionScenario(
-   auth: AuthFixture,
-   secondAuth: AuthFixture,
+   author: AuthFixture,
+   commenter: AuthFixture,
    comment: string,
 ) {
-   // User A creates a post
-   await auth.signInViaMagicLink();
-   await completeProfileSetup(auth);
-   await createPost(auth);
+   const post = await createPost(author);
 
-   // User B comments on user A's post
-   await secondAuth.signInViaMagicLink();
-   await completeProfileSetup(secondAuth);
+   await commenter.page.goto(`/${author.username}`);
+   const modal = await openPostModal(commenter, {
+      locator: commenter.page.locator(`[data-post-id="${post.id}"]`),
+   });
 
-   await secondAuth.page.goto(`/${auth.username}`);
-   await secondAuth.page.locator('[data-post-id]').first().click();
-   const modal = secondAuth.page.locator('[data-testid="post-modal"]');
-
-   await expect(modal).toBeVisible();
    await modal.locator('textarea[placeholder="Add a comment…"]').fill(comment);
    await modal.getByRole('button', { name: 'Post', exact: true }).click();
-
    await expect(modal.getByText(comment)).toBeVisible({ timeout: 10_000 });
-   await secondAuth.page.keyboard.press('Escape');
+
+   await commenter.page.keyboard.press('Escape');
+   return post;
+}
+
+export async function openPostModal(
+   auth: AuthFixture,
+   post: { locator: Locator },
+) {
+   await post.locator.click();
+   const modal = auth.page.getByTestId('post-modal');
+   await expect(modal).toBeVisible();
+   return modal;
 }

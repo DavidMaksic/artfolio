@@ -210,6 +210,7 @@ function closePost() {
 
           <Marker
             v-if="feedStore.pendingPost?.status === 'error'"
+            data-testid="post-error"
             variant="separator"
             role="alert"
             class="my-11 md:my-4.5 sm:px-4 gap-0"

@@ -7,131 +7,110 @@ test.afterAll(async () => {
 });
 
 test.describe('explore', () => {
-   test('explore auth.page shows posts including own posts', async ({
-      auth,
+   test('explore page shows posts including own posts', async ({
+      signedIn,
    }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth, { description: 'My own explore post' });
-
-      await auth.page.goto('/explore');
-      await expect(auth.page.locator('[data-post-id]').first()).toBeVisible();
+      const post = await createPost(signedIn);
+      await signedIn.page.goto('/explore');
+      await expect(post.locator).toBeVisible();
    });
 
-   test('search by tag filters posts', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+   test('search by tag filters for posts', async ({ signedIn }) => {
+      const post = await createPost(signedIn, { tags: ['illustration'] });
 
-      await auth.page.goto('/explore');
-      await auth.page.getByPlaceholder(/search by tag/i).fill('illustration');
+      await signedIn.page.goto('/explore');
+      await signedIn.page
+         .getByPlaceholder(/search by tag/i)
+         .fill('illustration');
 
-      // Wait for debounce and results
-      await auth.page.waitForTimeout(500);
-      await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
-         timeout: 10_000,
-      });
-      await expect(auth.page).toHaveURL(/q=illustration/);
+      await expect(signedIn.page).toHaveURL(/q=illustration/);
+      await expect(post.locator).toBeVisible({ timeout: 10_000 });
    });
 
-   test('search with no results shows empty state', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
+   test('search with no results shows empty state', async ({ signedIn }) => {
+      await signedIn.page.goto('/explore');
+      await signedIn.page
+         .getByPlaceholder(/search by tag/i)
+         .fill('zzznomatchxyz');
 
-      await auth.page.goto('/explore');
-      await auth.page.getByPlaceholder(/search by tag/i).fill('zzznomatchxyz');
-      await auth.page.waitForTimeout(500);
-
-      await expect(auth.page.getByText(/no posts found/i)).toBeVisible({
+      await expect(signedIn.page.getByText(/no posts found/i)).toBeVisible({
          timeout: 10_000,
       });
    });
 
-   test('clearing search returns to explore grid', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
+   test('clearing search returns to explore grid', async ({ signedIn }) => {
+      const post = await createPost(signedIn);
 
-      await auth.page.goto('/explore');
-      await auth.page.getByPlaceholder(/search by tag/i).fill('illustration');
-      await auth.page.waitForTimeout(500);
+      await signedIn.page.goto('/explore');
+      await signedIn.page
+         .getByPlaceholder(/search by tag/i)
+         .fill('illustration');
+      await expect(signedIn.page).toHaveURL(/q=illustration/);
 
-      await auth.page.getByLabel('Clear search').click();
-      await expect(auth.page).toHaveURL('/explore');
-      await expect(auth.page.locator('[data-post-id]').first()).toBeVisible({
-         timeout: 10_000,
-      });
+      await signedIn.page.getByLabel('Clear search').click();
+      await expect(signedIn.page).toHaveURL('/explore');
+      await expect(post.locator).toBeVisible({ timeout: 10_000 });
    });
 
-   test('clicking a trending tag pill fills the search', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth, { tags: ['e2e'] });
+   test('clicking a trending tag pill fills the search', async ({
+      signedIn,
+   }) => {
+      await createPost(signedIn, { tags: ['e2e'] });
 
-      await auth.page.goto('/explore');
-      await auth.page.locator('[data-testid="filters-button"]').click();
+      await signedIn.page.goto('/explore');
+      await signedIn.page.getByTestId('filters-button').click();
 
-      const firstPill = auth.page.locator('[data-testid="tag-button"]').first();
-      await expect(firstPill).toBeVisible({ timeout: 10_000 });
-      const tagName = await firstPill.textContent();
-      await firstPill.click();
+      const pill = signedIn.page
+         .getByTestId('tag-button')
+         .filter({ hasText: 'e2e' });
+      await expect(pill).toBeVisible({ timeout: 10_000 });
+      await pill.click();
 
-      await expect(auth.page).toHaveURL(
-         new RegExp(`q=${encodeURIComponent(tagName!.trim())}`),
-      );
+      await expect(signedIn.page).toHaveURL(/q=e2e/);
    });
 
-   test('category filter updates URL and filters posts', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth);
-
-      await auth.page.goto('/explore');
-      await auth.page.locator('[data-testid="filters-button"]').click();
+   test('category filter updates URL and filters posts', async ({
+      withPost,
+   }) => {
+      const { page } = withPost.auth;
+      await page.goto('/explore');
+      await page.getByTestId('filters-button').click();
 
       // Open category combobox and select first option
-      await auth.page.locator('[data-testid="category-button"]').click();
-      await auth.page.getByRole('option').nth(1).click();
+      await page.getByTestId('category-button').click();
+      await page.getByRole('option').nth(1).click();
 
-      await expect(auth.page).toHaveURL(/category=/);
+      await expect(page).toHaveURL(/category=/);
    });
 
-   test('sort select changes URL', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
+   test('sort select changes URL', async ({ signedIn }) => {
+      const page = signedIn.page;
+      await page.goto('/explore');
+      await page.getByTestId('filters-button').click();
 
-      await auth.page.goto('/explore');
-      await auth.page.locator('[data-testid="filters-button"]').click();
-
-      await auth.page.getByRole('combobox').click();
-      await auth.page.getByRole('option', { name: 'New' }).click();
-      await expect(auth.page).toHaveURL(/sort=new/);
+      await page.getByRole('combobox').click();
+      await page.getByRole('option', { name: 'New' }).click();
+      await expect(signedIn.page).toHaveURL(/sort=new/);
    });
 
-   test('search query persists in URL on auth.page reload', async ({
-      auth,
-   }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-
-      await auth.page.goto('/explore?q=illustration');
-      await expect(auth.page.getByPlaceholder(/search by tag/i)).toHaveValue(
-         'illustration',
-      );
+   test('search query persists in URL on page reload', async ({ signedIn }) => {
+      await signedIn.page.goto('/explore?q=illustration');
+      await expect(
+         signedIn.page.getByPlaceholder(/search by tag/i),
+      ).toHaveValue('illustration');
    });
 
    test('viewer own posts do not appear on main feed explore pool', async ({
-      auth,
+      signedIn,
    }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await createPost(auth, { description: 'My own post' });
+      await createPost(signedIn, { description: 'My own post' });
 
-      // On the main feed, own posts should not appear in suggested cards
-      await auth.page.goto('/');
-      const cards = auth.page.locator('[data-post-id]');
-      const count = await cards.count();
-      // If count is 0, own post is correctly excluded from feed explore pool
-      expect(count).toBe(0);
+      const feedLoaded = signedIn.page.waitForResponse(
+         (res) => res.url().includes('feed') && res.ok(),
+      );
+      await signedIn.page.goto('/');
+      await feedLoaded;
+
+      await expect(signedIn.page.locator('[data-post-id]')).toHaveCount(0);
    });
 });

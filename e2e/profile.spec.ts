@@ -6,6 +6,7 @@ test.describe('profile setup', () => {
       await auth.signInViaMagicLink();
       await expect(auth.page).toHaveURL('/profile-setup');
       await completeProfileSetup(auth);
+      await expect(auth.page).toHaveURL('/');
    });
 
    test('full profile setup', async ({ auth }) => {
@@ -23,7 +24,10 @@ test.describe('profile setup', () => {
          .fill('https://ethos-blog.vercel.app');
       await auth.page.getByRole('switch').click();
       await auth.page.getByRole('button', { name: 'Finish setup' }).click();
+
       await expect(auth.page).toHaveURL('/');
+      await auth.page.goto(`/${auth.username}`);
+      await expect(auth.page.getByText("I'm an artist")).toBeVisible();
    });
 
    test('skip profile setup', async ({ auth }) => {
@@ -39,11 +43,9 @@ test.describe('profile setup', () => {
 });
 
 test.describe('profile visit', () => {
-   test('public profile visit', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-      await auth.page.goto(`/${auth.username}`);
-      await expect(auth.page).toHaveURL(`/${auth.username}`);
+   test('public profile visit', async ({ signedIn }) => {
+      await signedIn.page.goto(`/${signedIn.username}`);
+      await expect(signedIn.page.getByText(signedIn.displayName)).toBeVisible();
    });
 
    test('non-existent profile visit', async ({ auth }) => {
@@ -53,41 +55,37 @@ test.describe('profile visit', () => {
 });
 
 test.describe('profile edit', () => {
-   test('edit button visible to owner', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await expect(auth.page).toHaveURL('/profile-setup');
-      await completeProfileSetup(auth);
-
-      await auth.page.goto(`/${auth.username}`);
+   test('edit button visible to owner', async ({ signedIn }) => {
+      await signedIn.page.goto(`/${signedIn.username}`);
       await expect(
-         auth.page.getByRole('button', { name: 'Edit profile' }),
+         signedIn.page.getByRole('button', { name: 'Edit profile' }),
       ).toBeVisible();
    });
 
-   test('edit button hidden from visitors', async ({ auth, secondAuth }) => {
-      await auth.signInViaMagicLink();
-      await completeProfileSetup(auth);
-
-      // Visit someone's profile as a guest
-      await secondAuth.page.goto(`/${auth.username}`);
+   test('edit button hidden from visitors', async ({
+      signedIn,
+      secondAuth,
+   }) => {
+      await secondAuth.page.goto(`/${signedIn.username}`);
+      await expect(
+         secondAuth.page.getByText(signedIn.displayName),
+      ).toBeVisible();
       await expect(
          secondAuth.page.getByRole('button', { name: 'Edit profile' }),
       ).not.toBeVisible();
    });
 
-   test('profile editing', async ({ auth }) => {
-      await auth.signInViaMagicLink();
-      await expect(auth.page).toHaveURL('/profile-setup');
-      await completeProfileSetup(auth);
+   test('profile editing', async ({ signedIn }) => {
+      const page = signedIn.page;
+      await page.goto(`/${signedIn.username}`);
+      await page.getByRole('button', { name: 'Edit profile' }).click();
+      await expect(page).toHaveURL('/profile/edit');
 
-      await auth.page.goto(`/${auth.username}`);
-      await auth.page.getByRole('button', { name: 'Edit profile' }).click();
-      await expect(auth.page).toHaveURL('/profile/edit');
+      const newUsername = `${signedIn.username}edited`;
+      await page.getByLabel('Username').fill(newUsername);
+      await page.getByRole('button', { name: 'Save changes' }).click();
 
-      const newUsername = `${auth.username}edited`;
-      await auth.page.getByLabel('Username').fill(newUsername);
-      await auth.page.getByRole('button', { name: 'Save changes' }).click();
-      await expect(auth.page).toHaveURL(`/${newUsername}`);
-      await expect(auth.page.getByText(`@${newUsername}`)).toBeVisible();
+      await expect(page).toHaveURL(`/${newUsername}`);
+      await expect(page.getByText(`@${newUsername}`)).toBeVisible();
    });
 });

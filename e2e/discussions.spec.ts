@@ -8,49 +8,45 @@ test.afterAll(async () => {
 
 test.describe('discussions', () => {
    test('comment by another user appears in discussions sidebar', async ({
-      auth,
-      secondAuth,
+      signedIn,
+      secondSignedIn,
    }) => {
-      await setupDiscussionScenario(auth, secondAuth, 'Great work!');
+      await setupDiscussionScenario(signedIn, secondSignedIn, 'Great work!');
 
       // Go to feed — discussion should appear in sidebar
-      await auth.page.goto('/');
-      await expect(auth.page.getByText('Great work!')).toBeVisible({
+      await signedIn.page.goto('/');
+      await expect(signedIn.page.getByText('Great work!')).toBeVisible({
          timeout: 10_000,
       });
    });
 
    test("viewer's own comments do not appear in discussions sidebar", async ({
-      auth,
-      secondAuth,
+      signedIn,
+      secondSignedIn,
    }) => {
-      await setupDiscussionScenario(auth, secondAuth, 'My own comment');
+      await setupDiscussionScenario(signedIn, secondSignedIn, 'My own comment');
 
-      // User B's own comment should NOT appear in their discussions sidebar
-      await secondAuth.page.goto('/');
+      // User B's own comment should not appear in their discussions sidebar
+      await secondSignedIn.page.goto('/');
       await expect(
-         secondAuth.page.getByText('My own comment'),
-      ).not.toBeVisible();
+         secondSignedIn.page.getByText('My own comment'),
+      ).toBeHidden();
    });
 
    test('clicking a discussion item opens the post modal focused on that comment', async ({
-      auth,
-      secondAuth,
+      signedIn,
+      secondSignedIn,
    }) => {
-      await setupDiscussionScenario(auth, secondAuth, 'Focused comment test');
+      const comment = 'Focused comment test';
+      await setupDiscussionScenario(signedIn, secondSignedIn, comment);
 
-      // Go to feed and click the discussion item
-      await auth.page.goto('/');
-      await auth.page.getByText('Focused comment test').click();
-      await auth.page.waitForLoadState('networkidle');
+      await signedIn.page.goto('/');
+      await signedIn.page.getByText(comment).click();
 
-      // Comment is visible on detail modal
-      const modal = auth.page.locator('[data-testid="post-modal"]');
+      const modal = signedIn.page.getByTestId('post-modal');
       await expect(modal).toBeVisible({ timeout: 10_000 });
       await expect(
-         modal
-            .locator('[data-comment-id]')
-            .filter({ hasText: 'Focused comment test' }),
+         modal.locator('[data-comment-id]').filter({ hasText: comment }),
       ).toBeVisible({ timeout: 10_000 });
    });
 });

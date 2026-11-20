@@ -601,6 +601,7 @@ watch(
           </div>
           <textarea
             ref="commentInput"
+            data-testid="comment-input"
             v-model="commentBody"
             placeholder="Add a comment…"
             maxlength="1000"

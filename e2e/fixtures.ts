@@ -4,10 +4,15 @@ import {
    expect,
    Browser,
    TestInfo,
+   Locator,
    BrowserContext,
 } from '@playwright/test';
 import { cleanupTestUser } from '@/global-setup.js';
-import { getSignInOtp } from '@/test-helpers.js';
+import {
+   createPost,
+   getSignInOtp,
+   completeProfileSetup,
+} from '@/test-helpers.js';
 
 export interface AuthFixture {
    email: string;
@@ -19,9 +24,17 @@ export interface AuthFixture {
    signInViaMagicLink: () => Promise<void>;
 }
 
+export interface CreatedPost {
+   id: string;
+   locator: Locator;
+}
+
 interface Fixtures {
    auth: AuthFixture;
    secondAuth: AuthFixture;
+   signedIn: AuthFixture;
+   secondSignedIn: AuthFixture;
+   withPost: { auth: AuthFixture; post: CreatedPost };
 }
 
 async function createAuthFixture(
@@ -76,6 +89,25 @@ export const test = base.extend<Fixtures>({
       await use(fixture);
       await fixture.context.close();
       await cleanupTestUser(fixture.email);
+   },
+
+   // Signed in, profile set up. Reuses `auth`, so cleanup is already handled
+   signedIn: async ({ auth }, use) => {
+      await auth.signInViaMagicLink();
+      await completeProfileSetup(auth);
+      await use(auth);
+   },
+
+   secondSignedIn: async ({ secondAuth }, use) => {
+      await secondAuth.signInViaMagicLink();
+      await completeProfileSetup(secondAuth);
+      await use(secondAuth);
+   },
+
+   // Signed in, profile set up, one post created
+   withPost: async ({ signedIn }, use) => {
+      const post = await createPost(signedIn);
+      await use({ auth: signedIn, post });
    },
 });
 

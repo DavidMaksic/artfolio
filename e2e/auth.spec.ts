@@ -21,6 +21,9 @@ test.describe('session persistence', () => {
 
       await auth.page.reload();
       await expect(auth.page).toHaveURL('/profile-setup');
+
+      await auth.page.goto('/auth/sign-in');
+      await expect(auth.page).not.toHaveURL(/\/auth\/sign-in/);
    });
 });
 
@@ -29,5 +32,20 @@ test.describe('sign out', () => {
       await auth.signInViaMagicLink();
       await auth.page.getByRole('button', { name: 'Sign Out' }).click();
       await expect(auth.page).toHaveURL('/');
+
+      // Sign-out UI is gone
+      await expect(
+         auth.page.getByRole('button', { name: 'Sign Out' }),
+      ).toBeHidden();
+
+      // Session is really cleared: a reload doesn't restore it
+      await auth.page.reload();
+      await expect(
+         auth.page.getByRole('button', { name: 'Sign Out' }),
+      ).toBeHidden();
+
+      // Protected route bounces to sign-in
+      await auth.page.goto('/profile-setup');
+      await expect(auth.page).toHaveURL(/\/auth\/sign-in/);
    });
 });

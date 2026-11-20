@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+
 import { v2 as cloudinary } from 'cloudinary';
 import { category } from '@artfolio/server/db/schema/post.js';
 import { user } from '@artfolio/server/db/schema/auth.js';
@@ -5,7 +7,6 @@ import { db } from '@artfolio/server/db/index.js';
 import { eq } from 'drizzle-orm';
 
 // Load server's env variables
-import dotenv from 'dotenv';
 import path from 'path';
 if (!process.env.CI) {
    dotenv.config({ path: path.resolve('server/.env') });
